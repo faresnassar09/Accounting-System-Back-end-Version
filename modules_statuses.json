@@ -1,0 +1,12 @@
+{
+    "Admin": true,
+    "Blog": true,
+    "User": true,
+    "Company": true,
+    "Teams": true,
+    "Accounting": true,
+    "Branch": true,
+    "SystemAdmin": true,
+    "Organization": true,
+    "Authorization": true
+}
