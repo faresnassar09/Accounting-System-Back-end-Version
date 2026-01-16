@@ -28,13 +28,15 @@ class GeneralLedgerRepository implements GeneralLdegerRepositoryInterface{
                     });
                 }
             ], 'credit')
-
-
-
             ->find($accountId);
 
-        return $getopningBalance?->total_debit ?? 0 - $getopningBalance?->total_credit ?? 0;
-    }
+            $debit = $getopningBalance->total_debit ?? 0;
+            $credit = $getopningBalance->total_credit ?? 0;
+        
+            \Log::info('d',[$getopningBalance,$startDate]);
+            return $debit - $credit; 
+        
+        }
 
 
     public function getAccountPeriodTotals($accountId, $startDate, $endDate)
@@ -46,7 +48,7 @@ class GeneralLedgerRepository implements GeneralLdegerRepositoryInterface{
         function ($query) use ($startDate, $endDate) {
 
             $query->whereHas('journalEntry', function ($q) use ($startDate,$endDate) {
-                $q->whereBetween('created_at', [$startDate, $endDate]);
+                $q->whereBetween('date', [$startDate, $endDate]);
             });
         }], 'debit')
 
@@ -55,7 +57,7 @@ class GeneralLedgerRepository implements GeneralLdegerRepositoryInterface{
              function ($query) use ($startDate, $endDate) {
 
                 $query->whereHas('journalEntry', function ($q) use ($startDate,$endDate) {
-                    $q->whereBetween('created_at', [$startDate, $endDate]);
+                    $q->whereBetween('date', [$startDate, $endDate]);
                 });
 
             }], 'credit')

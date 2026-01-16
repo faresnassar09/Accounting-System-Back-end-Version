@@ -22,6 +22,15 @@ class AccountRepository implements AccountingChartInterface{
 
     }
 
+    public function getOpeningBalanceAccount(){
+
+        return Account::whereHas('accountType',function($query){
+
+            $query->where('type','opening_balance_diff');
+        })->first();
+        
+    }
+
     public function chartTree( )
     {
        $accounts = Account::whereNull('parent_id')

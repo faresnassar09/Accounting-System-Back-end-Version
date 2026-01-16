@@ -8,21 +8,23 @@ use Modules\Accounting\Repositories\Contracts\AccountRepositoryInterface as Acco
 use Modules\Accounting\Repositories\Contracts\GeneralLdegerRepositoryInterface as GeneralLedgerInterface;
 use Modules\Accounting\Transformers\GeneralLedgerResource;
 
-class GeneralLedgerService {
+class GeneralLedgerService
+{
 
-    public $accountEntries= null ;
+    public $accountEntries = null;
 
     public function __construct(
         public AccountInterface $AccountInterface,
         public GeneralLedgerInterface $generalLedgerInterface,
         public ApiResponseFormatter $apiResponseFormatter,
         public LoggerService $loggerService,
-        
-        ){}
 
-    
-    
-    public function getAccountEntries($data){
+    ) {}
+
+
+
+    public function getAccountEntries($data)
+    {
 
         try {
 
@@ -33,45 +35,49 @@ class GeneralLedgerService {
 
             $opningBalance = $this->generalLedgerInterface->getOpeningBalance(
 
-                $accountId,$startDate,
+                $accountId,
+                $startDate,
             );
 
             $periodTotals = $this->generalLedgerInterface->getAccountPeriodTotals(
-                $accountId,$startDate,$endDate
+                $accountId,
+                $startDate,
+                $endDate
             );
 
             $closingBalance = $opningBalance
-             + $periodTotals['total_debit'] 
-             - $periodTotals['total_credit'];
+                + $periodTotals['total_debit']
+                - $periodTotals['total_credit'];
 
-             $transactions = $this->generalLedgerInterface->getTransactions(
-                $accountId,$startDate,$endDate
-             );
+            $transactions = $this->generalLedgerInterface->getTransactions(
+                $accountId,
+                $startDate,
+                $endDate
+            );
 
             return $this->apiResponseFormatter->successResponse(
-                
+
 
                 'Ledger Report Generated Successfully',
 
                 new GeneralLedgerResource(
 
-                ['account_info'=>['name' => $account->name,'number' => $account->number],
-                
-                'opening_balance' => $opningBalance,
-                'closing_balance' => $closingBalance,
-                'total_debit' => $periodTotals['total_debit'],
-                'total_credit' => $periodTotals['total_credit'],
-                'transactions' => $transactions
-                
-            ]
+                    [
+                        'account_info' => ['name' => $account->name, 'number' => $account->number],
+
+                        'opening_balance' => $opningBalance,
+                        'closing_balance' => $closingBalance,
+                        'total_debit' => $periodTotals['total_debit'],
+                        'total_credit' => $periodTotals['total_credit'],
+                        'transactions' => $transactions
+
+                    ]
 
                 )
 
 
 
             );
-
-             
         } catch (\Exception $e) {
 
             $this->loggerService->failedLogger(
@@ -87,13 +93,9 @@ class GeneralLedgerService {
                 [],
                 500,
             );
-
         }
 
-        
-    return  $this->accountEntries;
+
+        return  $this->accountEntries;
     }
-
-
-   
 }

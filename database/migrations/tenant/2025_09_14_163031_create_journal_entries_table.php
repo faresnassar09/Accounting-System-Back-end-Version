@@ -23,6 +23,7 @@ return new class extends Migration
 
             $table->string('description',255);
             $table->enum('status',['approved','draft','cancled']);
+            $table->enum('type', ['journal', 'opening', 'closing', 'adjustment'])->default('journal');
             $table->decimal('total_debit',15,2);
             $table->decimal('total_credit',15,2);
 
@@ -31,9 +32,7 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
+    
     public function down(): void
     {
         Schema::dropIfExists('journal_entries');

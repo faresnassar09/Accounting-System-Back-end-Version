@@ -24,21 +24,39 @@ class TrialBalanceService{
         try {
 
            $reportData = $this->trialBalnceInterface
-            ->calculateAccountsTotals($endDate)->map(function($query){
+            ->calculateAccountsTotals($endDate)
+            ->map(function($query){
  
                 $total_debit =  $query->total_debit;
                 $total_credit = $query->total_credit;
                 $netBalance = $total_debit - $total_credit;
     
-                $query->final_debit_balance = $netBalance > 0 ? abs($netBalance) : 0.00;
-                $query->final_credit_balance = $netBalance < 0 ? abs($netBalance) : 0.00;
+                $query->period_debit = $netBalance > 0 ? abs($netBalance) : 0.00;
+                $query->period_credit = $netBalance < 0 ? abs($netBalance) : 0.00;
     
+                $query->final_debit_balance = $query->period_debit +
+                $query->opening_debit;
+
+                $query->final_credit_balance = $query->period_credit +
+                $query->opening_credit;
+
+
                 return $query;
             });
 
-            $totalGrandDebit = $reportData->sum('final_debit_balance');
+
+            $totalOpeningDebit = $reportData->sum('opening_debit');
+            $totalOpeningCredit = $reportData->sum('opening_credit');
+
+            $totalGrandDebit = $reportData->sum('period_debit') + $totalOpeningDebit;
             
-            $totalGrandCredit = $reportData->sum('final_credit_balance');
+            $totalGrandCredit = $reportData->sum('period_credit') + $totalOpeningCredit;
+
+
+
+
+                    //  \Log::info('d',[$totalOpeningDebit]);
+
 
             $balanced = $totalGrandDebit === $totalGrandCredit;
 
@@ -57,6 +75,7 @@ class TrialBalanceService{
                         
                         'total_debit' => $totalGrandDebit,
                         'total_credit' => $totalGrandCredit,
+                        
                         'isBalanced' => $balanced,
 
                     ],

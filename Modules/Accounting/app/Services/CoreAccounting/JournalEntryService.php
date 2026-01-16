@@ -52,7 +52,7 @@ class JournalEntryService
 
             $this->loggerService->failedLogger(
                 'Error Occurred While Saving Journal Entry',
-                ['userId' => Auth::id(),],
+                [],
                 $e->getMessage()
 
             );

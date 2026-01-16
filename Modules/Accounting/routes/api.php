@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Accounting\Http\Controllers\CoreAccounting\AccountingChartController;
 use Modules\Accounting\Http\Controllers\CoreAccounting\JournalEntriesController;
+use Modules\Accounting\Http\Controllers\CoreAccounting\OpeningBalanceController;
 use Modules\Accounting\Http\Controllers\Reports\BalanceSheetController;
 use Modules\Accounting\Http\Controllers\Reports\GeneralLedgerController;
 use Modules\Accounting\Http\Controllers\Reports\IncomeStatementController;
@@ -26,13 +27,12 @@ Route::middleware(['auth:sanctum','role:accountant'])
 // Journal Entries
 
 Route::middleware(['auth:sanctum','role:accountant'])
-->controller(JournalEntriesController::class)
 ->prefix('v1/accounting/')
 ->name('accounting')
 ->group(function(){
 
-    Route::post('store-journal-entries','store');
-
+    Route::post('store-journal-entries',[JournalEntriesController::class,'store']);
+    Route::post('store-opening-balance',[OpeningBalanceController::class,'store']);
 });
 
 // General Ledger

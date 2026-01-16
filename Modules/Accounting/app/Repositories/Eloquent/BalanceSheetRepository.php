@@ -18,14 +18,14 @@ class BalanceSheetRepository implements BalanceSheetRepositoryInterface {
         ->withSum(['entryLines as total_debit' => function ($query) use($endDate){
 
             $query->whereHas('journalEntry', function ($q) use ($endDate) {
-                $q->whereDate('date','<',$endDate);
+                $q->whereDate('date','<=',$endDate);
             }); 
 
         }],'debit')
         ->withSum(['entryLines as total_credit' => function ($query) use($endDate){
 
             $query->whereHas('journalEntry', function ($q) use ($endDate) {
-                $q->whereDate('date','<',$endDate);
+                $q->whereDate('date','<=',$endDate);
             }); 
         
         

@@ -9,4 +9,5 @@ interface AccountRepositoryInterface{
     public function getAccount($accountId);
     public function getDebitAndCreditTotals();
     public function findRootAccount($id);
+    public function getOpeningBalanceAccount();
 }
