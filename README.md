@@ -48,5 +48,5 @@ This project is not just a simple application; it's an **Enterprise-level Archit
 
 **Fares Nassar** *Backend Laravel Developer* Specialized in building complex business logics and scalable SaaS solutions.
 
-- **LinkedIn:** [Your LinkedIn Profile Link]
-- **Email:** [Your Email Address]
+- **LinkedIn:** [www.linkedin.com/in/fares-ahmed-a576a6317]
+- **Email:** [fares.ahmed.nassar0@gmail.com]
