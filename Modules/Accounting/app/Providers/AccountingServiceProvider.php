@@ -4,6 +4,7 @@ namespace Modules\Accounting\Providers;
 
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Blade;
+use Modules\Accounting\Http\Middleware\PreventActionOnClosedYearMiddleware;
 use Modules\Accounting\Models\Account;
 use Modules\Accounting\Models\JournalEntry;
 use Modules\Accounting\Models\JournalEntryLine;
@@ -13,18 +14,19 @@ use Modules\Accounting\Observers\JournalEntryObserver;
 use Modules\Accounting\Policies\ChartAccountingPolicy;
 use Modules\Accounting\Repositories\Contracts\AccountRepositoryInterface;
 use Modules\Accounting\Repositories\Contracts\BalanceSheetRepositoryInterface;
+use Modules\Accounting\Repositories\Contracts\FinancialClosingReposiroryInterface;
 use Modules\Accounting\Repositories\Contracts\GeneralLdegerRepositoryInterface;
 use Modules\Accounting\Repositories\Contracts\IncomeStatementRepositoryInterface;
 use Modules\Accounting\Repositories\Contracts\JournalEntryRepositoryInterface;
 use Modules\Accounting\Repositories\Contracts\TrialBalanceRepositoryInterface;
 use Modules\Accounting\Repositories\Eloquent\AccountRepository;
 use Modules\Accounting\Repositories\Eloquent\BalanceSheetRepository;
+use Modules\Accounting\Repositories\Eloquent\FinancialClosingRepository;
 use Modules\Accounting\Repositories\Eloquent\GeneralLedgerRepository;
-use Modules\Accounting\Repositories\Eloquent\IncomeStatementFetcher;
 use Modules\Accounting\Repositories\Eloquent\IncomeStatementRepository;
 use Modules\Accounting\Repositories\Eloquent\JournalEntryRepository;
-use Modules\Accounting\Repositories\Eloquent\TrialBalanceRepository;
 
+use Modules\Accounting\Repositories\Eloquent\TrialBalanceRepository;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -59,7 +61,7 @@ class AccountingServiceProvider extends ServiceProvider
         JournalEntry::observe(JournalEntryObserver::class);
 
         $this->registerPolicies();
-        // $this->app['router']->aliasMiddleware('role', RoleMiddleware::class);
+        $this->app['router']->aliasMiddleware('check_year', PreventActionOnClosedYearMiddleware::class);
 
     }
 
@@ -98,6 +100,13 @@ class AccountingServiceProvider extends ServiceProvider
 
                 BalanceSheetRepositoryInterface::class,
                 BalanceSheetRepository::class
+            );
+
+            $this->app->singleton(
+                
+                FinancialClosingReposiroryInterface::class,
+                FinancialClosingRepository::class
+                
             );
             
     }

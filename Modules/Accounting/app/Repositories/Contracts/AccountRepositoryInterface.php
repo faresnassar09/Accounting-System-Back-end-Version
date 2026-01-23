@@ -2,12 +2,14 @@
 
 namespace Modules\Accounting\Repositories\Contracts;
 
+use Illuminate\Http\Request;
+
 interface AccountRepositoryInterface{
 
     public function chartTree();
-    public function getAccounts();
-    public function getAccount($accountId);
-    public function getDebitAndCreditTotals();
+    public function getAllAccounts();
+    public function findAccount($accountId);
+    public function getClosingAccounts();
     public function findRootAccount($id);
     public function getOpeningBalanceAccount();
 }

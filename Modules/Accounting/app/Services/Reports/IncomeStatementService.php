@@ -14,16 +14,14 @@ class IncomeStatementService{
     public function __construct( 
 
         public IncomeStatementInterface $incomeStatementInterface,
-        public ApiResponseFormatter $apiResponseFormatter,
-        public LoggerService $loggerService,
+
         
         ){}
 
     public function generateReport($startDate,$endDate){
 
-        try {
             
-                        $accounts =  $this->incomeStatementInterface
+        $accounts =  $this->incomeStatementInterface
           ->getRevenueExpenseAccounts($startDate,$endDate);
 
           $processedData =  $this->processIncomeStatementData($accounts);
@@ -44,73 +42,43 @@ class IncomeStatementService{
           $netIncome = $incomeBeforeTax - $processedData['income_tax_expenses'];
           
 
-        $reportData = [
+$reportData = [
+    'start_date' => $startDate,
+    'end_date'   => $endDate,
+    
+    'net_sales'         => $netSales,
+    'operating_revenue' => $processedData['operating_revenue'],
+    'total_revenue'     => $netSales + $processedData['operating_revenue'], // احسبه هنا
+    
+    'gross_sales'      => $processedData['gross_sales'],
+    'sales_deductions' => $processedData['sales_deductions'],
+    
+    'gross_sales_details'       => $processedData['gross_sales_details'],
+    'sales_deductions_details'  => $processedData['sales_deductions_details'],
+    'operating_revenue_details' => $processedData['operating_revenue_details'],
 
-            'start_date' => $startDate,
-            'end_date'   => $endDate,
+    'total_cogs'   => $processedData['cogs'],
+    'gross_profit' => $grossProfit,
+    'cogs_details' => $processedData['cogs_details'],
 
-            'net_sales' => $netSales,
-            'operating_revenue' => $processedData['operating_revenue'],
+    'total_expenses'   => $processedData['operating_expenses'],
+    'operating_income' => $operatingIncome,
+    'operating_expenses_details' => $processedData['operating_expenses_details'],
 
-                   'gross_sales' => $processedData['gross_sales'],
-                   'sales_deductions' => $processedData['sales_deductions'],
-                'gross_sales_details' => $processedData['gross_sales_details'],
-                'sales_deductions_details' => $processedData['sales_deductions_details'],
-                'operating_revenue_details' => $processedData['operating_revenue_details'],
+    'non_operating_net' => $nonOperatingNet,
+    'non_operating_revenue_details'  => $processedData['non_operating_revenue_details'],
+    'non_operating_expenses_details' => $processedData['non_operating_expenses_details'],
 
-                'cogs_total'   => $processedData['cogs'],
-                'gross_profit' => $grossProfit,
-                'cogs_details'      => $processedData['cogs_details'],
+    'income_before_tax' => $operatingIncome - $nonOperatingNet,
+    'tax_expense_total' => $processedData['income_tax_expenses'],
+    'tax_expenses_details' => $processedData['income_tax_expenses_details'] ?? [],
+    
+    'net_income' => $netIncome,
+];
+             
+        return $reportData;
 
-                'expenses_total'   => $processedData['operating_expenses'],
-                'operating_income' => $operatingIncome,
-                'opreating_expenses_details' => $processedData['operating_expenses_details'],
-
-
-                'non_operating_net' => $nonOperatingNet,
-
-                    'non_operating_revenue_details' => $processedData['non_operating_revenue_details'],
-                    'non_operating_expenses_details' => $processedData['non_operating_expenses_details'],
-
-           'income_before_tax' => $operatingIncome - $nonOperatingNet,
-        
-                'tax_expense_total' => $processedData['income_tax_expenses'],
-                'tax_expenses_details' => $processedData['income_tax_expenses_details'] ?? [],
-        
-                'net_income' => $netIncome,
-        ];
-        
-        
-          return $this->apiResponseFormatter->successResponse(
-            
-            'Income Statment Report Generated Successfully',
-            
-            new IncomeStatementResource($reportData),
-            
-          );       
-
-        } catch (\Exception $e) {
-
-            $this->loggerService->failedLogger(
-
-                'Error Occurred While Generating Income Statement Report',
-                [],
-                $e->getMessage()
-            );
-
-            return $this->apiResponseFormatter->failedResponse(
-
-                'Failed To Genereate Income Statement Report',
-                [],
-                500
-            );
-
-
-        }
-        
-
-
-    }
+        } 
 
     private function processIncomeStatementData($accounts) {
 

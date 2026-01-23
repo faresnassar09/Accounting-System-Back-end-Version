@@ -21,7 +21,7 @@ class ApiResponseFormatter
         ]);
     }
 
-    public function failedResponse( $message , $data, $code = 401): JsonResponse
+    public function failedResponse( $message , $data, $code = 500): JsonResponse
     {
 
         return response()->json([

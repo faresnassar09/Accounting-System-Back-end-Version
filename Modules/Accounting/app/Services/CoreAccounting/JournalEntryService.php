@@ -25,9 +25,15 @@ class JournalEntryService
 
         try {
 
-            $balancing = $this->checkJournalisBalanced($data->header);
+            
+        $header = $data->header;
+        $lines = collect($data->lines);
+        $totalAmount = max($lines->sum('debit'),$lines->sum('credit'));
 
-            if (!$balancing) {
+            $balanced = $this->checkJournaliBalanced($lines);
+
+
+            if (!$balanced) {
 
                 return $this->apiResponseFormatter->failedResponse(
 
@@ -38,7 +44,7 @@ class JournalEntryService
             
             }
 
-            $this->journalInterface->store($data);
+            $this->journalInterface->store($header,$lines,$totalAmount);
 
             return $this->apiResponseFormatter->successResponse(
 
@@ -68,11 +74,11 @@ class JournalEntryService
 
 
 
-    public function checkJournalisBalanced($journal)
+    public function checkJournaliBalanced($lines)
     {
 
 
-        if ($journal['total_debit'] === $journal['total_credit']) {
+        if ($lines->sum('debit') === $lines->sum('credit')) {
 
             return true;
         }

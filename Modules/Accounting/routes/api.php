@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Modules\Accounting\Http\Controllers\CoreAccounting\AccountingChartController;
+use Modules\Accounting\Http\Controllers\CoreAccounting\FinancialClosingController;
 use Modules\Accounting\Http\Controllers\CoreAccounting\JournalEntriesController;
 use Modules\Accounting\Http\Controllers\CoreAccounting\OpeningBalanceController;
 use Modules\Accounting\Http\Controllers\Reports\BalanceSheetController;
@@ -20,19 +21,30 @@ Route::middleware(['auth:sanctum','role:accountant'])
 
     Route::get('chart-accounting','getAccountingChart');
     Route::get('get-accounts-list','getAccounts');
+    Route::get('getClosigAccounts','getClosingAccounts');
 
 });
 
 
 // Journal Entries
 
-Route::middleware(['auth:sanctum','role:accountant'])
+Route::middleware(['auth:sanctum','role:accountant','check_year'])
 ->prefix('v1/accounting/')
 ->name('accounting')
 ->group(function(){
 
     Route::post('store-journal-entries',[JournalEntriesController::class,'store']);
     Route::post('store-opening-balance',[OpeningBalanceController::class,'store']);
+});
+
+Route::middleware(['auth:sanctum','role:accountant'])
+->controller(FinancialClosingController::class)
+->prefix('v1/accounting/financial-closing/')
+->name('accounting')
+->group(function(){
+
+    Route::get('preview-details/{year}','getRevenuesAndExpenses');
+    Route::post('close','applyClosingFinancialYear');
 });
 
 // General Ledger

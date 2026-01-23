@@ -20,50 +20,21 @@ class AccountingCharService{
 
     public function viewChartTree(){
 
-        $accountingChart = $this->chartInterface->chartTree();
-
-        return $this->apiResponseFormatter->successResponse(
-
-            'Chart Tree Reterived Successfully',
-            $accountingChart,
-            
-
-        );
+       return $this->chartInterface->chartTree();
 
 
     }
 
     public function getAccounts()
     {
+       return $this->chartInterface->getAllAccounts();
 
+    }
 
+    public function getClosingAccounts(){
+        
+        return $this->chartInterface->getClosingAccounts();
 
-        try {
-
-            $account = $this->chartInterface->getAccounts();
-
-            return $this->apiResponseFormatter->successResponse(
-
-                'Accounts Retrieved Successfully',
-                AccountListResource::collection($account),
-
-            );
-        } catch (\Exception $e) {
-
-            $this->loggerService->failedLogger(
-                'Error Occurred While Retrieving Accounts',
-                ['userId' => Auth::id(),],
-                $e->getMessage()
-
-            );
-
-            return $this->apiResponseFormatter->failedResponse(
-
-                'Error Occurred While Retrieving Accounts',
-                [],
-
-            );
-        }
     }
 
 }

@@ -1,54 +1,79 @@
 <?php
 
 namespace Modules\Accounting\Services\CoreAccounting;
+
 use App\Services\Api\ApiResponseFormatter;
 use App\Services\Logging\LoggerService;
 use Illuminate\Support\Facades\Log;
+use Modules\Accounting\Repositories\Contracts\AccountRepositoryInterface;
 use Modules\Accounting\Repositories\Contracts\JournalEntryRepositoryInterface as JournalEntryRepository;
 
-class OpeningBalanceService{
+class OpeningBalanceService
+{
 
     public function __construct(
-        
+
         public ApiResponseFormatter $apiResponseFormatter,
         public JournalEntryRepository $JournalEntryRepository,
-        public LoggerService $loggerService, 
-        
-        ){}
+        public LoggerService $loggerService,
+        public AccountRepositoryInterface $accountRepositoryInterface,
 
-    public function store($data){
+    ) {}
 
-        try{
+    public function store($data)
+    {
 
-         $this->JournalEntryRepository->storeOpeningBalanceEntry($data);
+        try {
 
-         return $this->apiResponseFormatter->successResponse(
+            $header = $data->header;
+            $lines = collect($data->lines);
+            $totalDebit = $lines->sum('debit');
+            $totalCredit = $lines->sum('credit');
+            $totalAmount = max($totalDebit, $totalCredit);
+            $diffTotals = $totalDebit - $totalCredit;
 
-            'Opening Balance Saved Successfully',
-           [],
-           
-         );
+            $journalentryHeader = $this->JournalEntryRepository->store(
 
-        }catch(\Exception $e){
-             
-         $this->loggerService->failedLogger(
+                $header,
+                $lines,
+                $totalAmount,
+                'opening'
+            );
 
-            'Failed To Store Opening Balance Entry',
-            [],
-            $e->getMessage(),
-         );
+            if ($diffTotals != 0) {
 
-         return $this->apiResponseFormatter->successResponse(
+                $BalanceDiffAccount = $this->accountRepositoryInterface
+                ->getOpeningBalanceAccount();
 
-            'Failed To Save Opening Balance Entry Please Try Again Later',
-            [],
-            
-         );
-            
+                $this->JournalEntryRepository->storeDiffBalancerLines(
 
+                    $journalentryHeader,
+                    $diffTotals,
+                    $BalanceDiffAccount->id
+                );
+            }
+
+            return $this->apiResponseFormatter->successResponse(
+
+                'Opening Balance Saved Successfully',
+                [],
+
+            );
+        } catch (\Exception $e) {
+
+            $this->loggerService->failedLogger(
+
+                'Failed To Store Opening Balance Entry',
+                [],
+                $e->getMessage(),
+            );
+
+            return $this->apiResponseFormatter->successResponse(
+
+                'Failed To Save Opening Balance Entry Please Try Again Later',
+                [],
+
+            );
         }
-
-
     }
-
 }

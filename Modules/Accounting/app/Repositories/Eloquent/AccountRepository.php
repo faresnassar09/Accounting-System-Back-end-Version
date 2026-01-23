@@ -2,23 +2,36 @@
 
 namespace Modules\Accounting\Repositories\Eloquent;
 
-use Modules\Accounting\Repositories\Contracts\AccountRepositoryInterface as AccountingChartInterface;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 use Modules\Accounting\Models\Account;
+use Modules\Accounting\Repositories\Contracts\AccountRepositoryInterface as AccountingChartInterface;
 
 class AccountRepository implements AccountingChartInterface{
 
 
-    public function getAccounts(){
+    public function getAllAccounts(){
 
         return Account::all(['id','name','number']);
 
     }
 
-    public function getAccount($accountId)
+    public function findAccount($accountId)
     {
        return Account::select('id','name','number')->find($accountId);
+
+    }
+
+    public function getClosingAccounts(){
+
+        $account =  Account::whereHas('accountType',function($query){
+
+            $query->whereIn('type',['equity_capital','retained_earnings']);
+
+        })->get(['id','name','number']);
+
+        return $account;
 
     }
 
@@ -38,20 +51,6 @@ class AccountRepository implements AccountingChartInterface{
         ->get();
         
     return $accounts;
-    }
-
-    public function getDebitAndCreditTotals(){
-
-     return Account::withSum('accountEntryLines', 'credit')
-        ->withSum('accountEntryLines', 'debit')
-        ->get()
-        ->map(function ($account) {
-            $account->balance = $account->initial_balance
-                + ($account->account_entry_lines_sum_debit ?? 0)
-                - ($account->account_entry_lines_sum_credit ?? 0);
-            return $account;
-        });
-
     }
 
     public function findRootAccount($id)
