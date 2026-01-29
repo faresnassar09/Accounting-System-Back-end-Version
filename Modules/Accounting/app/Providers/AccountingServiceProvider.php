@@ -82,27 +82,6 @@ class AccountingServiceProvider extends ServiceProvider
             JournalEntryRepository::class);
 
             $this->app->singleton(
-                GeneralLdegerRepositoryInterface::class,
-                GeneralLedgerRepository::class
-            );
-
-            $this->app->singleton(
-                TrialBalanceRepositoryInterface::class,
-                TrialBalanceRepository::class
-            );
-
-            $this->app->singleton(
-                IncomeStatementRepositoryInterface::class,
-                IncomeStatementRepository::class
-            );
-
-            $this->app->singleton(
-
-                BalanceSheetRepositoryInterface::class,
-                BalanceSheetRepository::class
-            );
-
-            $this->app->singleton(
                 
                 FinancialClosingReposiroryInterface::class,
                 FinancialClosingRepository::class

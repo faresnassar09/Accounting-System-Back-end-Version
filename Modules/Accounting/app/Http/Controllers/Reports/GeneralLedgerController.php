@@ -17,7 +17,7 @@ class GeneralLedgerController extends Controller
 
     public function generateReport(GeneralLedgerRequest $data){
 
-        return $this->generalLedgerService->getAccountEntries($data);
+        return $this->generalLedgerService->generateReport($data);
         
 
     }

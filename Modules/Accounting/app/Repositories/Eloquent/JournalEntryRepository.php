@@ -15,15 +15,15 @@ class JournalEntryRepository implements JournalEntryRepositoryInterface
     }
 
 
-    public function store($header,$lines,$totalAmount,$type='journal')
+    public function store($header,$lines,$type='journal')
     {
         $journalentryHeader = JournalEntry::create([
 
             'user_id' => current_guard_user()->id,
             'type' => $type,
             'reference' => $header['reference'],
-            'total_credit' => $totalAmount,
-            'total_debit' => $totalAmount,
+            'total_credit' => $header['total_credit'],
+            'total_debit' => $header['total_debit'],
             'date' => $header['date'] ?? now(),
             'description' => $header['description'],
         ]);

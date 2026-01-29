@@ -29,14 +29,13 @@ class OpeningBalanceService
             $lines = collect($data->lines);
             $totalDebit = $lines->sum('debit');
             $totalCredit = $lines->sum('credit');
-            $totalAmount = max($totalDebit, $totalCredit);
+            $header['total_debit'] = $header['total_credit'] = max($totalDebit,$totalCredit) ;
             $diffTotals = $totalDebit - $totalCredit;
 
             $journalentryHeader = $this->JournalEntryRepository->store(
 
                 $header,
                 $lines,
-                $totalAmount,
                 'opening'
             );
 

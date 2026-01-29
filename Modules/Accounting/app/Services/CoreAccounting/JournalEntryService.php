@@ -28,8 +28,8 @@ class JournalEntryService
             
         $header = $data->header;
         $lines = collect($data->lines);
-        $totalAmount = max($lines->sum('debit'),$lines->sum('credit'));
 
+        // \Log::info('f',[$header]);
             $balanced = $this->checkJournaliBalanced($lines);
 
 
@@ -44,7 +44,7 @@ class JournalEntryService
             
             }
 
-            $this->journalInterface->store($header,$lines,$totalAmount);
+            $this->journalInterface->store($header,$lines);
 
             return $this->apiResponseFormatter->successResponse(
 

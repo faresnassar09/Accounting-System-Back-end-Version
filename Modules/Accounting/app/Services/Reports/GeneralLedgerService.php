@@ -4,68 +4,63 @@ namespace Modules\Accounting\Services\Reports;
 
 use App\Services\Api\ApiResponseFormatter;
 use App\Services\Logging\LoggerService;
+use Modules\Accounting\Queries\GeneralLedgerQuery;
+use Modules\Accounting\Queries\GetOpeningBalanceQuery;
 use Modules\Accounting\Repositories\Contracts\AccountRepositoryInterface as AccountInterface;
-use Modules\Accounting\Repositories\Contracts\GeneralLdegerRepositoryInterface as GeneralLedgerInterface;
 use Modules\Accounting\Transformers\GeneralLedgerResource;
 
 class GeneralLedgerService
 {
-
-    public $accountEntries = null;
-
     public function __construct(
         public AccountInterface $AccountInterface,
-        public GeneralLedgerInterface $generalLedgerInterface,
+        public GetOpeningBalanceQuery $getOpeningBalance,
+        public GeneralLedgerQuery $generalLedgerQuery,
         public ApiResponseFormatter $apiResponseFormatter,
         public LoggerService $loggerService,
 
     ) {}
 
-
-
-    public function getAccountEntries($data)
+    public function generateReport($data)
     {
 
         try {
 
-            $account = $this->AccountInterface->getAccount($data->accountId);
+            $account = $this->AccountInterface->findAccount($data->accountId);
             $accountId = $account->id;
             $startDate = $data->startDate;
             $endDate = $data->endDate;
 
-            $opningBalance = $this->generalLedgerInterface->getOpeningBalance(
+            $openingBalance = ($this->getOpeningBalance)([$accountId], $startDate);
+            $ReportData = ($this->generalLedgerQuery)($openingBalance, $accountId, $startDate, $endDate);
+            $transactions = collect($ReportData['transactions']);
 
-                $accountId,
-                $startDate,
-            );
+            $openingBalance = $ReportData['opening_balance'];
 
-            $periodTotals = $this->generalLedgerInterface->getAccountPeriodTotals(
-                $accountId,
-                $startDate,
-                $endDate
-            );
+            $periodTotals = [
+                'total_debit'  => $transactions->sum('debit'),
+                'total_credit' => $transactions->sum('credit'),
+                'final_balance' => $openingBalance +
+                    $transactions->sum('debit') -
+                        $transactions->sum('credit')
+            ];
 
-            $closingBalance = $opningBalance
-                + $periodTotals['total_debit']
-                - $periodTotals['total_credit'];
+            $closingBalance = $periodTotals['final_balance'];
 
-            $transactions = $this->generalLedgerInterface->getTransactions(
-                $accountId,
-                $startDate,
-                $endDate
-            );
 
             return $this->apiResponseFormatter->successResponse(
 
 
-                'Ledger Report Generated Successfully',
+                'General Ledger Report Generated Successfully',
 
                 new GeneralLedgerResource(
 
                     [
-                        'account_info' => ['name' => $account->name, 'number' => $account->number],
+                        'account_info' => [
+                            'name' => $account->name,
+                            'number' => $account->number
+                        ],
 
-                        'opening_balance' => $opningBalance,
+                        'opening_balance' => $openingBalance,
                         'closing_balance' => $closingBalance,
                         'total_debit' => $periodTotals['total_debit'],
                         'total_credit' => $periodTotals['total_credit'],
@@ -94,8 +89,5 @@ class GeneralLedgerService
                 500,
             );
         }
-
-
-        return  $this->accountEntries;
     }
 }

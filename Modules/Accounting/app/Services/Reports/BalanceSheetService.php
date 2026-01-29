@@ -4,7 +4,11 @@ namespace Modules\Accounting\Services\Reports;
 
 use App\Services\Api\ApiResponseFormatter;
 use App\Services\Logging\LoggerService;
-use Modules\Accounting\Repositories\Contracts\BalanceSheetRepositoryInterface;
+use Carbon\Carbon;
+
+use Modules\Accounting\Queries\GetAccountCumulativeBalancesQuery;
+use Modules\Accounting\Queries\GetOpeningBalanceQuery;
+use Modules\Accounting\Queries\GetProfitAndLossDetailsQuery;
 use Modules\Accounting\Transformers\BalanceSheetResource;
 
 class BalanceSheetService
@@ -12,8 +16,10 @@ class BalanceSheetService
 
     public function __construct(
 
-        public BalanceSheetRepositoryInterface $balanceSheetRepositoryInterface,
+        public GetProfitAndLossDetailsQuery $ProfitLossAccounts,
+        public GetOpeningBalanceQuery $getOpeningBalance, 
         public LoggerService $loggerService,
+        public GetAccountCumulativeBalancesQuery $accountBalancesQuery,
         public ApiResponseFormatter $apiResponseFormatter,
         public IncomeStatementService $incomeStatementService,
     ) {}
@@ -21,18 +27,16 @@ class BalanceSheetService
     public function generateReport($endDate)
     {
 
+  
         try {
+            $startOfYear = Carbon::parse($endDate)->startOfYear()->format('Y-m-d');
 
-            $accounts =  $this->balanceSheetRepositoryInterface->getAccountsWithTotals($endDate);
+            $profitLossAccounts = ($this->ProfitLossAccounts)($startOfYear,$endDate)->pluck('id'); 
+            $accounts =  ($this->accountBalancesQuery)($endDate);
 
             $classifiedData = $this->processBalanceSheetData($accounts);
 
-            $incomeStatmentReport = $this->incomeStatementService
-                ->generateReport('1990-1-1', $endDate);
-
-            $incomeStatmentReport = $incomeStatmentReport->getData(true);
-
-            $netProfitValue = $incomeStatmentReport['data']['revenues']['net_sales'];
+            $netProfitValue = ($this->getOpeningBalance)($profitLossAccounts,$endDate);
          
             $data = $this->formatDataArray($classifiedData,$netProfitValue);
 
@@ -54,7 +58,6 @@ class BalanceSheetService
             );
         }
     }
-
 
     private function processBalanceSheetData($accounts)
     {
@@ -85,23 +88,15 @@ class BalanceSheetService
     private function calculateNetBalanceAndDefineAccountType($accounts)
     {
         return $accounts->map(function ($account) {
-            $totalDebit = (float) $account->total_debit;
-            $totalCredit = (float) $account->total_credit;
+            $totalDebit = (float) $account->debit;
+            $totalCredit = (float) $account->credit;
 
-            $type = $account->accountType?->type;
+            $type = $account->type;
 
-            $creditTypes = [
-                'current_liabilities',
-                'non_current_liabilities',
-                'equity_capital',
-            ];
 
-            if (in_array($type, $creditTypes)) {
-                $netBalance = $totalCredit - $totalDebit;
-            } else {
 
-                $netBalance = $totalDebit - $totalCredit;
-            }
+                $netBalance =abs($totalDebit - $totalCredit) ;
+            
 
             return [
                 'id'         => $account->id,
@@ -130,7 +125,7 @@ class BalanceSheetService
                         'type_total' => $classifiedData['current_assets'],
                         'accounts' => $classifiedData['current_assets_details']
                     ],
-
+   
                     [
                         'type_code' => 'non_current_assets',
                         'type_name' => 'Non Current Assets',
@@ -146,12 +141,14 @@ class BalanceSheetService
                     $classifiedData['non_current_liabilities'] +
                     $classifiedData['equity_capital'] +
                     $classifiedData['retained_earnings'] +
-                    $netProfitValue,
+                    abs($netProfitValue),
                 'sub_types' => [
                     [
                         'type_code' => 'current_liabilities',
                         'type_name' => 'Current Liabilities',
-                        'type_total' => $classifiedData['current_liabilities'],
+                        'type_total' => $classifiedData['current_liabilities']+
+                        $classifiedData['non_current_liabilities'],
+                        
                         'accounts' => $classifiedData['current_liabilities_details']
                     ],
 
@@ -159,11 +156,10 @@ class BalanceSheetService
 
                         'type_code' => 'equity',
                         'type_name' => 'Owners Rights',
-                        'type_total' => $classifiedData['current_liabilities'] +
-                            $classifiedData['non_current_liabilities'] +
+                        'type_total' =>
                             $classifiedData['equity_capital'] +
-                            $classifiedData['retained_earnings'] +
-                            $netProfitValue,
+                            $classifiedData['retained_earnings'] ,
+
 
                         'accounts' => $classifiedData['equity_capital_details']
                             ->merge($classifiedData['retained_earnings_details'])

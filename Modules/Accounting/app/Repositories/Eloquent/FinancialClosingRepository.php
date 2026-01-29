@@ -2,13 +2,14 @@
 
 namespace Modules\Accounting\Repositories\Eloquent;
 
+use Illuminate\Support\Facades\DB;
 use Modules\Accounting\Models\ClosedFinancialYear;
 use Modules\Accounting\Repositories\Contracts\FinancialClosingReposiroryInterface;
 use Modules\Accounting\Services\Reports\IncomeStatementService;
 
 class FinancialClosingRepository implements FinancialClosingReposiroryInterface{
 
-    public function __construct(public IncomeStatementService $incomeStatmentService){}
+    public function __construct(){}
 
     public function isYearClosed($year){
 
@@ -30,4 +31,30 @@ class FinancialClosingRepository implements FinancialClosingReposiroryInterface{
 
     }
 
+    
+    public function getFinalBalancesForClosing($endAt){
+
+        return DB::table('accounts as a')
+        ->join('account_types as at', 'a.account_type_id', '=', 'at.id')
+        ->join('journal_entry_lines as ji', 'a.id', '=', 'ji.account_id')
+        ->join('journal_entries as je', 'ji.journal_entry_id', '=', 'je.id')
+        ->where('je.date', '<', $endAt)
+        ->whereIn('at.account_group', ['assets', 'liabilities', 'equity']) 
+        ->selectRaw("
+        a.id, 
+        a.name,
+        CASE 
+            WHEN SUM(ji.debit - ji.credit) > 0 THEN SUM(ji.debit - ji.credit) 
+            ELSE 0 
+        END as debit,
+        CASE 
+            WHEN SUM(ji.debit - ji.credit) < 0 THEN ABS(SUM(ji.debit - ji.credit)) 
+            ELSE 0 
+        END as credit
+    ")
+        ->groupBy('a.id', 'a.name')
+        // ->having('debit', '!=', 0)
+        ->get();
+
+    }  
 }

@@ -10,13 +10,10 @@ class AccountType extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     */
-    protected $fillable = [];
+    protected $fillable = [
+        
+        'type',
+        'account_group',
+    ];
 
-    // protected static function newFactory(): AccountTypeFactory
-    // {
-    //     // return AccountTypeFactory::new();
-    // }
 }

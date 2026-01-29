@@ -1,23 +1,18 @@
 <?php
 
-namespace App\Listeners;
+namespace Modules\Admin\Listeners;
 
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Hash;
 use Modules\Admin\Models\Admin;
 use Modules\Authorization\Models\Role;
-use Stancl\Tenancy\Events\DatabaseCreated;
 use Stancl\Tenancy\Events\DatabaseMigrated;
 
-class CreateSuperAdmin
+class CreateSuperAdminListener
 {
 
-  
+
     public function handle(DatabaseMigrated $event): void
     {
-        tenancy()->initialize($event->tenant);
-
 
        $superAdminRole =  Role::create([
         'name' => 'super_admin',
@@ -29,7 +24,7 @@ class CreateSuperAdmin
       $admin =  Admin::create([
             'name' => 'Super Admin',
             'email' => 'admin@'.'super_admin'.'.com',
-            'password' => Hash::make('password123'),
+            'password' => Hash::make('00000000'),
             'is_super_admin' => true,
         ]);
 

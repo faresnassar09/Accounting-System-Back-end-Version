@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use \Stancl\Tenancy\Events\TenantCreated;
 use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
-use Livewire\Features\SupportFileUploads\FilePreviewController;
 use Livewire\Livewire;
+use Modules\Accounting\Listeners\CreateAccountTypesListener;
+use Modules\Accounting\Listeners\CreateMainAccountsListener;
+use Modules\Admin\Listeners\CreateSuperAdminListener;
 use Stancl\JobPipeline\JobPipeline;
 use Stancl\Tenancy\Events;
 use Stancl\Tenancy\Jobs;
@@ -73,7 +73,12 @@ class TenancyServiceProvider extends ServiceProvider
 
             // Database events
             Events\DatabaseCreated::class => [],
-            Events\DatabaseMigrated::class => [],
+            Events\DatabaseMigrated::class => [
+
+                CreateSuperAdminListener::class,
+                CreateAccountTypesListener::class,
+                CreateMainAccountsListener::class,
+            ],
             Events\DatabaseSeeded::class => [],
             Events\DatabaseRolledBack::class => [],
             Events\DatabaseDeleted::class => [],
