@@ -27,8 +27,7 @@ class BalanceSheetService
     public function generateReport($endDate)
     {
 
-        $startOfYear = Carbon::parse($endDate)->startOfYear()->format('Y-m-d');
-
+        $startOfYear = get_start_of_year($endDate);
         $profitLossAccounts = ($this->ProfitLossAccounts)($startOfYear, $endDate)->pluck('id');
         $accounts =  ($this->accountBalancesQuery)($endDate);
 

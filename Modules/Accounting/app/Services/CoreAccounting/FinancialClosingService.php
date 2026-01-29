@@ -29,9 +29,8 @@ class FinancialClosingService
     public  function getRevenuesAndExpenses($year)
     {
 
-        $startDate = "$year-1-1";
-        $endDate = "$year-12-30";
-
+        $startDate = get_start_of_year($year);
+        $endDate = get_end_of_year($year);
         $summary = ($this->getProfitAndLossTotalsQuery)($startDate, $endDate);
 
         $totalRevenues = $summary->total_revenues ?? 0;
@@ -55,8 +54,8 @@ class FinancialClosingService
 
         $accountId = $data->account_id;
         $year = $data->year;
-        $startFrom = "$year-1-1";
-        $endAt = "$year-12-30";
+        $startFrom = get_start_of_year($year);
+        $endAt = get_end_of_year($year);
 
 
             DB::transaction(function () use (
@@ -121,7 +120,7 @@ class FinancialClosingService
 
                 $balances = ($this->getAccountsBalance)($endAt);
                 $lines = collect($this->prepareClosingLinesForcurrentAccounts($balances));
-                $year++;
+                $year = get_start_of_next_financial_year($year);
                 $totalDebit = $lines->sum('debit');
                 $totalCredit = $lines->sum('credit');
                 $totalAmount = max($totalDebit, $totalCredit);

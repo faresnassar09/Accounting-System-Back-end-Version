@@ -20,7 +20,11 @@
             "Modules\\Accounting\\": "app/",
             "Modules\\Accounting\\Database\\Factories\\": "database/factories/",
             "Modules\\Accounting\\Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "files": [
+  
+            "app/Helpers/time_helpers.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

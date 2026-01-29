@@ -25,31 +25,12 @@ class JournalEntryService
 
         $header = $data->header;
         $lines = collect($data->lines);
-
-        $balanced = $this->checkJournaliBalanced($lines);
-
-        if (!$balanced) {
-
-            throw new \Exception('Total Debit And Credit Are Not Balanced');
-        }
-
+        
         DB::transaction(function () use ($header, $lines) {
 
             $this->journalInterface->store($header, $lines);
         });
 
         return true;
-    }
-
-    public function checkJournaliBalanced($lines)
-    {
-
-
-        if (round($lines->sum('debit'), 2) === round($lines->sum('credit'), 2)) {
-
-            return true;
-        }
-
-        return false;
     }
 }

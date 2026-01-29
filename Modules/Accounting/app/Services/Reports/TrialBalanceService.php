@@ -19,7 +19,7 @@ class TrialBalanceService
     public function generateReport($endDate)
     {
 
-        $startOfYear = Carbon::parse($endDate)->startOfYear()->format('Y-m-d');
+        $startOfYear = get_start_of_year($endDate);
 
         $totals = [
             'opening_debit' => 0,
