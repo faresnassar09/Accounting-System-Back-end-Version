@@ -23,71 +23,40 @@ class GeneralLedgerService
     public function generateReport($data)
     {
 
-        try {
 
-            $account = $this->AccountInterface->findAccount($data->accountId);
-            $accountId = $account->id;
-            $startDate = $data->startDate;
-            $endDate = $data->endDate;
+        $account = $this->AccountInterface->findAccount($data->accountId);
+        $accountId = $account->id;
+        $startDate = $data->startDate;
+        $endDate = $data->endDate;
 
-            $openingBalance = ($this->getOpeningBalance)([$accountId], $startDate);
-            $ReportData = ($this->generalLedgerQuery)($openingBalance, $accountId, $startDate, $endDate);
-            $transactions = collect($ReportData['transactions']);
+        $openingBalance = ($this->getOpeningBalance)([$accountId], $startDate);
+        $ReportData = ($this->generalLedgerQuery)($openingBalance, $accountId, $startDate, $endDate);
+        $transactions = collect($ReportData['transactions']);
 
-            $openingBalance = $ReportData['opening_balance'];
+        $openingBalance = $ReportData['opening_balance'];
 
-            $periodTotals = [
-                'total_debit'  => $transactions->sum('debit'),
-                'total_credit' => $transactions->sum('credit'),
-                'final_balance' => $openingBalance +
-                    $transactions->sum('debit') -
-                        $transactions->sum('credit')
-            ];
+        $periodTotals = [
+            'total_debit'  => $transactions->sum('debit'),
+            'total_credit' => $transactions->sum('credit'),
+            'final_balance' => $openingBalance +
+                $transactions->sum('debit') -
+                $transactions->sum('credit')
+        ];
 
-            $closingBalance = $periodTotals['final_balance'];
+        $closingBalance = $periodTotals['final_balance'];
 
+        return [
 
-            return $this->apiResponseFormatter->successResponse(
+            'account_info' => [
+                'name' => $account->name,
+                'number' => $account->number
+            ],
 
-
-                'General Ledger Report Generated Successfully',
-
-                new GeneralLedgerResource(
-
-                    [
-                        'account_info' => [
-                            'name' => $account->name,
-                            'number' => $account->number
-                        ],
-
-                        'opening_balance' => $openingBalance,
-                        'closing_balance' => $closingBalance,
-                        'total_debit' => $periodTotals['total_debit'],
-                        'total_credit' => $periodTotals['total_credit'],
-                        'transactions' => $transactions
-
-                    ]
-
-                )
-
-
-
-            );
-        } catch (\Exception $e) {
-
-            $this->loggerService->failedLogger(
-
-                'Error Occurred While Generating General Ledger Report',
-                [],
-                $e->getMessage()
-            );
-
-            return $this->apiResponseFormatter->failedResponse(
-
-                'Failed To Generate General Ledger Report',
-                [],
-                500,
-            );
-        }
+            'opening_balance' => $openingBalance,
+            'closing_balance' => $closingBalance,
+            'total_debit' => $periodTotals['total_debit'],
+            'total_credit' => $periodTotals['total_credit'],
+            'transactions' => $transactions
+        ];
     }
 }

@@ -58,7 +58,6 @@ class FinancialClosingService
         $startFrom = "$year-1-1";
         $endAt = "$year-12-30";
 
-        try {
 
             DB::transaction(function () use (
                 $year,
@@ -142,15 +141,8 @@ class FinancialClosingService
                     'opening'
                 );
             });
-        } catch (\Exception $e) {
 
-            $this->loggerService->failedLogger(
-
-                "Closing Year ($year) Failed",
-                [],
-                $e->getMessage()
-            );
-        }
+            return true;
     }
 
     private function prepareClosingLines($data)

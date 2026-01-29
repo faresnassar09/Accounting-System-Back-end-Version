@@ -13,27 +13,27 @@ use Modules\Accounting\Transformers\IncomeStatementResource;
 class IncomeStatementController extends Controller
 {
 
-    public function __construct
-    (public IncomeStatementService $incomeStatementService,
-    public ApiResponseFormatter $apiResponseFormatter,
-    public LoggerService $loggerService){}
+    public function __construct(
+        public IncomeStatementService $incomeStatementService,
+        public ApiResponseFormatter $apiResponseFormatter,
+        public LoggerService $loggerService
+    ) {}
 
-    public function generateReport(IncomeStatementRequest $data){
+    public function generateReport(IncomeStatementRequest $data)
+    {
 
         try {
 
-    $data =  $this->incomeStatementService->generateReport($data->startDate,$data->endDate);
+            $data =  $this->incomeStatementService->generateReport($data->startDate, $data->endDate);
 
-    return $this->apiResponseFormatter->successResponse(
-            
-        'Income Statment Report Generated Successfully',
-        
-        new IncomeStatementResource($data),
-        
-      );  
+            return $this->apiResponseFormatter->successResponse(
 
-        }
-        catch (\Exception $e) {
+                'Income Statment Report Generated Successfully',
+
+                new IncomeStatementResource($data),
+
+            );
+        } catch (\Exception $e) {
 
             $this->loggerService->failedLogger(
 
@@ -46,12 +46,8 @@ class IncomeStatementController extends Controller
 
                 'Failed To Genereate Income Statement Report',
                 [],
-                500
+        
             );
-
-
         }
-
-
     }
 }

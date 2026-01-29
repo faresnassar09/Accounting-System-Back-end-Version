@@ -24,7 +24,6 @@ class JournalEntryRequest extends FormRequest
             'lines.*.description' => ['nullable','max:255'],
 
  'lines.*.debit' => [
-    'required',
     'numeric',
     'min:0',
     'max:9999999999',
@@ -32,7 +31,6 @@ class JournalEntryRequest extends FormRequest
 ],
 
 'lines.*.credit' => [
-    'required',
     'numeric',
     'min:0',
     'max:9999999999',

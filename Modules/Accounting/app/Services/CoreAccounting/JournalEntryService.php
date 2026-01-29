@@ -4,7 +4,7 @@ namespace Modules\Accounting\Services\CoreAccounting;
 
 use App\Services\Api\ApiResponseFormatter;
 use App\Services\Logging\LoggerService;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Modules\Accounting\Repositories\Contracts\AccountRepositoryInterface as ChartInterface;
 use Modules\Accounting\Repositories\Contracts\JournalEntryRepositoryInterface as JournalInterface;
 
@@ -23,62 +23,29 @@ class JournalEntryService
     public function store($data)
     {
 
-        try {
-
-            
         $header = $data->header;
         $lines = collect($data->lines);
 
-        // \Log::info('f',[$header]);
-            $balanced = $this->checkJournaliBalanced($lines);
+        $balanced = $this->checkJournaliBalanced($lines);
 
+        if (!$balanced) {
 
-            if (!$balanced) {
-
-                return $this->apiResponseFormatter->failedResponse(
-
-                    'Journal Entry Total Credit And Debit are not balanced',
-                    [],
-                    422
-                );
-            
-            }
-
-            $this->journalInterface->store($header,$lines);
-
-            return $this->apiResponseFormatter->successResponse(
-
-                'Journal Entry Saved Successfully',
-                [],
-
-            );
-
-
-        } catch (\Exception $e) {
-
-            $this->loggerService->failedLogger(
-                'Error Occurred While Saving Journal Entry',
-                [],
-                $e->getMessage()
-
-            );
-
-            return $this->apiResponseFormatter->failedResponse(
-
-                'Error Occurred While Saving Journal Entry',
-                [],
-
-            );
+            throw new \Exception('Total Debit And Credit Are Not Balanced');
         }
+
+        DB::transaction(function () use ($header, $lines) {
+
+            $this->journalInterface->store($header, $lines);
+        });
+
+        return true;
     }
-
-
 
     public function checkJournaliBalanced($lines)
     {
 
 
-        if ($lines->sum('debit') === $lines->sum('credit')) {
+        if (round($lines->sum('debit'), 2) === round($lines->sum('credit'), 2)) {
 
             return true;
         }

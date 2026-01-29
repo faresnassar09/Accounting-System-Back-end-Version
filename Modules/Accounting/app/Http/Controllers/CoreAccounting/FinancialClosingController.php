@@ -53,6 +53,32 @@ class FinancialClosingController extends Controller
     public function applyClosingFinancialYear(ClosingFinancialYearRequest $data)
     {
 
-        return $this->financialClosingService->applyClosingFinancialYear($data);
+        $year = $data->year;
+
+        try {
+
+         $this->financialClosingService->applyClosingFinancialYear($data);
+
+           return  $this->apiResponseFormatter->successResponse(
+
+            "Financial Year ($year) Closed Successfully",
+            [],
+
+           );
+
+        } 
+
+            catch (\Exception $e) {
+
+                $this->loggerService->failedLogger(
+    
+                    "Closing Year ($year) Failed",
+                    [],
+                    $e->getMessage()
+                );
+            }
+
+        
+
     }
 }
