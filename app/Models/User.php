@@ -60,8 +60,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
-        'two_factor_recovery_codes',
-        'two_factor_secret',
+
     ];
 
     /**
@@ -70,8 +69,8 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $appends = [
-        'roleNames',
-        'permissionNames',
+        // 'roleNames',
+        // 'permissionNames',
         'profile_photo_url',
     
     ];
@@ -90,16 +89,16 @@ class User extends Authenticatable
     }
      
 
-    public function getRoleNameAttribute()
-    {
-       return $this->roles->first()->name;
+    // public function getRoleNameAttribute()
+    // {
+    //    return $this->roles->first()->name;
 
-    }
+    // }
 
-    public function getPermissionNamesAttribute(){
+    // public function getPermissionNamesAttribute(){
 
-        return $this->getPermissionsViaRoles()->pluck('name');
+    //     return $this->getPermissionsViaRoles()->pluck('name');
 
-    }
+    // }
 
 }

@@ -4,7 +4,7 @@ namespace Modules\User\Providers;
 
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
-use App\Models\User;
+use Modules\User\Models\User;
 use Modules\User\Observers\UserObserver;
 use Modules\User\Policies\UserPolicy;
 use Nwidart\Modules\Traits\PathNamespace;

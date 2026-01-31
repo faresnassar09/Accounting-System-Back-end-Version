@@ -15,9 +15,11 @@ return new class extends Migration
             $table->id();
             
             $table->foreignId('team_id')
+            ->nullable()
             ->constrained();
 
             $table->foreignId('branch_id')
+            ->nullable()
             ->constrained();
 
             $table->string('name');

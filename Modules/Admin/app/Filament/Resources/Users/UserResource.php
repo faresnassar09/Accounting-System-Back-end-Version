@@ -2,7 +2,7 @@
 
 namespace Modules\Admin\Filament\Resources\Users;
 
-use App\Models\User;;
+use Modules\User\Models\User;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -14,9 +14,6 @@ use Modules\Admin\Filament\Resources\Users\Pages\EditUser;
 use Modules\Admin\Filament\Resources\Users\Pages\ListUsers;
 use Modules\Admin\Filament\Resources\Users\Schemas\UserForm;
 use Modules\Admin\Filament\Resources\Users\Tables\UsersTable;
-use Modules\Branch\Models\BranchScope;
-use Modules\Company\Models\CompanyScope;
-
 
 class UserResource extends Resource
 {

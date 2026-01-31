@@ -3,12 +3,10 @@
 namespace Modules\User\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use App\Services\Api\ApiResponseFormatter;
 use Illuminate\Support\Facades\Auth;
 use Modules\User\Http\Requests\AuthenticationRequest;
 use Modules\User\Services\AuthenticationService;
-use Modules\User\Transformers\LoginCredentials;
 use Modules\User\Transformers\UserResource;
 
 class AuthenticationController extends Controller

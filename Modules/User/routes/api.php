@@ -17,7 +17,7 @@ Route::middleware('auth:sanctum')
 ->controller(ProfileController::class)
 ->prefix('v1/profile')
 ->group(function () {
-
+    
     Route::get('/','getUserData');
 });
 

@@ -25,6 +25,7 @@ class TrialBalanceService
             'opening_debit' => 0,
             'opening_credit' => 0,
         ];
+
         $reportData = ($this->trialBalanceQuery)($startOfYear, $endDate)
             ->map(function ($query) use (&$totals) {
 

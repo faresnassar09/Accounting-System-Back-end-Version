@@ -27,7 +27,6 @@ class GetAccountCumulativeBalancesQuery{
         END as credit
     ")
         ->groupBy('a.id', 'a.name','at.type')
-        // ->having('debit', '!=', 0)
         ->get();
 
     }

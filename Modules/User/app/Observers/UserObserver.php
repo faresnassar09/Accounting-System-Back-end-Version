@@ -3,7 +3,7 @@
 namespace Modules\User\Observers;
 
 use App\Enums\EloquentEvents;
-use App\Models\User ;
+use Modules\User\Models\User ;
 use App\Services\Files\FileService;
 use App\Services\Logging\ActivityService;
 

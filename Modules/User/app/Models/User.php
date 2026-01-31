@@ -4,7 +4,6 @@ namespace Modules\User\Models;
 
 use App\Models\User as OriginalUsreModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Modules\Teams\Models\Team;
 use Spatie\Permission\Traits\HasRoles;
 // use Modules\User\Database\Factories\UserModuleFactory;
 
