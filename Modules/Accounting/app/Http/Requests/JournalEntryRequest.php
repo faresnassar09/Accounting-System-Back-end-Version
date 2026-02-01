@@ -3,7 +3,6 @@
 namespace Modules\Accounting\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Modules\Accounting\DTO\JournalEntryData;
 
 class JournalEntryRequest extends FormRequest
 {
@@ -14,7 +13,7 @@ class JournalEntryRequest extends FormRequest
     {
         return [
 
-            'header.reference' => ['required','min:1','max:255'],
+            'header.reference' => ['required','min:1','max:255','unique:journal_entries,reference'],
             'header.date' => ['nullable','date'],
             'header.description' => ['required','min:5','max:255'],
             'header.total_debit' => ['required','numeric'],
@@ -72,5 +71,18 @@ class JournalEntryRequest extends FormRequest
 
 
         ];
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $lines = $this->input('lines', []);
+            $totalDebit = collect($lines)->sum('debit');
+            $totalCredit = collect($lines)->sum('credit');
+
+            if ($totalDebit !== $totalCredit) {
+                $validator->errors()->add('lines', 'The journal entry is unbalanced. Total debits must equal total credits.');
+            }
+        });
     }
 }
