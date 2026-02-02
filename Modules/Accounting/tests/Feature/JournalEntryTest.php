@@ -22,6 +22,7 @@ beforeEach(function () {
     $role = Role::create(['name' => 'accountant']);
 
     $this->user->assignRole($role);
+    $this->actingAs($this->user, 'sanctum');
 
     $this->account = Account::factory()->create();
 
@@ -42,7 +43,6 @@ test('unauthorized user cannot create journal entry', function () {
 test('user can create a entry journal ',function(){
 
 
-    $this->actingAs($this->user,'sanctum'); 
 
     $data = [
 
@@ -88,10 +88,6 @@ test('user can create a entry journal ',function(){
 
 
 test("can't create unbalanced journal entry",function(){
-
-
-    $this->actingAs($this->user,'sanctum');
-
 
     $data = [
 
@@ -140,7 +136,6 @@ test("can't create unbalanced journal entry",function(){
 });
 
 test("can't create journal entry with a duplicate reference", function () {
-    $this->actingAs($this->user, 'sanctum');
 
     $commonReference = 'REF-100';
 
