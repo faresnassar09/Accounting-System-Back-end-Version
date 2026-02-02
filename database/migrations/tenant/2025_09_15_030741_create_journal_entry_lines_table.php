@@ -24,8 +24,6 @@ return new class extends Migration
 
             $table->string('debit')->default(0.00);
             $table->string('credit')->default(0.00);
-            $table->string('description');
-
 
             
             $table->timestamps();

@@ -7,12 +7,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use function PHPSTORM_META\map;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
 use Modules\Accounting\Models\Account;
-use Modules\Accounting\Policies\ChartAccountingPolicy;
 use Modules\Admin\Filament\Resources\Accounts\Pages\CreateAccount;
 use Modules\Admin\Filament\Resources\Accounts\Pages\EditAccount;
 use Modules\Admin\Filament\Resources\Accounts\Pages\ListAccounts;
@@ -21,7 +17,6 @@ use Modules\Admin\Filament\Resources\Accounts\Schemas\AccountForm;
 use Modules\Admin\Filament\Resources\Accounts\Schemas\AccountInfolist;
 
 use Modules\Admin\Filament\Resources\Accounts\Tables\AccountsTable;
-use Modules\Admin\Models\Admin;
 
 class AccountResource extends Resource
 {

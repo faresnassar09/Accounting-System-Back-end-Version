@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
+use Modules\Admin\Database\Factories\AdminFactory;
 use Modules\Branch\Models\Branch;
 use Spatie\Permission\Traits\HasRoles;
 
@@ -59,4 +60,8 @@ class Admin extends Authenticatable
     }
 
 
+    public static function newFactory()
+    {
+        return AdminFactory::new();
+    }
 }

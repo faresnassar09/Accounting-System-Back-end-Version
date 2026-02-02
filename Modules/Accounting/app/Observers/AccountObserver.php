@@ -4,6 +4,7 @@ namespace Modules\Accounting\Observers;
 
 use App\Enums\EloquentEvents;
 use App\Services\Logging\ActivityService;
+use Filament\Notifications\Notification;
 use Modules\Accounting\Models\Account;
 
 class AccountObserver
@@ -55,9 +56,20 @@ class AccountObserver
 
     }
 
-    /**
-     * Handle the Account "deleted" event.
-     */
+public function deleting(Account $account){
+
+    if ($account->entryLines()->exists()) {
+        \Filament\Notifications\Notification::make()
+        ->title('فشل الحذف')
+        ->body('لا يمكن حذف حساب مرتبط بحركات مالية.')
+        ->danger()
+        ->persistent() // عشان الرسالة متختفيش بسرعة
+        ->send();
+        
+        return false; 
+    }
+
+}
     public function deleted(Account $account): void {
 
         $this->activityService->log(

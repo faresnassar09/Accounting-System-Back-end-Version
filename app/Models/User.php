@@ -6,8 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Fortify\TwoFactorAuthenticatable;
-use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 use Modules\Branch\Models\Branch;
 use Modules\Teams\Models\Team;
@@ -19,9 +17,7 @@ class User extends Authenticatable
 
     use HasApiTokens;
     use HasFactory;
-    use HasProfilePhoto;
     use Notifiable;
-    use TwoFactorAuthenticatable;
     use SoftDeletes;
     use HasRoles;
 
@@ -69,8 +65,8 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $appends = [
-        // 'roleNames',
-        // 'permissionNames',
+        'roleNames',
+        'permissionNames',
         'profile_photo_url',
     
     ];
@@ -89,16 +85,16 @@ class User extends Authenticatable
     }
      
 
-    // public function getRoleNameAttribute()
-    // {
-    //    return $this->roles->first()->name;
+    public function getRoleNameAttribute()
+    {
+       return $this->roles->first()->name;
 
-    // }
+    }
 
-    // public function getPermissionNamesAttribute(){
+    public function getPermissionNamesAttribute(){
 
-    //     return $this->getPermissionsViaRoles()->pluck('name');
+        return $this->getPermissionsViaRoles()->pluck('name');
 
-    // }
+    }
 
 }

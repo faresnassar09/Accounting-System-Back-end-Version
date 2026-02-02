@@ -22,7 +22,7 @@ return new class extends Migration
             ->index('refernce');
 
             $table->string('description',255);
-            $table->enum('status',['approved','draft','cancled']);
+            $table->enum('status',['approved','draft','cancled'])->default('approved');
             $table->enum('type', ['journal', 'opening', 'closing', 'adjustment'])->default('journal');
             $table->decimal('total_debit',15,2);
             $table->decimal('total_credit',15,2);

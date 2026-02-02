@@ -25,7 +25,6 @@ class CreateSuperAdminListener
             'name' => 'Super Admin',
             'email' => 'admin@'.'super_admin'.'.com',
             'password' => Hash::make('00000000'),
-            'is_super_admin' => true,
         ]);
 
         $admin->assignRole($superAdminRole);

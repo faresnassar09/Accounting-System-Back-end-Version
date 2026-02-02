@@ -20,6 +20,8 @@ return [
         'localhost',
         'app.localhost',
         'tenant2.app.test',
+        'tenant1.app.test',
+
 
 
     ],

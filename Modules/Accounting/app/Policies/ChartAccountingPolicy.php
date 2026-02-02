@@ -12,6 +12,11 @@ class ChartAccountingPolicy
 
     public function __construct() {}
 
+    public function create(Admin $admin){
+
+        return  $admin->hasRole('super_admin'); 
+        
+    } 
 
     public function update(Admin $admin , Account $account){
 
