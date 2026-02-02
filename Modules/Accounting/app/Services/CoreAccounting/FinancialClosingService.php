@@ -121,6 +121,7 @@ class FinancialClosingService
                 $balances = ($this->getAccountsBalance)($endAt);
                 $lines = collect($this->prepareClosingLinesForcurrentAccounts($balances));
                 $year = get_start_of_next_financial_year($year);
+                \Log::info('ojpo',[$year]);
                 $totalDebit = $lines->sum('debit');
                 $totalCredit = $lines->sum('credit');
                 $totalAmount = max($totalDebit, $totalCredit);

@@ -15,14 +15,8 @@ class JournalEntryLineObserver
             : $journalentryline->credit;
 
         $account = $journalentryline->account;
-        $account->incrementQuietly('calculated_balance',$amount);
-
-        if ($account->account_id) {
-
-            $account->parent->propagateBalanceChange($amount);
-
-        }
-
+        $account->incrementQuietly('calculated_balance',$amount);    
+        
     }
 
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Tenant;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Support\Facades\Hash;
 use Modules\Accounting\Models\Account;
 use Modules\User\Models\User;
@@ -9,7 +10,8 @@ use Tests\TestCase;
 
 
 
-uses(TestCase::class, Illuminate\Foundation\Testing\DatabaseMigrations::class);
+
+uses(TestCase::class, DatabaseMigrations::class);
 beforeEach(function () {
 
     $this->tenant = Tenant::create();
@@ -165,4 +167,12 @@ test("can't create journal entry with a duplicate reference", function () {
     $response->assertStatus(422);
     
     $response->assertJsonValidationErrors(['header.reference']);
+});
+
+afterEach(function () {
+    if (tenancy()->initialized) {
+        $tenant = tenancy()->tenant;
+        tenancy()->end(); 
+        $tenant->delete();
+    }
 });
