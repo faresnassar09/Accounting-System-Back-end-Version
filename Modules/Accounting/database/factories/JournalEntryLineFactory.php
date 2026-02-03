@@ -4,7 +4,7 @@ namespace Modules\Accounting\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class JournalEntryLinesFactory extends Factory
+class JournalEntryLineFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
@@ -16,7 +16,14 @@ class JournalEntryLinesFactory extends Factory
      */
     public function definition(): array
     {
-        return [];
+        return [
+
+            'account_id' => null,
+            'debit' => 0,
+            'credit' => 0,
+            'journal_entry_id' => null,
+        
+        ];
     }
 }
 

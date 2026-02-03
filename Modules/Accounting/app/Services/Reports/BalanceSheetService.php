@@ -29,6 +29,7 @@ class BalanceSheetService
 
         $startOfYear = get_start_of_year($endDate);
         $profitLossAccounts = ($this->ProfitLossAccounts)($startOfYear, $endDate)->pluck('id');
+
         $accounts =  ($this->accountBalancesQuery)($endDate);
 
         $classifiedData = $this->processBalanceSheetData($accounts);
@@ -51,6 +52,7 @@ class BalanceSheetService
             'non_current_liabilities',
             'equity_capital',
             'retained_earnings',
+            'opening_balance_diff',
 
         ];
 
@@ -89,7 +91,7 @@ class BalanceSheetService
 
         return [
 
-            [
+            'assets_group'=>[
                 'group_code' => 'assets',
                 'group_name' => 'assets',
                 'group_total' => $classifiedData['current_assets'] +
@@ -111,16 +113,17 @@ class BalanceSheetService
                     ]
                 ]
             ],
-            [
+            'liabilities_and_equity_group' => [
                 'group_code' => 'liabilities_and_equity',
                 'group_name' => 'Liabilities And Equity',
                 'group_total' => $classifiedData['current_liabilities'] +
                     $classifiedData['non_current_liabilities'] +
                     $classifiedData['equity_capital'] +
                     $classifiedData['retained_earnings'] +
-                    abs($netProfitValue),
+                    $classifiedData['opening_balance_diff'] +
+                     abs($netProfitValue),
                 'sub_types' => [
-                    [
+                    'liabilities_group' => [
                         'type_code' => 'current_liabilities',
                         'type_name' => 'Current Liabilities',
                         'type_total' => $classifiedData['current_liabilities'] +
@@ -129,13 +132,15 @@ class BalanceSheetService
                         'accounts' => $classifiedData['current_liabilities_details']
                     ],
 
-                    [
+                    'equity_group' => [
 
                         'type_code' => 'equity',
                         'type_name' => 'Owners Rights',
                         'type_total' =>
                         $classifiedData['equity_capital'] +
-                            $classifiedData['retained_earnings'],
+                            $classifiedData['retained_earnings']+
+                            $classifiedData['opening_balance_diff'],
+
 
 
                         'accounts' => $classifiedData['equity_capital_details']

@@ -16,7 +16,16 @@ class JournalEntryFactory extends Factory
      */
     public function definition(): array
     {
-        return [];
+        return [
+
+            'user_id' => auth()->id(),
+            'reference' => rand(1,5),
+            'date' => now(),
+            'description' => 'test entry',
+            'total_debit' => 0,
+            'total_credit' => 0
+            
+                ];
     }
 }
 

@@ -3,9 +3,9 @@
 namespace Modules\Accounting\Models;
 
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-// use Modules\Accounting\Database\Factories\JournalEntryFactory;
+use Illuminate\Database\Eloquent\Model;
+use Modules\Accounting\Database\Factories\JournalEntryFactory;
 
 class JournalEntry extends Model
 {
@@ -41,5 +41,10 @@ class JournalEntry extends Model
     protected $casts = [
         'date' => 'datetime',
     ];
+
+    public static function newFactory(){
+
+        return JournalEntryFactory::new();
+    }
 
 }

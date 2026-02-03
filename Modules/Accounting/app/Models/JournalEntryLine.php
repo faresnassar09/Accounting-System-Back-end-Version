@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
 
-// use Modules\Accounting\Database\Factories\JournalEntryLinesFactory;
+use Modules\Accounting\Database\Factories\JournalEntryLineFactory;
 
 class JournalEntryLine extends Model
 {
@@ -66,6 +66,11 @@ class JournalEntryLine extends Model
 
     }
 
+
+    public static function newFactory(){
+         
+        return JournalEntryLineFactory::new();
+    }
     
 
 }

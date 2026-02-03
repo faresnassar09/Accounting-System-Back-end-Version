@@ -5,13 +5,13 @@ namespace Modules\Accounting\Queries;
 use Illuminate\Support\Facades\DB;
 class GetAccountCumulativeBalancesQuery{
 
-     public function __invoke($endAt){
+     public function __invoke($endDate){
 
         return DB::table('accounts as a')
         ->join('account_types as at', 'a.account_type_id', '=', 'at.id')
         ->join('journal_entry_lines as ji', 'a.id', '=', 'ji.account_id')
         ->join('journal_entries as je', 'ji.journal_entry_id', '=', 'je.id')
-        ->where('je.date', '<', $endAt)
+        ->whereDate('je.date', '<=', $endDate)
         ->whereIn('at.account_group', ['assets', 'liabilities', 'equity']) 
         ->selectRaw("
         a.id, 
@@ -28,6 +28,8 @@ class GetAccountCumulativeBalancesQuery{
     ")
         ->groupBy('a.id', 'a.name','at.type')
         ->get();
+
+    
 
     }
 
