@@ -48,6 +48,8 @@ class TrialBalanceService
                 return $query;
             });
 
+
+
         $totalOpeningDebit = $totals['opening_debit'];
         $totalOpeningCredit = $totals['opening_credit'];
 

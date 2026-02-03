@@ -26,7 +26,7 @@ class CreateAccountTypesListener
 
             ['type' => 'cogs', 'account_group' => 'expenses'],
             ['type' => 'operating_expenses', 'account_group' => 'expenses'],
-            ['type' => 'non_operating_expense', 'account_group' => 'expenses'],
+            ['type' => 'non_operating_expenses', 'account_group' => 'expenses'],
             ['type' => 'income_tax_expenses', 'account_group' => 'expenses'],
 
             ['type' => 'current_assets', 'account_group' => 'assets'],

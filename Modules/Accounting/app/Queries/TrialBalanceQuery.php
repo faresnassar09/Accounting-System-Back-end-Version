@@ -15,7 +15,7 @@ class TrialBalanceQuery{
             $join->on('ji.journal_entry_id', '=', 'je.id')
                  ->whereBetween('je.date', [$startOfYear, $endDate]);
         })
-        ->select('accounts.id', 'accounts.name')
+        ->select('accounts.id', 'accounts.name','accounts.number')
         ->selectRaw("
             SUM(CASE WHEN je.type != 'opening' THEN ji.debit ELSE 0 END) as total_debit,
             SUM(CASE WHEN je.type != 'opening' THEN ji.credit ELSE 0 END) as total_credit,
@@ -23,7 +23,7 @@ class TrialBalanceQuery{
             SUM(CASE WHEN je.type = 'opening' THEN ji.credit ELSE 0 END) as opening_credit
             
         ")
-        ->groupBy('accounts.id', 'accounts.name')
+        ->groupBy('accounts.id', 'accounts.name','accounts.number')
         ->get();
      }
 
