@@ -2,9 +2,6 @@
 
 namespace Modules\Accounting\Repositories\Eloquent;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Request;
-
 use Illuminate\Support\Facades\DB;
 use Modules\Accounting\Models\Account;
 use Modules\Accounting\Repositories\Contracts\AccountRepositoryInterface as AccountingChartInterface;

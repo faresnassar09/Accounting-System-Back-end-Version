@@ -17,7 +17,7 @@ class CreateAccountTypesListener
      */
     public function handle(DatabaseMigrated $event): void
     {
-
+        
         $accountTypes = [
             ['type' => 'gross_sales', 'account_group' => 'revenues'],
             ['type' => 'sales_deductions', 'account_group' => 'revenues'],

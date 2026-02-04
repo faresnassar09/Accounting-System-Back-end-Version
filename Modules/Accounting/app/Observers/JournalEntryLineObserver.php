@@ -1,8 +1,6 @@
 <?php
 
 namespace Modules\Accounting\Observers;
-
-use Illuminate\Container\Attributes\Log;
 use Modules\Accounting\Models\JournalEntryLine;
 
 class JournalEntryLineObserver

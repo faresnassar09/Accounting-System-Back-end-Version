@@ -10,106 +10,106 @@ use Modules\User\Models\User;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
-
 uses(TestCase::class, DatabaseMigrations::class);
 
 beforeEach(function () {
-
     $this->tenant = Tenant::create();
     $this->tenant->domains()->create(['domain' => 'tenant1.app.test']);
     tenancy()->initialize($this->tenant);
 
     $this->user = User::factory()->create();
     $role = Role::create(['name' => 'accountant']);
-
     $this->user->assignRole($role);
     $this->actingAs($this->user, 'sanctum');
-});
 
-
-test('trial balance debit and credit are balanced ', function () {
-
-
-    $accounts = Account::factory()
-        ->count(3)
-        ->sequence(
-            [
-
-                'name' => 'Cash',
-                'account_type_id' => AccountType::where('type', 'current_assets')->first()->id
-
-            ],
-            [
-                'name' => 'Opreation Expenses',
-                'account_type_id' => AccountType::where('type', 'non_operating_expenses')->first()->id
-            ],
-            [
-                'name' => 'Salaries',
-                'account_type_id' => AccountType::where('type', 'operating_expenses')->first()->id
-            ],
-
-        )->create();
-
-
-
-    $JournalEntrieHeader = JournalEntry::factory()->create([
-
-        'user_id' => auth()->id(),
-        'reference' => '#asset',
-        'description' => 'test asset entry',
-        'date' => '2026-1-20',
-        'total_debit' => 3800,
-        'total_credit' => 3800
-
+    $this->cashAccount = Account::factory()->create([
+        'name' => 'Cash',
+        'account_type_id' => AccountType::where('type', 'current_assets')->first()->id
     ]);
 
+    $this->expenseAccount = Account::factory()->create([
+        'name' => 'Operating Expenses',
+        'account_type_id' => AccountType::where('type', 'operating_expenses')->first()->id
+    ]);
+});
 
-    JournalEntryLine::factory()
-        ->count(4)
-        ->sequence(
+test('trial balance debit and credit are balanced', function () {
+    $entry = JournalEntry::factory()->create([
+        'user_id' => $this->user->id,
+        'date' => '2026-01-20',
+        'total_debit' => 3800,
+        'total_credit' => 3800
+    ]);
 
-            [
-                'account_id' => $accounts->where('name','Cash')->first()->id,
-                'journal_entry_id' => $JournalEntrieHeader->id,
-                'debit' => 1500,
-                'credit' => 0
-            ],
-            
-            [
-                'account_id' => $accounts->where('name','Cash')->first()->id,
-                'journal_entry_id' => $JournalEntrieHeader->id,
-                'debit' => 2300,
-                'credit' => 0
-            ],
-            [
-                'account_id' => $accounts->where('name','Opreation Expenses')->first()->id,
-                'journal_entry_id' => $JournalEntrieHeader->id,
-                'debit' => 0,
-                'credit' => 1300
-            ],
-            [
-                'account_id' => $accounts->where('name','Salaries')->first()->id,
-                'journal_entry_id' => $JournalEntrieHeader->id,
-                'debit' => 0,
-                'credit' => 2500
-            ],
-        )
-        ->create();
+    JournalEntryLine::factory()->create([
+        'account_id' => $this->cashAccount->id,
+        'journal_entry_id' => $entry->id,
+        'debit' => 3800,
+        'credit' => 0
+    ]);
+
+    JournalEntryLine::factory()->create([
+        'account_id' => $this->expenseAccount->id,
+        'journal_entry_id' => $entry->id,
+        'debit' => 0,
+        'credit' => 3800
+    ]);
 
     $data = ['endDate' => '2026-01-25'];
+    $response = $this->postJson('api/v1/accounting/reports/trial-balance', $data);
+    
+    $response->assertStatus(200);
+    $reportData = $response->json('data.totals');
 
-    $response = $this->postJson('api/v1/accounting/reports/trial-balance', $data)
-        ->assertStatus(200);
+    expect($reportData['total_debit'])->toBe(3800);
+    expect($reportData['total_credit'])->toBe(3800);
+    expect($reportData['isBalanced'])->toBeTrue();
+});
 
-        $reportData =  $response->json('data');
-        $totalDebit = $reportData['totals']['total_debit'];
-        $totalCredit = $reportData['totals']['total_credit'];
-        $balanced  = $reportData['totals']['isBalanced'];
- 
+test('trial balance ignores entries after the specified end date', function () {
+    $entryIn = JournalEntry::factory()->create(['date' => '2026-01-10', 'total_debit' => 1000, 'total_credit' => 1000]);
+    JournalEntryLine::factory()->create([
+        'account_id' => $this->cashAccount->id,
+        'journal_entry_id' => $entryIn->id,
+        'debit' => 1000,
+        'credit' => 0
+    ]);
+    JournalEntryLine::factory()->create([
+        'account_id' => $this->expenseAccount->id,
+        'journal_entry_id' => $entryIn->id,
+        'debit' => 0,
+        'credit' => 1000
+    ]);
 
-        $this->assertEquals(3800, $totalDebit);
-    $this->assertEquals(3800, $totalCredit);
-    $this->assertTrue($balanced,'trial balance is balanced');
+    $entryOut = JournalEntry::factory()->create(['date' => '2026-02-10', 'total_debit' => 5000, 'total_credit' => 5000]);
+    JournalEntryLine::factory()->create([
+        'account_id' => $this->cashAccount->id,
+        'journal_entry_id' => $entryOut->id,
+        'debit' => 5000,
+        'credit' => 0
+    ]);
+    JournalEntryLine::factory()->create([
+        'account_id' => $this->expenseAccount->id,
+        'journal_entry_id' => $entryOut->id,
+        'debit' => 0,
+        'credit' => 5000
+    ]);
+
+    $data = ['endDate' => '2026-01-31'];
+    $response = $this->postJson('api/v1/accounting/reports/trial-balance', $data);
+    
+    $response->assertStatus(200);
+    expect($response->json('data.totals.total_debit'))->toBe(1000);
+});
+
+test('trial balance returns zero totals when no entries exist', function () {
+    $data = ['endDate' => '2020-01-01'];
+    $response = $this->postJson('api/v1/accounting/reports/trial-balance', $data);
+    
+    $response->assertStatus(200);
+    $totals = $response->json('data.totals');
+    expect($totals['total_debit'])->toBe(0);
+    expect($totals['isBalanced'])->toBeTrue();
 });
 
 afterEach(function () {

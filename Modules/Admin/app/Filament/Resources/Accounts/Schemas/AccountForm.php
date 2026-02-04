@@ -7,7 +7,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
-use Illuminate\Support\Facades\DB;
 use Modules\Accounting\Enums\AccountGroup;
 use Modules\Accounting\Models\Account;
 use Modules\Accounting\Models\AccountType;

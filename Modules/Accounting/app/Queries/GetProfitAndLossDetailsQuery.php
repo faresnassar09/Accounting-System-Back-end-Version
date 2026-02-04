@@ -21,9 +21,10 @@ class GetProfitAndLossDetailsQuery{
         DB::raw("
         SUM(
 CASE 
-        WHEN at.type = 'gross_sales' THEN (jl.credit - jl.debit) -- الإيراد الطبيعي
-        WHEN at.type = 'sales_deductions' THEN (jl.debit - jl.credit) -- المرتجع يظهر كموجب برضه
-        ELSE (jl.debit - jl.credit) -- المصاريف تظهر كموجب
+        WHEN at.type = 'sales_deductions' THEN (jl.debit - jl.credit)
+        WHEN at.account_group = 'revenues' THEN (jl.credit - jl.debit) 
+        WHEN at.account_group = 'expenses' THEN (jl.debit - jl.credit) 
+        ELSE (jl.debit - jl.credit) 
     END
         ) as balance
     ")

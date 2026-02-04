@@ -22,7 +22,7 @@ class IncomeStatementResource extends JsonResource
                 'operating_revenue' => round($this['operating_revenue'], 2),
                 'details' => collect()
                     ->merge($this->formatDetails($this['gross_sales_details']))
-                    ->merge($this->formatDetails($this['sales_deductions_details'], true)) // true للقيم السالبة
+                    ->merge($this->formatDetails($this['sales_deductions_details'], true)) 
                     ->merge($this->formatDetails($this['operating_revenue_details']))
                     ->values(),
             ],
@@ -60,9 +60,6 @@ class IncomeStatementResource extends JsonResource
         ];
     }
 
-    /**
-     * دالة مساعدة لتنسيق التفاصيل (Details) بشكل موحد
-     */
     private function formatDetails($details, $isNegative = false)
     {
         return  $details;

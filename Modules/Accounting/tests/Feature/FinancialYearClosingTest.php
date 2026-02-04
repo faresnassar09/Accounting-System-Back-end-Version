@@ -1,23 +1,13 @@
 <?php
 
-use \Modules\Accounting\Repositories\Contracts\FinancialClosingReposiroryInterface;
 use App\Models\Tenant;
-
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Modules\Accounting\Models\Account;
 use Modules\Accounting\Models\AccountType;
 use Modules\Accounting\Models\ClosedFinancialYear;
-use Modules\Accounting\Services\CoreAccounting\FinancialClosingService;
 use Modules\User\Models\User;
 use Spatie\Permission\Models\Role;
-
-
-
-
-
-
-
 
 uses(Tests\TestCase::class, DatabaseMigrations::class);
 beforeEach(function () {
@@ -30,6 +20,7 @@ beforeEach(function () {
     $this->user = User::factory()->create();
     $role = Role::create(['name' => 'accountant' , 'guard_name' => 'web']);
     $this->user->assignRole($role);
+    $this->actingAs($this->user,'sanctum');
 
     $retainedEarningsType = AccountType::where('type','retained_earnings')->first();
     $this->retainedEarnings = Account::factory()->create([
@@ -43,7 +34,6 @@ beforeEach(function () {
 
 test('it correctly zeroes out revenue and expenses and transfers profit to retained earnings', function () {
 
-    $this->actingAs($this->user);
     $year = '2026';
 
     $response = $this->postJson('/api/v1/accounting/financial-closing/close', [
@@ -58,10 +48,7 @@ test('it correctly zeroes out revenue and expenses and transfers profit to retai
         'type' => 'closing' 
     ]);
 
-    $nextYear = Carbon::parse($year)
-    ->addYears()
-    ->startOfYear()
-    ->format('Y-m-d');
+    $nextYear = get_start_of_next_financial_year($year);
 
     $this->assertDatabaseHas('journal_entries', [
         'description' => "Opening journal for year ($nextYear)",
@@ -75,7 +62,6 @@ test('it correctly zeroes out revenue and expenses and transfers profit to retai
 });
 
 test('it throws an exception if the year is already closed', function () {
-    $this->actingAs($this->user);
 
     ClosedFinancialYear::create([
         'closed_by' => $this->user->id,

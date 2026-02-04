@@ -5,7 +5,6 @@ namespace Modules\Accounting\Repositories\Eloquent;
 use Illuminate\Support\Facades\DB;
 use Modules\Accounting\Models\ClosedFinancialYear;
 use Modules\Accounting\Repositories\Contracts\FinancialClosingReposiroryInterface;
-use Modules\Accounting\Services\Reports\IncomeStatementService;
 
 class FinancialClosingRepository implements FinancialClosingReposiroryInterface{
 

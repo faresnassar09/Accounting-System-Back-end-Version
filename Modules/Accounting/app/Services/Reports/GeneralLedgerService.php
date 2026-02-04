@@ -7,7 +7,6 @@ use App\Services\Logging\LoggerService;
 use Modules\Accounting\Queries\GeneralLedgerQuery;
 use Modules\Accounting\Queries\GetOpeningBalanceQuery;
 use Modules\Accounting\Repositories\Contracts\AccountRepositoryInterface as AccountInterface;
-use Modules\Accounting\Transformers\GeneralLedgerResource;
 
 class GeneralLedgerService
 {

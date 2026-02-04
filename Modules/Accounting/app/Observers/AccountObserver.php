@@ -4,7 +4,6 @@ namespace Modules\Accounting\Observers;
 
 use App\Enums\EloquentEvents;
 use App\Services\Logging\ActivityService;
-use Filament\Notifications\Notification;
 use Modules\Accounting\Models\Account;
 
 class AccountObserver

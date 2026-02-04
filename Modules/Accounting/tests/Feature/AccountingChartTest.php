@@ -28,7 +28,7 @@ beforeEach(function () {
 
     $this->admin = Admin::factory()->create();
 
-    // There Is listener create a super_admin role automatically
+    // There Is listener creates a super_admin role automatically
     // check  Modules/Admin/Listeners/CreateSuperAdminListener.php
     $this->admin->assignRole('super_admin');
     $this->actingAs($this->admin, 'admin');
@@ -122,7 +122,7 @@ it('forbids unauthorized Admins from accessing account creation', function () {
         ],
         'lines' => [
             ['account_id' => $account->id, 'debit' => 1000, 'credit' => 0],
-            ['account_id' => $account->id, 'debit' => 0, 'credit' => 1000], // عادة القيد يكون لحسابين مختلفين، لكن للتيست لا بأس
+            ['account_id' => $account->id, 'debit' => 0, 'credit' => 1000],
         ]
     ];
 

@@ -2,8 +2,6 @@
 
 namespace Modules\Accounting\Repositories\Contracts;
 
-use Illuminate\Http\Request;
-
 interface AccountRepositoryInterface{
 
     public function chartTree();

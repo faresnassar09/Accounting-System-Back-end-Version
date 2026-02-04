@@ -5,7 +5,6 @@ namespace Modules\Accounting\Services\CoreAccounting;
 use App\Services\Api\ApiResponseFormatter;
 use App\Services\Logging\LoggerService;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Modules\Accounting\Repositories\Contracts\AccountRepositoryInterface;
 use Modules\Accounting\Repositories\Contracts\JournalEntryRepositoryInterface as JournalEntryRepository;
 

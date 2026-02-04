@@ -2,8 +2,6 @@
 
 namespace Modules\Admin\Providers\Filament;
  
-use App\Models\Tenant;
-use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -20,7 +18,6 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use Modules\Admin\Models\Admin;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 
 class AdminPanelProvider extends PanelProvider

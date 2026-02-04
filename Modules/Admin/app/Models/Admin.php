@@ -2,10 +2,7 @@
 
 namespace Modules\Admin\Models;
 
-
-// use Filament\Models\Contracts\HasTenants;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
 use Modules\Admin\Database\Factories\AdminFactory;

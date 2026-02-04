@@ -52,7 +52,7 @@ class IncomeStatementService
     private function preparedReportData($startDate, $endDate, $processedData)
     {
 
-        $netSales = $processedData['gross_sales'] - $processedData['sales_deductions'];
+        $netSales = $processedData['gross_sales'] - abs($processedData['sales_deductions']);
 
         $totalOperatingRevenue = $netSales + $processedData['operating_revenue'];
         $grossProfit = $totalOperatingRevenue - $processedData['cogs'];
@@ -66,7 +66,7 @@ class IncomeStatementService
 
         $netIncome = $incomeBeforeTax - $processedData['income_tax_expenses'];
         
-        return  [
+                return  [
             'start_date' => $startDate,
             'end_date'   => $endDate,
 
@@ -97,7 +97,7 @@ class IncomeStatementService
             'tax_expense_total' => $processedData['income_tax_expenses'],
             'tax_expenses_details' => $processedData['income_tax_expenses_details'] ?? [],
 
-            'net_income' => $netIncome,
+            'net_income' => $netIncome ,
         ];
     }
 }

@@ -5,7 +5,6 @@ namespace Modules\Accounting\Http\Controllers\Reports;
 use App\Http\Controllers\Controller;
 use App\Services\Api\ApiResponseFormatter;
 use App\Services\Logging\LoggerService;
-use Illuminate\Http\Request;
 use Modules\Accounting\Http\Requests\IncomeStatementRequest;
 use Modules\Accounting\Services\Reports\IncomeStatementService;
 use Modules\Accounting\Transformers\IncomeStatementResource;

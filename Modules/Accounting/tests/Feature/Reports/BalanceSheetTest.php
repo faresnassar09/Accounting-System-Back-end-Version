@@ -2,7 +2,6 @@
 
 use App\Models\Tenant;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Support\Facades\Hash;
 use Modules\Accounting\Models\Account;
 use Modules\Accounting\Models\AccountType;
 use Modules\Accounting\Models\JournalEntry;
@@ -11,130 +10,108 @@ use Modules\User\Models\User;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
-
 uses(TestCase::class, DatabaseMigrations::class);
 
 beforeEach(function () {
-
     $this->tenant = Tenant::create();
     $this->tenant->domains()->create(['domain' => 'tenant1.app.test']);
     tenancy()->initialize($this->tenant);
 
     $this->user = User::factory()->create();
     $role = Role::create(['name' => 'accountant']);
-
     $this->user->assignRole($role);
-    $this->actingAs($this->user,'sanctum');
+    $this->actingAs($this->user, 'sanctum');
 
-    $accountType = AccountType::where('type','opening_balance_diff')->first();
-    $this->accountDiffBalancer = Account::factory()->create([
-
-        'account_type_id' => $accountType->id, 
-    ]);
-
+    $this->types = [
+        'assets' => AccountType::where('type', 'current_assets')->first()->id,
+        'liabilities' => AccountType::where('type', 'current_liabilities')->first()->id,
+        'equity' => AccountType::where('type', 'retained_earnings')->first()->id,
+        'revenue' => AccountType::where('type', 'operating_revenue')->first()->id,
+        'expenses' => AccountType::where('type', 'operating_expenses')->first()->id,
+    ];
 });
 
+test('balance sheet matches the basic accounting equation', function () {
+    $cash = Account::factory()->create(['name' => 'Cash', 'account_type_id' => $this->types['assets']]);
+    $loan = Account::factory()->create(['name' => 'Loan', 'account_type_id' => $this->types['liabilities']]);
 
-it('ensures assets = liabilities + equity ',function(){
-
-
-    $accounts = Account::factory()
-    ->count(3)
-    ->sequence(
-        [
-            'name' => 'Cash',
-            'account_type_id' => AccountType::where('type','current_assets')->first()->id
-        ],
-        [
-            'name' => 'Bank Loan',
-            'account_type_id' => AccountType::where('type','current_liabilities')->first()->id
-        ],
-        [
-            'name' => 'Retained Earnings',
-            'account_type_id' => AccountType::where('type','retained_earnings')->first()->id
-        ]
-    )
-    ->create();
-
-
-
-    $JournalEntries = JournalEntry::factory()
-    ->count(3)
-    ->sequence(
-
-        [
-            'user_id' => auth()->id(),
-            'reference' => '#asset',
-            'description' => 'test asset entry',
-            'date' => '2026-1-20',
-            'total_debit' => 1000,
-            'total_credit' => 1000
-        ],
-        [
-            'user_id' => auth()->id(),
-            'reference' => '#liabilitie',
-            'description' => 'test liabilities entry',
-            'date' => '2026-01-25',
-            'total_debit' => 700,
-            'total_credit' => 700
-        ],  
-        [
-            'user_id' => auth()->id(),
-            'reference' => '#equity',
-            'description' => 'test equity entry',
-            'date' => '2026-01-25',
-            'total_debit' => 300,
-            'total_credit' => 300
-        ],
-    )
-    ->create();
-
-    $entryLines = JournalEntryLine::factory()
-    ->count(3)
-    ->sequence(
-
-        [
-            'account_id' => $accounts->where('name', 'Cash')->first()->id,
-            'journal_entry_id' => $JournalEntries->where('reference', '#asset')->first()->id,
-            'debit' => 1000,
-            'credit' => 0
-        ],
-        [
-            'account_id' => $accounts->where('name', 'Bank Loan')->first()->id,
-            'journal_entry_id' => $JournalEntries->where('reference', '#liabilitie')->first()->id,
-            'debit' => 0,
-            'credit' => 700
-        ],        [
-            'account_id' => $accounts->where('name', 'Retained Earnings')->first()->id,
-            'journal_entry_id' => $JournalEntries->where('reference', '#equity')->first()->id,
-            'debit' => 0,
-            'credit' => 300
-        ],
-    )
-    ->create();
-
-    $data = ['endDate' => '2026-01-25'];
+    $entry = JournalEntry::factory()->create(['date' => '2026-01-01', 'total_debit' => 5000, 'total_credit' => 5000]);
     
-    $response = $this->postJson('api/v1/accounting/reports/balance-sheet',$data)
-    ->assertStatus(200);
+    JournalEntryLine::factory()->create(['journal_entry_id' => $entry->id, 'account_id' => $cash->id, 'debit' => 5000]);
+    JournalEntryLine::factory()->create(['journal_entry_id' => $entry->id, 'account_id' => $loan->id, 'credit' => 5000]);
 
-    $responseData = $response->json('data');
-    $totalAssets = $responseData['assets_group']['group_total'];
-    $totalLiabilities = $responseData['liabilities_and_equity_group']['sub_types']['liabilities_group']['type_total'];
-    $totalEquity = $responseData['liabilities_and_equity_group']['sub_types']['equity_group']['type_total'];
+    $response = $this->postJson('api/v1/accounting/reports/balance-sheet', ['endDate' => '2026-01-31']);
 
-    $this->assertEquals($totalAssets, $totalLiabilities + $totalEquity);
-    $this->assertEquals(1000,$totalAssets);
-    $this->assertEquals(700,$totalLiabilities);
-    $this->assertEquals(300,$totalEquity);
+    $data = $response->json('data');
+    $assets = $data['assets_group']['group_total'];
+    $liabilities = $data['liabilities_and_equity_group']['sub_types']['liabilities_group']['type_total'];
 
+    expect($assets)->toBe(5000);
+    expect($liabilities)->toBe(5000);
+    expect($assets)->toBe($liabilities);
+});
 
+test('balance sheet includes net profit from revenue and expenses', function () {
+    $cash = Account::factory()->create(['name' => 'Cash', 'account_type_id' => $this->types['assets']]);
+    $sales = Account::factory()->create(['name' => 'Sales', 'account_type_id' => $this->types['revenue']]);
+    $rent = Account::factory()->create(['name' => 'Rent', 'account_type_id' => $this->types['expenses']]);
+
+    $entry1 = JournalEntry::factory()->create(['date' => '2026-01-05', 'total_debit' => 1000, 'total_credit' => 1000]);
+    JournalEntryLine::factory()->create(['journal_entry_id' => $entry1->id, 'account_id' => $cash->id, 'debit' => 1000]);
+    JournalEntryLine::factory()->create(['journal_entry_id' => $entry1->id, 'account_id' => $sales->id, 'credit' => 1000]);
+
+    $entry2 = JournalEntry::factory()->create(['date' => '2026-01-10', 'total_debit' => 400, 'total_credit' => 400]);
+    JournalEntryLine::factory()->create(['journal_entry_id' => $entry2->id, 'account_id' => $rent->id, 'debit' => 400]);
+    JournalEntryLine::factory()->create(['journal_entry_id' => $entry2->id, 'account_id' => $cash->id, 'credit' => 400]);
+
+    $response = $this->postJson('api/v1/accounting/reports/balance-sheet', ['endDate' => '2026-01-31']);
+    
+    $data = $response->json('data');
+    $assets = $data['assets_group']['group_total'];
+    $netProfit = $data['liabilities_and_equity_group']['sub_types']['equity_group']['accounts'][0]['netBalance'] * -1;
+
+    expect($assets)->toBe(600);
+    expect($netProfit)->toBe(600);
+    expect($assets)->toBe($netProfit);
+});
+
+test('balance sheet ignores transactions after the end date', function () {
+    $cash = Account::factory()->create(['account_type_id' => $this->types['assets']]);
+    $otherAccount = Account::factory()->create(); 
+    
+    $entry1 = JournalEntry::factory()->create(['date' => '2026-01-15', 'total_debit' => 100, 'total_credit' => 100]);
+    JournalEntryLine::factory()->create([
+        'journal_entry_id' => $entry1->id, 
+        'account_id' => $cash->id, 
+        'debit' => 100
+    ]);
+    JournalEntryLine::factory()->create([
+        'journal_entry_id' => $entry1->id, 
+        'account_id' => $otherAccount->id, 
+        'credit' => 100
+    ]);
+
+    $entry2 = JournalEntry::factory()->create(['date' => '2026-02-15', 'total_debit' => 500, 'total_credit' => 500]);
+    JournalEntryLine::factory()->create([
+        'journal_entry_id' => $entry2->id, 
+        'account_id' => $cash->id, 
+        'debit' => 500
+    ]);
+    JournalEntryLine::factory()->create([
+        'journal_entry_id' => $entry2->id, 
+        'account_id' => $otherAccount->id, 
+        'credit' => 500
+    ]);
+
+    $response = $this->postJson('api/v1/accounting/reports/balance-sheet', ['endDate' => '2026-01-31']);
+    
+    expect($response->json('data.assets_group.group_total'))->toBe(100);
 });
 
 afterEach(function () {
     if (tenancy()->initialized) {
         $tenant = tenancy()->tenant;
-        tenancy()->end(); 
+        tenancy()->end();
         $tenant->delete();
     }
 });
