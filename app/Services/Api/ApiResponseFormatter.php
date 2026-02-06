@@ -8,8 +8,14 @@ class ApiResponseFormatter
 {
 
 
-    public function successResponse($message ,$data = [], $code = 200): JsonResponse
-    {
+    public function successResponse(
+        $message,
+        $data = [],
+        $code = 200,
+        $headers = [],
+        $options = 0
+
+    ): JsonResponse {
 
         return response()->json([
 
@@ -18,11 +24,17 @@ class ApiResponseFormatter
             'data' => $data,
             'code' => $code,
 
-        ]);
+        ], $code, $headers, $options);
     }
 
-    public function failedResponse( $message , $data, $code = 500): JsonResponse
-    {
+    public function failedResponse(
+        $message = '',
+        $data = [],
+        $code = 500,
+        $headers = [],
+        $options = 0
+        
+    ): JsonResponse {
 
         return response()->json([
 
@@ -31,6 +43,8 @@ class ApiResponseFormatter
             'data' => $data,
             'code' => $code,
 
-        ]);
+
+
+        ], $code, $headers, $options,);
     }
 }
