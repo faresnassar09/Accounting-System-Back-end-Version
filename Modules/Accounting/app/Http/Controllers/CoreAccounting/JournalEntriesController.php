@@ -19,6 +19,13 @@ class JournalEntriesController extends Controller
         
         ){}
 
+    /**
+   * 
+   * store normal journal entry 
+   *
+   * @group journal entry
+   */
+
 
     public function store(JournalEntryRequest $data) {
 

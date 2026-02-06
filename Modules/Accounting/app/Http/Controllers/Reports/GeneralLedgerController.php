@@ -20,6 +20,14 @@ class GeneralLedgerController extends Controller
 
     ) {}
 
+    
+    /**
+   * 
+   * generate general ledger report 
+   *
+   * @group general ledger report
+   */
+
     public function generateReport(GeneralLedgerRequest $data)
     {
 

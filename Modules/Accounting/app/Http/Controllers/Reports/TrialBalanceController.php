@@ -19,6 +19,13 @@ class TrialBalanceController extends Controller
         public ApiResponseFormatter $apiResponseFormatter,
     ) {}
 
+    /**
+   * 
+   * generate trial balance report 
+   *
+   * @group trial balance report
+   */
+
     public function generateReport(TrialBalanceRequest $date)
     {
 

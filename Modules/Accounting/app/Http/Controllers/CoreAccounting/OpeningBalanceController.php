@@ -19,6 +19,13 @@ class OpeningBalanceController extends Controller
 
     ){} 
 
+    /**
+   * 
+   * store opening journal entry 
+   *
+   * @group opening journal entry
+   */
+
     public function store(OpeningBalanceRequest $data) {
 
 

@@ -19,6 +19,13 @@ class FinancialClosingController extends Controller
         public LoggerService $loggerService,
     ) {}
 
+    /**
+   * 
+   * retrieve revenues and expenses accounts
+   *
+   * @group financial year
+   */
+
     public function getRevenuesAndExpenses($year)
     {
 
@@ -49,6 +56,15 @@ class FinancialClosingController extends Controller
             );
         }
     }
+
+
+    /**
+   * 
+   * process clsing financial year 
+   *
+   * @group financial year
+   */
+
 
     public function applyClosingFinancialYear(ClosingFinancialYearRequest $data)
     {

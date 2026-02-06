@@ -15,6 +15,14 @@ class ProfileController extends Controller
 
     ) {}
 
+          /**
+   * 
+   * user login 
+   *
+   * @group user profile
+   * 
+   */ 
+
     public function getUserData() {
 
 

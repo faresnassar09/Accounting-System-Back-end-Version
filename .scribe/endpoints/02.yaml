@@ -1,0 +1,136 @@
+name: 'opening journal entry'
+description: ''
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/accounting/store-opening-balance
+    metadata:
+      custom: []
+      groupName: 'opening journal entry'
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'store opening journal entry'
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: '{YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      header:
+        custom: []
+        name: header
+        description: ''
+        required: false
+        example: []
+        type: object
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      header.reference:
+        custom: []
+        name: header.reference
+        description: 'Must be at least 1 character. Must not be greater than 255 characters.'
+        required: true
+        example: vmqeopfuudtdsufvyvddq
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      header.date:
+        custom: []
+        name: header.date
+        description: 'Must be a valid date.'
+        required: false
+        example: '2026-02-06T04:37:59'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      header.description:
+        custom: []
+        name: header.description
+        description: 'Must be at least 5 characters. Must not be greater than 255 characters.'
+        required: true
+        example: 'Dolores molestias ipsam sit.'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      lines:
+        custom: []
+        name: lines
+        description: ''
+        required: false
+        example:
+          - []
+        type: 'object[]'
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      'lines[].account_id':
+        custom: []
+        name: 'lines[].account_id'
+        description: 'The <code>id</code> of an existing record in the accounts table.'
+        required: true
+        example: consequatur
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      'lines[].debit':
+        custom: []
+        name: 'lines[].debit'
+        description: 'This field is required when <code>lines.*.credit</code> is <code>0</code>. Must be at least 0. Must not be greater than 9999999999.'
+        required: true
+        example: 13
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      'lines[].credit':
+        custom: []
+        name: 'lines[].credit'
+        description: 'This field is required when <code>lines.*.debit</code> is <code>0</code>. Must be at least 0. Must not be greater than 9999999999.'
+        required: true
+        example: 16
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      header:
+        reference: vmqeopfuudtdsufvyvddq
+        date: '2026-02-06T04:37:59'
+        description: 'Dolores molestias ipsam sit.'
+      lines:
+        -
+          account_id: consequatur
+          debit: 13
+          credit: 16
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 3V5EgbkvZcDPa166h8fd4ae
+    controller: null
+    method: null
+    route: null

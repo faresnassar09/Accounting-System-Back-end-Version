@@ -19,6 +19,15 @@ class AccountingChartController extends Controller
 
   ) {}
 
+
+  /**
+   * 
+   * retrieve the chart accounting's accounts  
+   *
+   * @group chart accounting
+   */
+  
+
   public function getAccountingChart()
   {
 
@@ -52,7 +61,12 @@ class AccountingChartController extends Controller
     }
   }
 
-
+  /**
+   * 
+   * retrieve all accounts  
+   *
+   * @group chart accounting
+   */
   public function getAccounts()
   {
 
@@ -84,6 +98,14 @@ class AccountingChartController extends Controller
       );
     }
   }
+
+
+  /**
+   * 
+   * retrieve the closing accounts  
+   *
+   * @group chart accounting
+   */
 
   public function getClosingAccounts(){
 

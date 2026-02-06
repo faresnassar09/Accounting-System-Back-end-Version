@@ -18,6 +18,13 @@ class IncomeStatementController extends Controller
         public LoggerService $loggerService
     ) {}
 
+    /**
+   * 
+   * generate income statement report 
+   *
+   * @group income statement report
+   */
+
     public function generateReport(IncomeStatementRequest $data)
     {
 

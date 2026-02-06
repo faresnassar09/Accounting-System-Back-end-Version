@@ -20,6 +20,12 @@ class BalanceSheetController extends Controller
 
     ) {}
 
+    /**
+   * 
+   * generate balance sheet report 
+   *
+   * @group balance sheet report
+   */
 
     public function generateReport(BalanceSheetRequest $data)
     {

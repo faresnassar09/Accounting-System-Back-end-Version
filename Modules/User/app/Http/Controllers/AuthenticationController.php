@@ -18,6 +18,13 @@ class AuthenticationController extends Controller
 
     ) {}
 
+      /**
+   * 
+   * user login 
+   *
+   * @group user auth
+   * 
+   */ 
     public function login(AuthenticationRequest $data)
     {
 

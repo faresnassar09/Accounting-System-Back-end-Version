@@ -1,0 +1,74 @@
+name: 'general ledger report'
+description: ''
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/accounting/reports/general-ledger
+    metadata:
+      custom: []
+      groupName: 'general ledger report'
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'generate general ledger report'
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: '{YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      accountId:
+        custom: []
+        name: accountId
+        description: 'The <code>id</code> of an existing record in the accounts table.'
+        required: true
+        example: consequatur
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      startDate:
+        custom: []
+        name: startDate
+        description: 'Must be a valid date.'
+        required: false
+        example: '2026-02-06T04:37:59'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      endDate:
+        custom: []
+        name: endDate
+        description: 'Must be a valid date.'
+        required: false
+        example: '2026-02-06T04:37:59'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      accountId: consequatur
+      startDate: '2026-02-06T04:37:59'
+      endDate: '2026-02-06T04:37:59'
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 3V5EgbkvZcDPa166h8fd4ae
+    controller: null
+    method: null
+    route: null

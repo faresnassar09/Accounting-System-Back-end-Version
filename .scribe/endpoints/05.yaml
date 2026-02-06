@@ -1,0 +1,50 @@
+name: 'trial balance report'
+description: ''
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/accounting/reports/trial-balance
+    metadata:
+      custom: []
+      groupName: 'trial balance report'
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'generate trial balance report'
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: '{YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      endDate:
+        custom: []
+        name: endDate
+        description: 'Must be a valid date.'
+        required: false
+        example: '2026-02-06T04:37:59'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      endDate: '2026-02-06T04:37:59'
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 3V5EgbkvZcDPa166h8fd4ae
+    controller: null
+    method: null
+    route: null
