@@ -33,7 +33,7 @@ class ApiResponseFormatter
         $code = 500,
         $headers = [],
         $options = 0
-        
+
     ): JsonResponse {
 
         return response()->json([
@@ -42,8 +42,6 @@ class ApiResponseFormatter
             'message' => $message,
             'data' => $data,
             'code' => $code,
-
-
 
         ], $code, $headers, $options,);
     }

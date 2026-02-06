@@ -7,7 +7,7 @@ return [
 
 'allowed_methods' => ['*'],
 
-'allowed_origins' => ['*'],
+'allowed_origins' => ['http://tenant1.app.test:5173'],
 
 'allowed_origins_patterns' => [],
 
