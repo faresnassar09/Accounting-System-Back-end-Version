@@ -20,5 +20,24 @@ class AuthenticationService
         }
     }
 
+    public function getdeviceName(){
+
+
+    return request()->header('User-Agent') ?: 'Unknown Device';
+
+    }
+
+    public function deletePreviousToken($deviceName,$user){
+
+
+        $user->tokens()->where('name', $deviceName)->delete();
+
+    }
+
+    public function createToken($deviceName,$user){
+
+       return $user->createToken($deviceName)->plainTextToken;
+    }
+
 
 }

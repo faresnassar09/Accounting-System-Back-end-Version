@@ -34,11 +34,15 @@ class AuthenticationController extends Controller
 
             $user = Auth::user();
 
-            $deviceName = request()->header('User-Agent') ?: 'Unknown Device';
-            $user->tokens()->where('name', $deviceName)->delete();
-            $token = $user->createToken($deviceName)->plainTextToken; 
+            $deviceName = $this->authenticationService->getdeviceName();
+
+            $this->authenticationService->deletePreviousToken($deviceName,$user);
+
+            $token = $this->authenticationService->createToken($deviceName,$user);
 
             $user->token = $token;
+
+
             return $this->apiResponse
                 ->successResponse(
 
