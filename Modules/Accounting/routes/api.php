@@ -10,90 +10,34 @@ use Modules\Accounting\Http\Controllers\Reports\GeneralLedgerController;
 use Modules\Accounting\Http\Controllers\Reports\IncomeStatementController;
 use Modules\Accounting\Http\Controllers\Reports\TrialBalanceController;
 
+Route::middleware(['auth:sanctum', 'role:accountant'])
+    ->prefix('v1/accounting')
+    ->group(function () {
 
-// Chart Accounting
-
-Route::middleware(['auth:sanctum','role:accountant'])
-->controller(AccountingChartController::class)
-->prefix('v1/accounting/')
-->name('accounting')
-->group(function(){
-
-    Route::get('chart-accounting','getAccountingChart');
-    Route::get('get-accounts-list','getAccounts');
-    Route::get('getClosigAccounts','getClosingAccounts');
-
-});
+        Route::controller(AccountingChartController::class)->group(function () {
+            Route::get('charts', 'getAccountingChart'); 
+            Route::get('accounts', 'getAccounts');
+            Route::get('accounts/closing', 'getClosingAccounts');
+        });
 
 
-// Journal Entries
+        Route::middleware('check_year')->group(function () {
+            Route::post('journal-entries', [JournalEntriesController::class, 'store']);
+            Route::post('opening-balances', [OpeningBalanceController::class, 'store']);
+        });
 
-Route::middleware(['auth:sanctum','role:accountant','check_year'])
-->prefix('v1/accounting/')
-->name('accounting')
-->group(function(){
+        Route::controller(FinancialClosingController::class)
+            ->prefix('financial-closing')
+            ->group(function () {
+                Route::get('preview/{year}', 'getRevenuesAndExpenses');
+                Route::post('apply', 'applyClosingFinancialYear');
+            });
 
-    Route::post('store-journal-entries',[JournalEntriesController::class,'store']);
-    Route::post('store-opening-balance',[OpeningBalanceController::class,'store']);
-});
+        Route::prefix('reports')->group(function () {
+            Route::get('general-ledger', [GeneralLedgerController::class, 'generateReport']);
+            Route::get('trial-balance', [TrialBalanceController::class, 'generateReport']);
+            Route::get('income-statement', [IncomeStatementController::class, 'generateReport']);
+            Route::get('balance-sheet', [BalanceSheetController::class, 'generateReport']);
+        });
 
-Route::middleware(['auth:sanctum','role:accountant'])
-->controller(FinancialClosingController::class)
-->prefix('v1/accounting/financial-closing/')
-->name('accounting')
-->group(function(){
-
-    Route::get('preview-details/{year}','getRevenuesAndExpenses');
-    Route::post('close','applyClosingFinancialYear');
-});
-
-// General Ledger
-
-Route::middleware(['auth:sanctum','role:accountant'])
-->controller(GeneralLedgerController::class)
-->prefix('v1/accounting/reports/')
-->name('accounting')
-->group(function(){
-
-    Route::post('general-ledger','generateReport');
-
-});
-
-// Trial Balance
-
-Route::middleware(['auth:sanctum','role:accountant'])
-->controller(TrialBalanceController::class)
-->prefix('v1/accounting/reports/')
-->name('accounting')
-->group(function(){
-
-    Route::post('trial-balance','generateReport');
-
-});
-
-
-// Income Statement
-
-Route::middleware(['auth:sanctum','role:accountant'])
-->controller(IncomeStatementController::class)
-->prefix('v1/accounting/reports/')
-->name('accounting')
-->group(function(){
-
-    Route::post('income-statement','generateReport');
-
-});
-
-
-
-// Balance Sheet
-
-Route::middleware(['auth:sanctum','role:accountant'])
-->controller(BalanceSheetController::class)
-->prefix('v1/accounting/reports/')
-->name('accounting')
-->group(function(){
-
-    Route::post('balance-sheet','generateReport');
-
-});
+    });

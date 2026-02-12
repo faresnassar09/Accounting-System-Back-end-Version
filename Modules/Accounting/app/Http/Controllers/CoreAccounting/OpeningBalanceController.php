@@ -37,6 +37,7 @@ class OpeningBalanceController extends Controller
 
                 'Opening Balance Saved Successfully',
                 [],
+                201
 
             );
 
@@ -49,7 +50,7 @@ class OpeningBalanceController extends Controller
                 $e->getMessage(),
             );
 
-            return $this->apiResponseFormatter->successResponse(
+            return $this->apiResponseFormatter->failedResponse(
 
                 'Failed To Save Opening Balance Entry Please Try Again Later',
                 [],

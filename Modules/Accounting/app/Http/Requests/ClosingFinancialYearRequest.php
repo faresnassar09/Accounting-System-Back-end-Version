@@ -11,7 +11,11 @@ class ClosingFinancialYearRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [];
+        return [
+
+            'year' => ['required','unique:closed_financial_years,year'],
+            'account_id' => ['required','exists:accounts,id']
+        ];
     }
 
     /**

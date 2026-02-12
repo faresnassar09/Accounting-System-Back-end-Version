@@ -37,6 +37,7 @@ class JournalEntriesController extends Controller
 
             'Journal Entry Saved Successfully',
             [],
+            201
 
         );
 

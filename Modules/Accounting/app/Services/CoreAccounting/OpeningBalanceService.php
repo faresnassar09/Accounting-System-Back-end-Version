@@ -46,7 +46,7 @@ class OpeningBalanceService
 
                 $journalentryHeader,
                 $diffTotals,
-                $BalanceDiffAccount->id
+                $BalanceDiffAccount->id??1
             );
         }
         }); 
