@@ -21,8 +21,5 @@ class BranchObserver
      */
     public function deleted(Branch $branch): void {}
 
-    public function creating(Branch $branch){
-
-        $branch->company_id = current_guard_user()->company_id;
-    }
+    public function creating(Branch $branch){    }
 }

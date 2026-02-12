@@ -23,9 +23,7 @@ class BranchForm
                 ]),
 
                 TextInput::make('code')
-                ->unique(
-                    ignoreRecord: true,
-                    modifyRuleUsing: fn ($rule,$livewire) => $rule->where('company_id',current_guard_user()->company_id)),
+                ->unique(),
             ]);
     }
 }

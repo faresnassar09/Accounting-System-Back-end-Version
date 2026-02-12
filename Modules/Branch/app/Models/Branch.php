@@ -10,8 +10,6 @@ use Modules\Admin\Models\Admin;
 use Modules\Company\Models\CompanyScope;
 use Modules\Organization\Models\Organization;
 
-// use Modules\Branch\Database\Factories\BranchFactory;
-// #[ScopedBy(CompanyScope::class)]
 
 class Branch extends Model
 {
@@ -19,7 +17,6 @@ class Branch extends Model
 
     protected $fillable = [
 
-        'organization_id',
         'name',
         'phone',
         'address',
@@ -34,15 +31,13 @@ class Branch extends Model
 
     public function admins(){
 
-        return $this->hasMany(Admin::class)->role('admin');
+        return $this->hasMany(Admin::class)->whereHas('roles',function($query){
+            
+            $query->where('name','admin');
+            
+
+        });
         
     }   
-
-    public function organization(){
-
-        return $this->belongsTo(Organization::class);
-    }
-
-
 
 }

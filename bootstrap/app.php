@@ -8,8 +8,6 @@ use Illuminate\Session\Middleware\StartSession;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 
 
-
-
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
@@ -19,7 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
 
-        $middleware->statefulApi();
+        // $middleware->statefulApi();
 
 
         $middleware->validateCsrfTokens(except: [
@@ -34,7 +32,7 @@ return Application::configure(basePath: dirname(__DIR__))
             // PreventAccessFromCentralDomains::class,
         ]);
 
-        $middleware->api([
+        $middleware->api(append:[
             InitializeTenancyByDomain::class,
         ]);
         

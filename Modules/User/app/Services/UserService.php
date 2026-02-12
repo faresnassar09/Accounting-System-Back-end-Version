@@ -17,7 +17,7 @@ class UserService{
 
     public function getUserData(){
 
- $user = Auth::user();
+        $user = Auth::user();
 
 
         if ($user) {

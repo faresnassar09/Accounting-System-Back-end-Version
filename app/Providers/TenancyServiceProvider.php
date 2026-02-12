@@ -162,19 +162,17 @@ class TenancyServiceProvider extends ServiceProvider
             $this->app[\Illuminate\Contracts\Http\Kernel::class]->prependToMiddlewarePriority($middleware);
         }
 
-        Livewire::setUpdateRoute(function ($handle) {
-            $centralDomain ='owner.app.test';
-            
-            $request = request(); 
-        
-            return Route::post('/livewire/update', $handle)
-                ->middleware('web')
-                
+Livewire::setUpdateRoute(function ($handle) {
 
-                ->when($request->getHost() !== $centralDomain, function ($route) {
-                    $route->middleware(InitializeTenancyByDomain::class);
-                });
+    $centralDomains = config('tenancy.central_domains', []);
+    $request = request(); 
+
+    return Route::post('/livewire/update', $handle)
+        ->middleware('web')
+        ->when(!in_array($request->getHost(), $centralDomains), function ($route) {
+            $route->middleware(\Stancl\Tenancy\Middleware\InitializeTenancyByDomain::class);
         });
+});
 
 
     }

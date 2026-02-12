@@ -30,7 +30,6 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->authGuard('admin')
             ->login()
-            // ->domain('app.localhost')
             ->colors([
                 'primary' => Color::Amber,
             ])

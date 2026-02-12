@@ -14,6 +14,7 @@
         "laravel/tinker": "^2.10.1",
         "livewire/volt": "^1.7.0",
         "nwidart/laravel-modules": "^12.0",
+        "predis/predis": "^3.4",
         "spatie/laravel-activitylog": "^4.10",
         "spatie/laravel-permission": "^6.21",
         "stancl/tenancy": "^3.9",
