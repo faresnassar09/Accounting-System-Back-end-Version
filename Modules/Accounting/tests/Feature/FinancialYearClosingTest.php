@@ -36,7 +36,7 @@ test('it correctly zeroes out revenue and expenses and transfers profit to retai
 
     $year = '2026';
 
-    $response = $this->postJson('/api/v1/accounting/financial-closing/close', [
+    $response = $this->postJson('/api/v1/accounting/financial-closing/apply', [
         'year' => $year,
         'account_id' => $this->retainedEarnings->id
     ]);

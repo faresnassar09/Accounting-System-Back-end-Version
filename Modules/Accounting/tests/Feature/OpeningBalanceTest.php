@@ -60,8 +60,8 @@ test('user can add opening balance journal entry',function(){
         ]
         ];
 
-        $this->postJson('api/v1/accounting/store-opening-balance',$data)
-        ->assertStatus(200);
+        $this->postJson('api/v1/accounting/opening-balances',$data)
+        ->assertStatus(201);
         
         $this->assertDatabaseHas('journal_entries',[
 

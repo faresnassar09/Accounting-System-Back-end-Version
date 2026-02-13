@@ -40,7 +40,7 @@ test('balance sheet matches the basic accounting equation', function () {
     JournalEntryLine::factory()->create(['journal_entry_id' => $entry->id, 'account_id' => $cash->id, 'debit' => 5000]);
     JournalEntryLine::factory()->create(['journal_entry_id' => $entry->id, 'account_id' => $loan->id, 'credit' => 5000]);
 
-    $response = $this->postJson('api/v1/accounting/reports/balance-sheet', ['endDate' => '2026-01-31']);
+    $response = $this->getJson('api/v1/accounting/reports/balance-sheet?endDate=2026-01-31');
 
     $data = $response->json('data');
     $assets = $data['assets_group']['group_total'];
@@ -64,7 +64,7 @@ test('balance sheet includes net profit from revenue and expenses', function () 
     JournalEntryLine::factory()->create(['journal_entry_id' => $entry2->id, 'account_id' => $rent->id, 'debit' => 400]);
     JournalEntryLine::factory()->create(['journal_entry_id' => $entry2->id, 'account_id' => $cash->id, 'credit' => 400]);
 
-    $response = $this->postJson('api/v1/accounting/reports/balance-sheet', ['endDate' => '2026-01-31']);
+    $response = $this->getjson('api/v1/accounting/reports/balance-sheet?endDate=2026-01-31');
     
     $data = $response->json('data');
     $assets = $data['assets_group']['group_total'];
@@ -103,7 +103,7 @@ test('balance sheet ignores transactions after the end date', function () {
         'credit' => 500
     ]);
 
-    $response = $this->postJson('api/v1/accounting/reports/balance-sheet', ['endDate' => '2026-01-31']);
+    $response = $this->getJson('api/v1/accounting/reports/balance-sheet?endDate=2026-02-13');
     
     expect($response->json('data.assets_group.group_total'))->toBe(100);
 });

@@ -30,6 +30,8 @@ beforeEach(function () {
 
     // There Is listener creates a super_admin role automatically
     // check  Modules/Admin/Listeners/CreateSuperAdminListener.php
+
+
     $this->admin->assignRole('super_admin');
     $this->actingAs($this->admin, 'admin');
 
@@ -83,6 +85,7 @@ it('prevents tenant A from seeing accounts of tenant B', function () {
 
     // Expect 5 accounts (not 0) because a listener adds 5 main accounts automatically
     // Check: Modules/Accounting/app/Listeners/CreateMainAccountsListener.php
+
     Livewire::test(ListAccounts::class)
         ->assertCanNotSeeTableRecords([$account1])
         ->assertCountTableRecords(5);
@@ -126,7 +129,7 @@ it('forbids unauthorized Admins from accessing account creation', function () {
         ]
     ];
 
-    $this->postJson('api/v1/accounting/store-journal-entries', $data);
+    $this->postJson('api/v1/accounting/journal-entries', $data);
 
     Livewire::test(\Modules\Admin\Filament\Resources\Accounts\Pages\EditAccount::class, [
         'record' => $account->getRouteKey(),
@@ -140,7 +143,7 @@ test('user can see Accounting Chart',function(){
 
     $this->actingAs($this->user,'sanctum');
 
-    $response = $this->get('api/v1/accounting/chart-accounting');
+    $response = $this->get('api/v1/accounting/charts');
 
     $response->assertStatus(200);
 

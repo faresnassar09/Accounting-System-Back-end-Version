@@ -112,7 +112,7 @@ beforeEach(function () {
 });
 
 
-test('trial balance calculates totals correctly', function () {
+it('calculates totals correctly', function () {
 
     $data = [
 
@@ -122,7 +122,7 @@ test('trial balance calculates totals correctly', function () {
         'endDate' => '2026-02-03'
     ];
 
-    $response = $this->postJson('api/v1/accounting/reports/general-ledger', $data)
+    $response = $this->getJson('api/v1/accounting/reports/general-ledger?'.http_build_query($data))
         ->assertStatus(200);
 
         
@@ -132,7 +132,7 @@ test('trial balance calculates totals correctly', function () {
 });
 
 
-test('trial balance ignores entries after the specified end date', function () {
+it('gnores entries after the specified end date', function () {
 
     $data = [
 
@@ -142,7 +142,7 @@ test('trial balance ignores entries after the specified end date', function () {
         'endDate' => '2026-01-30'
     ];
 
-    $response = $this->postJson('api/v1/accounting/reports/general-ledger', $data)
+    $response = $this->getjson('api/v1/accounting/reports/general-ledger?'. http_build_query($data))
         ->assertStatus(200);
 
         $closingBalance = $response->json('data.closing_balance');
@@ -150,7 +150,7 @@ test('trial balance ignores entries after the specified end date', function () {
         expect($closingBalance)->toBe(1200);
  });
 
- test('trial balance returns empty results when no entries exist',function(){
+ it('returns empty results when no entries exist',function(){
 
 
     $data = [
@@ -161,7 +161,7 @@ test('trial balance ignores entries after the specified end date', function () {
         'endDate' => '2025-01-30'
     ];
 
-    $response = $this->postJson('api/v1/accounting/reports/general-ledger', $data)
+    $response = $this->getJson('api/v1/accounting/reports/general-ledger?'. http_build_query($data))
         ->assertStatus(200);
 
         $closingBalance = $response->json('data.closing_balance');
@@ -180,7 +180,7 @@ test('trial balance ignores entries after the specified end date', function () {
         'endDate' => '2026-02-03'
     ];
 
-    $response = $this->postJson('api/v1/accounting/reports/general-ledger', $data)
+    $response = $this->getjson('api/v1/accounting/reports/general-ledger?'.http_build_query($data))
         ->assertStatus(200);
 
         $closingBalance = $response->json('data.closing_balance');

@@ -47,12 +47,10 @@ test('income statement calculates net profit correctly from revenue and expenses
     JournalEntryLine::factory()->create(['journal_entry_id' => $expenseEntry->id, 'account_id' => $rentAccount->id, 'debit' => 4000]);
     JournalEntryLine::factory()->create(['journal_entry_id' => $expenseEntry->id, 'account_id' => $cashAccount->id, 'credit' => 4000]);
 
-    $response = $this->postJson('api/v1/accounting/reports/income-statement', [
-        'startDate' => '2026-01-01',
-        'endDate' => '2026-01-31'
-    ]);
-
+    $response = $this->getJson('api/v1/accounting/reports/income-statement?startDate=2026-01-01&endDate=2026-01-31');
     $data = $response->json('data');
+
+    \Log::info('kop',[$data]);
 
     $totalRevenue = $data['revenues']['total_revenue']; 
     $totalExpenses = $data['operating_activities']['total_expenses'];
@@ -75,10 +73,7 @@ test('income statement handles net loss scenario', function () {
     JournalEntryLine::factory()->create(['journal_entry_id' => $entry->id, 'account_id' => $expenseAccount->id, 'debit' => 5000]);
     JournalEntryLine::factory()->create(['journal_entry_id' => $entry->id, 'account_id' => $cashAccount->id, 'debit' => 2000, 'credit' => 5000]);
 
-    $response = $this->postJson('api/v1/accounting/reports/income-statement', [
-        'startDate' => '2026-01-01',
-        'endDate' => '2026-01-31'
-    ]);
+    $response = $this->getJson('api/v1/accounting/reports/income-statement?startDate=2026-01-01&endDate=2026-01-31');
 
     expect($response->json('data.final_result.net_income'))->toBe(-3000);
 });
