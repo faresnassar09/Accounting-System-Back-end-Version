@@ -10,7 +10,7 @@ if (!function_exists('get_current_guard')) {
     function get_current_guard(){
 
 
-        $guards = ['web','admin'];
+        $guards = array_keys(config('auth.guards'));
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
                 return  $guard;
@@ -37,7 +37,7 @@ if (!function_exists('current_guard_user')) {
         }
 
         return null; 
-    }
+    }}    
 
  if (!function_exists('all_guards')) {
 
@@ -52,4 +52,4 @@ function all_guards(){
 
 }
 
-}     
+ 

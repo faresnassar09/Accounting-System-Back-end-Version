@@ -2,7 +2,7 @@
 
     
 return [
-    'paths' => ['api/*', 'sanctum/csrf-cookie', 'auth/login', 'logout'], // تأكد من تطابق المسارات مع ملف الراوتس
+    'paths' => ['api/*', 'oauth/*', 'sanctum/csrf-cookie', 'auth/login', 'logout'], // تأكد من تطابق المسارات مع ملف الراوتس
 
     'allowed_methods' => ['*'],
 

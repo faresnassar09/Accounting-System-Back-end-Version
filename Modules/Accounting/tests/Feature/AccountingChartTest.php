@@ -3,13 +3,13 @@
 use \Filament\Actions\DeleteAction;
 use App\Models\Tenant;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Laravel\Passport\ClientRepository;
+use Laravel\Passport\Passport;
 use Livewire\Livewire;
 use Modules\Accounting\Models\Account;
 use Modules\Admin\Filament\Resources\Accounts\Pages\CreateAccount;
 use Modules\Admin\Filament\Resources\Accounts\Pages\ListAccounts;
 use Modules\Admin\Models\Admin;
-use Modules\User\Models\User;
-use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 
@@ -21,7 +21,7 @@ uses(TestCase::class, DatabaseMigrations::class);
 beforeEach(function () {
     $this->tenant1 = Tenant::create();
 
-    $this->tenant1->domains()->create(['domain' => 'tenant1.app.test']);
+    $this->tenant1->domains()->create(['domain' => 'tenant1.localhost']);
 
     tenancy()->initialize($this->tenant1);
 
@@ -30,12 +30,10 @@ beforeEach(function () {
 
     // There Is listener creates a super_admin role automatically
     // check  Modules/Admin/Listeners/CreateSuperAdminListener.php
+
+
     $this->admin->assignRole('super_admin');
     $this->actingAs($this->admin, 'admin');
-
-    $this->user = User::factory()->create();
-    $role = Role::create(['name' => 'accountant' , 'guard_name' => 'web']);
-    $this->user->assignRole($role);
 });
 
 /** -------------------------------------------------------
@@ -83,6 +81,7 @@ it('prevents tenant A from seeing accounts of tenant B', function () {
 
     // Expect 5 accounts (not 0) because a listener adds 5 main accounts automatically
     // Check: Modules/Accounting/app/Listeners/CreateMainAccountsListener.php
+
     Livewire::test(ListAccounts::class)
         ->assertCanNotSeeTableRecords([$account1])
         ->assertCountTableRecords(5);
@@ -107,9 +106,18 @@ it('forbids unauthorized Admins from accessing account creation', function () {
  * ------------------------------------------------------- */
 
  it('prevents deletion of account if it has transactions', function () {
-    $account = Account::create(['number' => '201', 'name' => 'Bank', 'type' => 'asset']);
 
-    $this->actingAs($this->user,'web');
+        
+        
+    $account = Account::create(['number' => '201', 'name' => 'Bank', 'type' => 'asset']);
+ 
+    $clients = app(ClientRepository::class);
+
+$client = $clients->createClientCredentialsGrantClient(
+    'main',             
+);
+
+    Passport::actingAsClient($client, ['*']);
 
 
     $data = [
@@ -126,7 +134,7 @@ it('forbids unauthorized Admins from accessing account creation', function () {
         ]
     ];
 
-    $this->postJson('api/v1/accounting/store-journal-entries', $data);
+    $this->postJson('api/v1/accounting/journal-entries', $data)->assertStatus(201);
 
     Livewire::test(\Modules\Admin\Filament\Resources\Accounts\Pages\EditAccount::class, [
         'record' => $account->getRouteKey(),
@@ -134,16 +142,24 @@ it('forbids unauthorized Admins from accessing account creation', function () {
     ->callAction(DeleteAction::class) 
     ->assertHasNoErrors();
 
+
+    
+
 });
 
-test('user can see Accounting Chart',function(){
+test('external service can see Accounting Chart', function () {
 
-    $this->actingAs($this->user,'sanctum');
+$clients = app(ClientRepository::class);
 
-    $response = $this->get('api/v1/accounting/chart-accounting');
+
+$client = $clients->createClientCredentialsGrantClient(
+    'main',             
+);
+
+    Passport::actingAsClient($client, ['*']);
+    $response = $this->getJson("api/v1/accounting/charts");
 
     $response->assertStatus(200);
-
 });
 
 

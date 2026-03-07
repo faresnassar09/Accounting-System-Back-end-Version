@@ -1,6 +1,9 @@
 <?php
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+use Laravel\Passport\Http\Middleware\CheckClientCredentials;
+use Laravel\Passport\Http\Middleware\EnsureClientIsResourceOwner;
 use Modules\Accounting\Http\Controllers\CoreAccounting\AccountingChartController;
 use Modules\Accounting\Http\Controllers\CoreAccounting\FinancialClosingController;
 use Modules\Accounting\Http\Controllers\CoreAccounting\JournalEntriesController;
@@ -10,11 +13,17 @@ use Modules\Accounting\Http\Controllers\Reports\GeneralLedgerController;
 use Modules\Accounting\Http\Controllers\Reports\IncomeStatementController;
 use Modules\Accounting\Http\Controllers\Reports\TrialBalanceController;
 
-Route::middleware(['auth:sanctum', 'role:accountant'])
+
+Route::middleware([
+
+EnsureClientIsResourceOwner::class,
+
+])
     ->prefix('v1/accounting')
     ->group(function () {
 
-        Route::controller(AccountingChartController::class)->group(function () {
+
+  Route::controller(AccountingChartController::class)->group(function () {
             Route::get('charts', 'getAccountingChart'); 
             Route::get('accounts', 'getAccounts');
             Route::get('accounts/closing', 'getClosingAccounts');

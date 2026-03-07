@@ -2,12 +2,12 @@
 
 use App\Models\Tenant;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Laravel\Passport\ClientRepository;
+use Laravel\Passport\Passport;
 use Modules\Accounting\Models\Account;
 use Modules\Accounting\Models\AccountType;
 use Modules\Accounting\Models\JournalEntry;
 use Modules\Accounting\Models\JournalEntryLine;
-use Modules\User\Models\User;
-use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 
@@ -17,14 +17,16 @@ uses(TestCase::class,DatabaseMigrations::class);
 beforeEach(function () {
 
     $this->tenant = Tenant::create();
-    $this->tenant->domains()->create(['domain' => 'tenant1.app.test']);
+    $this->tenant->domains()->create(['domain' => 'tenant1.localhost']);
     tenancy()->initialize($this->tenant);
 
-    $this->user = User::factory()->create();
-    $role = Role::create(['name' => 'accountant']);
+    $clients = app(ClientRepository::class);
 
-    $this->user->assignRole($role);
-    $this->actingAs($this->user, 'sanctum');
+$client = $clients->createClientCredentialsGrantClient(
+    'main',             
+);
+
+    Passport::actingAsClient($client, ['*']);
 
 
     $this->accounts = Account::factory()
@@ -54,7 +56,7 @@ beforeEach(function () {
         ->sequence(
             [
 
-                'user_id' => auth()->id(),
+                'user_id' => current_guard_user()->id ?? null,
                 'reference' => '#cash1',
                 'description' => 'test cash1 entry',
                 'date' => '2026-01-01',
@@ -64,7 +66,7 @@ beforeEach(function () {
             ],
 
             [
-                'user_id' => auth()->id(),
+                'user_id' => current_guard_user()->id ?? null ,
                 'reference' => '#cash2',
                 'description' => 'test cash2 entry',
                 'date' => '2026-02-01',
@@ -112,7 +114,7 @@ beforeEach(function () {
 });
 
 
-test('trial balance calculates totals correctly', function () {
+it('calculates totals correctly', function () {
 
     $data = [
 
@@ -122,7 +124,7 @@ test('trial balance calculates totals correctly', function () {
         'endDate' => '2026-02-03'
     ];
 
-    $response = $this->postJson('api/v1/accounting/reports/general-ledger', $data)
+    $response = $this->getJson('api/v1/accounting/reports/general-ledger?'.http_build_query($data))
         ->assertStatus(200);
 
         
@@ -132,7 +134,7 @@ test('trial balance calculates totals correctly', function () {
 });
 
 
-test('trial balance ignores entries after the specified end date', function () {
+it('gnores entries after the specified end date', function () {
 
     $data = [
 
@@ -142,7 +144,7 @@ test('trial balance ignores entries after the specified end date', function () {
         'endDate' => '2026-01-30'
     ];
 
-    $response = $this->postJson('api/v1/accounting/reports/general-ledger', $data)
+    $response = $this->getjson('api/v1/accounting/reports/general-ledger?'. http_build_query($data))
         ->assertStatus(200);
 
         $closingBalance = $response->json('data.closing_balance');
@@ -150,7 +152,7 @@ test('trial balance ignores entries after the specified end date', function () {
         expect($closingBalance)->toBe(1200);
  });
 
- test('trial balance returns empty results when no entries exist',function(){
+ it('returns empty results when no entries exist',function(){
 
 
     $data = [
@@ -161,7 +163,7 @@ test('trial balance ignores entries after the specified end date', function () {
         'endDate' => '2025-01-30'
     ];
 
-    $response = $this->postJson('api/v1/accounting/reports/general-ledger', $data)
+    $response = $this->getJson('api/v1/accounting/reports/general-ledger?'. http_build_query($data))
         ->assertStatus(200);
 
         $closingBalance = $response->json('data.closing_balance');
@@ -180,7 +182,7 @@ test('trial balance ignores entries after the specified end date', function () {
         'endDate' => '2026-02-03'
     ];
 
-    $response = $this->postJson('api/v1/accounting/reports/general-ledger', $data)
+    $response = $this->getjson('api/v1/accounting/reports/general-ledger?'.http_build_query($data))
         ->assertStatus(200);
 
         $closingBalance = $response->json('data.closing_balance');

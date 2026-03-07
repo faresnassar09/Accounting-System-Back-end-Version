@@ -19,7 +19,7 @@ class JournalEntryRepository implements JournalEntryRepositoryInterface
     {
         $journalentryHeader = JournalEntry::create([
 
-            'user_id' => current_guard_user()->id,
+            'user_id' =>auth('web')?->id ?? null,
             'type' => $type,
             'reference' => $header['reference'],
             'total_credit' => $header['total_credit'],

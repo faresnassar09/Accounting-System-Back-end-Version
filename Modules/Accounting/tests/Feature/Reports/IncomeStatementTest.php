@@ -2,26 +2,29 @@
 
 use App\Models\Tenant;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Laravel\Passport\ClientRepository;
+use Laravel\Passport\Passport;
 use Modules\Accounting\Models\Account;
 use Modules\Accounting\Models\AccountType;
 use Modules\Accounting\Models\JournalEntry;
 use Modules\Accounting\Models\JournalEntryLine;
-use Modules\User\Models\User;
-use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 uses(TestCase::class, DatabaseMigrations::class);
 
 beforeEach(function () {
     $this->tenant = Tenant::create();
-    $this->tenant->domains()->create(['domain' => 'tenant1.app.test']);
+    $this->tenant->domains()->create(['domain' => 'tenant1.localhost']);
     tenancy()->initialize($this->tenant);
 
-    $this->user = User::factory()->create();
-    $role = Role::create(['name' => 'accountant']);
-    $this->user->assignRole($role);
-    $this->actingAs($this->user, 'sanctum');
+    $clients = app(ClientRepository::class);
 
+$client = $clients->createClientCredentialsGrantClient(
+    'main',             
+);
+
+    Passport::actingAsClient($client, ['*']);
+    
     $this->revenueType = AccountType::where('type', 'operating_revenue')->first();
     $this->expenseType = AccountType::where('type', 'operating_expenses')->first();
 });
@@ -47,12 +50,9 @@ test('income statement calculates net profit correctly from revenue and expenses
     JournalEntryLine::factory()->create(['journal_entry_id' => $expenseEntry->id, 'account_id' => $rentAccount->id, 'debit' => 4000]);
     JournalEntryLine::factory()->create(['journal_entry_id' => $expenseEntry->id, 'account_id' => $cashAccount->id, 'credit' => 4000]);
 
-    $response = $this->postJson('api/v1/accounting/reports/income-statement', [
-        'startDate' => '2026-01-01',
-        'endDate' => '2026-01-31'
-    ]);
-
+    $response = $this->getJson('api/v1/accounting/reports/income-statement?startDate=2026-01-01&endDate=2026-01-31');
     $data = $response->json('data');
+
 
     $totalRevenue = $data['revenues']['total_revenue']; 
     $totalExpenses = $data['operating_activities']['total_expenses'];
@@ -75,10 +75,7 @@ test('income statement handles net loss scenario', function () {
     JournalEntryLine::factory()->create(['journal_entry_id' => $entry->id, 'account_id' => $expenseAccount->id, 'debit' => 5000]);
     JournalEntryLine::factory()->create(['journal_entry_id' => $entry->id, 'account_id' => $cashAccount->id, 'debit' => 2000, 'credit' => 5000]);
 
-    $response = $this->postJson('api/v1/accounting/reports/income-statement', [
-        'startDate' => '2026-01-01',
-        'endDate' => '2026-01-31'
-    ]);
+    $response = $this->getJson('api/v1/accounting/reports/income-statement?startDate=2026-01-01&endDate=2026-01-31');
 
     expect($response->json('data.final_result.net_income'))->toBe(-3000);
 });

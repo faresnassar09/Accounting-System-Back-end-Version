@@ -24,8 +24,7 @@ class BranchPolicy
     public function view(Admin $admin, Branch $branch){
 
         return current_guard_user()
-         && current_guard_user()->hasRole('super_admin')
-         && $admin->company_id === $branch->company_id;
+         && current_guard_user()->hasRole('super_admin');
 
     }
 
@@ -38,15 +37,13 @@ class BranchPolicy
     public function update(Admin $admin, Branch $branch){
 
         return current_guard_user()
-        && current_guard_user()->hasRole('super_admin')
-        && $admin->company_id === $branch->company_id;    
+        && current_guard_user()->hasRole('super_admin');    
     }
     
     public function delete(Admin $admin, Branch $branch){
 
         return current_guard_user()
-        && current_guard_user()->hasRole('super_admin')
-        && $admin->company_id === $branch->company_id;
+        && current_guard_user()->hasRole('super_admin');
     }
 
 

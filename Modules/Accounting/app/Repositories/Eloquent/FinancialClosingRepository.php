@@ -21,7 +21,7 @@ class FinancialClosingRepository implements FinancialClosingReposiroryInterface{
 
         ClosedFinancialYear::create([
 
-            'closed_by' => current_guard_user()->id,
+            'closed_by' => current_guard_user()?->id ?? null,
             'year' => $year,
             'net_profit_loss' => $netProfit,
             'retained_earnings_account_id' => $clogingAccountId, 

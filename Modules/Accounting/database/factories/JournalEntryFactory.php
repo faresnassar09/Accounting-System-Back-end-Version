@@ -18,7 +18,7 @@ class JournalEntryFactory extends Factory
     {
         return [
 
-            'user_id' => auth()->id(),
+            'user_id' => current_guard_user()?->id ?? null,
             'reference' => rand(1,5),
             'date' => now(),
             'description' => 'test entry',

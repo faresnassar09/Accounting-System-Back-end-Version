@@ -11,12 +11,12 @@ use Livewire\Livewire;
 use Modules\Accounting\Listeners\CreateAccountTypesListener;
 use Modules\Accounting\Listeners\CreateMainAccountsListener;
 use Modules\Admin\Listeners\CreateSuperAdminListener;
+use Modules\User\Listeners\CreateClientListener;
 use Stancl\JobPipeline\JobPipeline;
 use Stancl\Tenancy\Events;
 use Stancl\Tenancy\Jobs;
 use Stancl\Tenancy\Listeners;
 use Stancl\Tenancy\Middleware;
-use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 
 class TenancyServiceProvider extends ServiceProvider
 {
@@ -78,6 +78,7 @@ class TenancyServiceProvider extends ServiceProvider
                 CreateSuperAdminListener::class,
                 CreateAccountTypesListener::class,
                 CreateMainAccountsListener::class,
+                CreateClientListener::class,
             ],
             Events\DatabaseSeeded::class => [],
             Events\DatabaseRolledBack::class => [],

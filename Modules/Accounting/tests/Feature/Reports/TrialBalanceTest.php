@@ -2,25 +2,28 @@
 
 use App\Models\Tenant;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Laravel\Passport\ClientRepository;
+use Laravel\Passport\Passport;
 use Modules\Accounting\Models\Account;
 use Modules\Accounting\Models\AccountType;
 use Modules\Accounting\Models\JournalEntry;
 use Modules\Accounting\Models\JournalEntryLine;
-use Modules\User\Models\User;
-use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 uses(TestCase::class, DatabaseMigrations::class);
 
 beforeEach(function () {
     $this->tenant = Tenant::create();
-    $this->tenant->domains()->create(['domain' => 'tenant1.app.test']);
+    $this->tenant->domains()->create(['domain' => 'tenant1.localhost']);
     tenancy()->initialize($this->tenant);
 
-    $this->user = User::factory()->create();
-    $role = Role::create(['name' => 'accountant']);
-    $this->user->assignRole($role);
-    $this->actingAs($this->user, 'sanctum');
+    $clients = app(ClientRepository::class);
+
+$client = $clients->createClientCredentialsGrantClient(
+    'main',             
+);
+
+    Passport::actingAsClient($client, ['*']);
 
     $this->cashAccount = Account::factory()->create([
         'name' => 'Cash',
@@ -35,7 +38,7 @@ beforeEach(function () {
 
 test('trial balance debit and credit are balanced', function () {
     $entry = JournalEntry::factory()->create([
-        'user_id' => $this->user->id,
+        'user_id' => $this->user->id ?? null,
         'date' => '2026-01-20',
         'total_debit' => 3800,
         'total_credit' => 3800
@@ -55,8 +58,7 @@ test('trial balance debit and credit are balanced', function () {
         'credit' => 3800
     ]);
 
-    $data = ['endDate' => '2026-01-25'];
-    $response = $this->postJson('api/v1/accounting/reports/trial-balance', $data);
+    $response = $this->getJson('api/v1/accounting/reports/trial-balance?endDate=2026-01-25');
     
     $response->assertStatus(200);
     $reportData = $response->json('data.totals');
@@ -67,6 +69,7 @@ test('trial balance debit and credit are balanced', function () {
 });
 
 test('trial balance ignores entries after the specified end date', function () {
+
     $entryIn = JournalEntry::factory()->create(['date' => '2026-01-10', 'total_debit' => 1000, 'total_credit' => 1000]);
     JournalEntryLine::factory()->create([
         'account_id' => $this->cashAccount->id,
@@ -95,16 +98,15 @@ test('trial balance ignores entries after the specified end date', function () {
         'credit' => 5000
     ]);
 
-    $data = ['endDate' => '2026-01-31'];
-    $response = $this->postJson('api/v1/accounting/reports/trial-balance', $data);
+    $response = $this->getJson('api/v1/accounting/reports/trial-balance?endDate=2026-01-31');
     
     $response->assertStatus(200);
     expect($response->json('data.totals.total_debit'))->toBe(1000);
 });
 
 test('trial balance returns zero totals when no entries exist', function () {
-    $data = ['endDate' => '2020-01-01'];
-    $response = $this->postJson('api/v1/accounting/reports/trial-balance', $data);
+
+    $response = $this->getJson('api/v1/accounting/reports/trial-balance?endDate=2020-01-01');
     
     $response->assertStatus(200);
     $totals = $response->json('data.totals');

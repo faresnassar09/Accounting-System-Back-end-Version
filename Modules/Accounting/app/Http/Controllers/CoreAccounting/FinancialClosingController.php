@@ -68,9 +68,6 @@ class FinancialClosingController extends Controller
 
     public function applyClosingFinancialYear(ClosingFinancialYearRequest $data)
     {
-
-        \Log::info('joij',[$data->all()]);
-
         $year = $data['year'];
 
         try {

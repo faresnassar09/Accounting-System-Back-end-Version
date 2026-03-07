@@ -2,11 +2,10 @@
 
 use App\Models\Tenant;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Support\Facades\Hash;
+use Laravel\Passport\ClientRepository;
+use Laravel\Passport\Passport;
 use Modules\Accounting\Models\Account;
 use Modules\Accounting\Models\AccountType;
-use Modules\User\Models\User;
-use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 
@@ -18,14 +17,18 @@ uses(TestCase::class, DatabaseMigrations::class);
 beforeEach(function () {
 
     $this->tenant = Tenant::create();
-    $this->tenant->domains()->create(['domain' => 'tenant1.app.test']);
+    $this->tenant->domains()->create(['domain' => 'tenant1.localhost']);
     tenancy()->initialize($this->tenant);
 
-    $this->user = User::factory()->create();
-    $role = Role::create(['name' => 'accountant']);
 
-    $this->user->assignRole($role);
-    $this->actingAs($this->user,'sanctum');
+
+            $this->clients = app(ClientRepository::class);
+
+$this->client = $this->clients->createClientCredentialsGrantClient(
+    'main',             
+);
+
+    Passport::actingAsClient($this->client, ['*']);
 
     $accountType = AccountType::where('type','opening_balance_diff')->first();
     $this->accountDiffBalancer = Account::factory()->create([
@@ -60,8 +63,8 @@ test('user can add opening balance journal entry',function(){
         ]
         ];
 
-        $this->postJson('api/v1/accounting/store-opening-balance',$data)
-        ->assertStatus(200);
+        $this->postJson('api/v1/accounting/opening-balances',$data)
+        ->assertStatus(201);
         
         $this->assertDatabaseHas('journal_entries',[
 

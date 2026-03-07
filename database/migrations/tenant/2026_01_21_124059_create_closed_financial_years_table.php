@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('closed_financial_years', function (Blueprint $table) {
             $table->id();
             $table->foreignId('closed_by')
+            ->nullable()
             ->constrained('users')
             ->cascadeOnDelete();
 

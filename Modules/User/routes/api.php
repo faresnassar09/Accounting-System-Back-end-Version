@@ -12,7 +12,7 @@ Route::controller(AuthenticationController::class)
     Route::post('/login','login');
 });
 
-Route::middleware('auth:sanctum',InitializeTenancyByDomain::class)
+Route::middleware('auth:api',InitializeTenancyByDomain::class)
 ->controller(ProfileController::class)
 ->prefix('v1/profile')
 ->group(function () {

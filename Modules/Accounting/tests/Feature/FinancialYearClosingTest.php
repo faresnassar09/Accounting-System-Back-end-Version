@@ -1,26 +1,22 @@
 <?php
 
 use App\Models\Tenant;
-use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Laravel\Passport\ClientRepository;
+use Laravel\Passport\Passport;
 use Modules\Accounting\Models\Account;
 use Modules\Accounting\Models\AccountType;
 use Modules\Accounting\Models\ClosedFinancialYear;
-use Modules\User\Models\User;
-use Spatie\Permission\Models\Role;
 
 uses(Tests\TestCase::class, DatabaseMigrations::class);
 beforeEach(function () {
     $this->tenant1 = Tenant::create();
 
-    $this->tenant1->domains()->create(['domain' => 'tenant1.app.test']);
+    $this->tenant1->domains()->create(['domain' => 'tenant1.localhost']);
 
     tenancy()->initialize($this->tenant1);
 
-    $this->user = User::factory()->create();
-    $role = Role::create(['name' => 'accountant' , 'guard_name' => 'web']);
-    $this->user->assignRole($role);
-    $this->actingAs($this->user,'sanctum');
+
 
     $retainedEarningsType = AccountType::where('type','retained_earnings')->first();
     $this->retainedEarnings = Account::factory()->create([
@@ -30,13 +26,23 @@ beforeEach(function () {
     ]);
 
 
+        $this->clients = app(ClientRepository::class);
+
+$this->client = $this->clients->createClientCredentialsGrantClient(
+    'main',             
+);
+
+    Passport::actingAsClient($this->client, ['*']);
+
+
+
 });
 
 test('it correctly zeroes out revenue and expenses and transfers profit to retained earnings', function () {
 
     $year = '2026';
 
-    $response = $this->postJson('/api/v1/accounting/financial-closing/close', [
+    $response = $this->postJson('/api/v1/accounting/financial-closing/apply', [
         'year' => $year,
         'account_id' => $this->retainedEarnings->id
     ]);
@@ -64,7 +70,7 @@ test('it correctly zeroes out revenue and expenses and transfers profit to retai
 test('it throws an exception if the year is already closed', function () {
 
     ClosedFinancialYear::create([
-        'closed_by' => $this->user->id,
+        'closed_by' => $this->user->id ?? null,
         'year' => '2026',
         'net_profit_loss' => 4500,
         'retained_earnings_account_id' => $this->retainedEarnings->id
