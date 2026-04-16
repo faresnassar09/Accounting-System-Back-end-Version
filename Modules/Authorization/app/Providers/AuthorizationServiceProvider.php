@@ -4,6 +4,12 @@ namespace Modules\Authorization\Providers;
 
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Passport\Passport;
+use Modules\Authorization\Models\Passport\AuthCode;
+use Modules\Authorization\Models\Passport\Client;
+use Modules\Authorization\Models\Passport\DeviceCode;
+use Modules\Authorization\Models\Passport\RefreshToken;
+use Modules\Authorization\Models\Passport\Token;
 use Modules\Authorization\Models\Permission;
 use Modules\Authorization\Models\Role;
 use Modules\Authorization\Observers\RoleObserver;
@@ -39,6 +45,18 @@ class AuthorizationServiceProvider extends ServiceProvider
         $this->registerViews();
         $this->loadMigrationsFrom(module_path($this->name, 'database/migrations'));
 
+
+    Passport::useTokenModel(Token::class);
+
+    Passport::useRefreshTokenModel(RefreshToken::class);
+
+    Passport::useAuthCodeModel(AuthCode::class);
+
+    Passport::useClientModel(Client::class);
+
+    Passport::useDeviceCodeModel(DeviceCode::class);
+
+
         Role::observe(RoleObserver::class);
     }
 
@@ -46,7 +64,9 @@ class AuthorizationServiceProvider extends ServiceProvider
      * Register the service provider.
      */
     public function register(): void
+
     {
+            Passport::ignoreRoutes();
         $this->app->register(EventServiceProvider::class);
         $this->app->register(RouteServiceProvider::class);
     }

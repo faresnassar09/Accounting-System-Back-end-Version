@@ -18,12 +18,13 @@ class JournalEntryLineFactory extends Factory
     {
         return [
 
+            'source_type' => 'test',
+            'source_reference' => 1,
             'account_id' => null,
             'debit' => 0,
             'credit' => 0,
             'journal_entry_id' => null,
-        
+
         ];
     }
 }
-

@@ -9,7 +9,6 @@ interface AccountRepositoryInterface{
     public function findAccount($accountId);
     public function getClosingAccounts();
     public function findRootAccount($id);
-    public function getOpeningBalanceAccount();
 
     
 }

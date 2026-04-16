@@ -14,9 +14,6 @@ return new class extends Migration
         Schema::create('journal_entries', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('user_id')
-            ->nullable()
-            ->constrained(); 
 
             $table->timestamp('date');
             $table->string('reference')

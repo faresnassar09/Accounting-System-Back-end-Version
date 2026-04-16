@@ -13,28 +13,27 @@ class JournalEntryRequest extends FormRequest
     {
         return [
 
-            'header.reference' => ['required','min:1','max:255','unique:journal_entries,reference'],
-            'header.date' => ['nullable','date'],
-            'header.description' => ['required','min:5','max:255'],
-            'header.total_debit' => ['required','numeric'],
-            'header.total_credit' => ['required','numeric'],
+            'header.reference' => ['required', 'min:1', 'max:255', 'unique:journal_entries,reference'],
+            'header.date' => ['nullable', 'date'],
+            'header.description' => ['required', 'min:5', 'max:255'],
+            'header.total_debit' => ['required', 'numeric'],
+            'header.total_credit' => ['required', 'numeric'],
 
-            'lines.*.account_id' => ['required','exists:accounts,id'],
-            'lines.*.description' => ['nullable','max:255'],
+            'lines.*.account_id' => ['required', 'exists:accounts,id'],
 
- 'lines.*.debit' => [
-    'numeric',
-    'min:0',
-    'max:9999999999',
-    'required_if:lines.*.credit,0',
-],
+            'lines.*.debit' => [
+                'numeric',
+                'min:0',
+                'max:9999999999',
+                'required_if:lines.*.credit,0',
+            ],
 
-'lines.*.credit' => [
-    'numeric',
-    'min:0',
-    'max:9999999999',
-    'required_if:lines.*.debit,0',
-],
+            'lines.*.credit' => [
+                'numeric',
+                'min:0',
+                'max:9999999999',
+                'required_if:lines.*.debit,0',
+            ],
 
         ];
     }
@@ -47,10 +46,10 @@ class JournalEntryRequest extends FormRequest
 
     public function messages()
     {
-        return [ 
+        return [
             'header.reference.required' => 'Enter A reference For Your Entry ',
             'header.reference.min' => 'Reference Should Contain at Least 1 Charecter or Number',
-            'header.reference.max' => "Reference Shouldn't Excide 255 Charecter" ,
+            'header.reference.max' => "Reference Shouldn't Excide 255 Charecter",
 
             'header.description.required' => 'Enter A Descrption For Your Entry ',
             'header.description.min' => 'Description should be at least 5 char',

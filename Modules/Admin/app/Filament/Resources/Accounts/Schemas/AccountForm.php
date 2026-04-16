@@ -20,104 +20,101 @@ class AccountForm
             ->components([
 
                 TextInput::make('name')
-                ->rules(['required','min:4','max:50']),
+                    ->rules(['required', 'min:4', 'max:50']),
 
                 TextInput::make('number')
-                ->rules(['required','min:1','max:255','unique:accounts,number']),
-            
-            TextInput::make('description'),
-                
-            Select::make('parent_id')
-                ->label('Belongs To Account')
-                ->options(Account::query()->pluck('name', 'id'))
-                ->searchable()
-                ->live()
-                ->afterStateUpdated(function(string $state,Set $set){
-
-                    $set('sub_classification', $state);
-                }),
-
-                
-                Select::make('account_type_id')
-                ->label('Sub Classification')
-                ->visible(function(Get $get){
+                    ->required()
+                    ->minLength(1)
+                    ->maxLength(255)
+                    ->unique(
+                        table: 'accounts',
+                        column: 'number',
+                        ignorable: fn($record) => $record
+                    ), 
                     
-                    $id = $get('parent_id');
+                TextInput::make('description'),
 
-                        $mainAccount =app(AccountRepositoryInterface::class)
-                        ->findRootAccount($id);
+                Select::make('parent_id')
+                    ->label('Belongs To Account')
+                    ->options(Account::query()->pluck('name', 'id'))
+                    ->searchable()
+                    ->live()
+                    ->afterStateUpdated(function (string $state, Set $set) {
 
-                        return $mainAccount?->name === 'expenses';
-         
-                })
-                ->options(AccountType::
-                where('account_group',AccountGroup::EXPENSES->value)
-                ->pluck('type','id')),
-                
-                Select::make('account_type_id')
-                ->label('Sub Classification')
-                ->visible(function(Get $get){
-                    
-                    $id = $get('parent_id');
-
-                        $mainAccount =app(AccountRepositoryInterface::class)
-                        ->findRootAccount($id);
-
-                        return $mainAccount?->name === 'revenues';
-         
-                })
-                ->options(AccountType::
-                where('account_group',AccountGroup::REVENUES->value)
-                ->pluck('type','id')),
+                        $set('sub_classification', $state);
+                    }),
 
 
                 Select::make('account_type_id')
-                ->label('Sub Classification')
-                ->visible(function(Get $get){
-                    
-                    $id = $get('parent_id');
+                    ->label('Sub Classification')
+                    ->visible(function (Get $get) {
 
-                        $mainAccount =app(AccountRepositoryInterface::class)
-                        ->findRootAccount($id);
-
-                        return $mainAccount?->name === 'assets';
-         
-                })
-                ->options(AccountType::
-                where('account_group',AccountGroup::ASSETS->value)
-                ->pluck('type','id')),
-
-                Select::make('account_type_id')
-                ->label('Sub Classification')
-                ->visible(function(Get $get){
-                    
-                    $id = $get('parent_id');
-
-                        $mainAccount =app(AccountRepositoryInterface::class)
-                        ->findRootAccount($id);
-
-                        return $mainAccount?->name === 'liabilities';
-         
-                })
-                ->options(AccountType::
-                where('account_group',AccountGroup::LIABILITIES->value)
-                ->pluck('type','id')),
-
-
-                Select::make('account_type_id')
-                ->label('Sub Classification')
-                ->visible(function(Get $get){
-                    
-                    $id = $get('parent_id');
+                        $id = $get('parent_id');
 
                         $mainAccount = app(AccountRepositoryInterface::class)
-                        ->findRootAccount($id);
+                            ->findRootAccount($id);
+
+                        return $mainAccount?->name === 'expenses';
+                    })
+                    ->options(AccountType::where('account_group', AccountGroup::EXPENSES->value)
+                        ->pluck('type', 'id')),
+
+                Select::make('account_type_id')
+                    ->label('Sub Classification')
+                    ->visible(function (Get $get) {
+
+                        $id = $get('parent_id');
+
+                        $mainAccount = app(AccountRepositoryInterface::class)
+                            ->findRootAccount($id);
+
+                        return $mainAccount?->name === 'revenues';
+                    })
+                    ->options(AccountType::where('account_group', AccountGroup::REVENUES->value)
+                        ->pluck('type', 'id')),
+
+
+                Select::make('account_type_id')
+                    ->label('Sub Classification')
+                    ->visible(function (Get $get) {
+
+                        $id = $get('parent_id');
+
+                        $mainAccount = app(AccountRepositoryInterface::class)
+                            ->findRootAccount($id);
+
+                        return $mainAccount?->name === 'assets';
+                    })
+                    ->options(AccountType::where('account_group', AccountGroup::ASSETS->value)
+                        ->pluck('type', 'id')),
+
+                Select::make('account_type_id')
+                    ->label('Sub Classification')
+                    ->visible(function (Get $get) {
+
+                        $id = $get('parent_id');
+
+                        $mainAccount = app(AccountRepositoryInterface::class)
+                            ->findRootAccount($id);
+
+                        return $mainAccount?->name === 'liabilities';
+                    })
+                    ->options(AccountType::where('account_group', AccountGroup::LIABILITIES->value)
+                        ->pluck('type', 'id')),
+
+
+                Select::make('account_type_id')
+                    ->label('Sub Classification')
+                    ->visible(function (Get $get) {
+
+                        $id = $get('parent_id');
+
+                        $mainAccount = app(AccountRepositoryInterface::class)
+                            ->findRootAccount($id);
 
                         return $mainAccount?->name === 'equity';
-         
-                })->options(AccountType::
-                where('account_group',AccountGroup::EQUITY->value)
-                ->pluck('type','id')),
+                    })->options(AccountType::where('account_group', AccountGroup::EQUITY->value)
+                        ->pluck('type', 'id')),
 
 
             ]);

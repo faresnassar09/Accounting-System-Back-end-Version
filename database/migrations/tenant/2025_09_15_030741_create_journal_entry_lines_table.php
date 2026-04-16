@@ -16,6 +16,9 @@ return new class extends Migration
             $table->foreignId('journal_entry_id')
             ->constrained()
             ->cascadeOnDelete();
+
+            $table->string('source_type',100);
+            $table->string('source_reference',255);
             
             $table->foreignId('account_id')
             ->constrained()
@@ -25,7 +28,7 @@ return new class extends Migration
             $table->string('debit')->default(0.00);
             $table->string('credit')->default(0.00);
 
-            
+            $table->timestamp('date')->nullable();
             $table->timestamps();
         });
     }

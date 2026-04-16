@@ -46,26 +46,17 @@ class UserForm
                     ->visible(fn() => current_guard_user()->hasRole('super_admin')),
 
                     Select::make('team_id')
-                    ->required()
                     ->label('Team')
                     ->searchable()
                     ->options(Team::query()->pluck('name','id')),
 
                     Select::make('role')
+                    ->required()
                     ->searchable()
                     ->rules(['required','exists:roles,id'])
                     ->options(Role::where('guard_name','web')->pluck('name','id'))
                     ->dehydrated(false),
-                    
-                    FileUpload::make('profile_photo_path')
-                    ->disk('public')
-                    ->directory('users_avatars')
-                    ->image()
-                    ->maxSize(1024)
-                    ->default(null)
-                    ->avatar()
-                    ->imageEditor()
-                    ->circleCropper(),
+                
                 
                 ]);
     }

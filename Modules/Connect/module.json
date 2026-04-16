@@ -1,0 +1,11 @@
+{
+    "name": "Connect",
+    "alias": "connect",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Connect\\Providers\\ConnectServiceProvider"
+    ],
+    "files": []
+}

@@ -7,6 +7,8 @@ use Laravel\Passport\Passport;
 use Modules\Accounting\Models\Account;
 use Modules\Accounting\Models\AccountType;
 use Modules\Accounting\Models\ClosedFinancialYear;
+use Modules\Authorization\Models\Role;
+use Modules\User\Models\User;
 
 uses(Tests\TestCase::class, DatabaseMigrations::class);
 beforeEach(function () {
@@ -19,6 +21,7 @@ beforeEach(function () {
 
 
     $retainedEarningsType = AccountType::where('type','retained_earnings')->first();
+    
     $this->retainedEarnings = Account::factory()->create([
         'name' => 'retained_earnings',
         'number' => 234,
@@ -26,13 +29,11 @@ beforeEach(function () {
     ]);
 
 
-        $this->clients = app(ClientRepository::class);
+    $this->user = User::factory()->create();
+    $role = Role::create(['name' => 'accountant' , 'guard_name' => 'web']);
+    $this->user->assignRole($role);
 
-$this->client = $this->clients->createClientCredentialsGrantClient(
-    'main',             
-);
-
-    Passport::actingAsClient($this->client, ['*']);
+    Passport::actingAs($this->user);
 
 
 

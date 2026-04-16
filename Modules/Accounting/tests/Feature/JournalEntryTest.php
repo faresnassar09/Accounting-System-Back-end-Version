@@ -5,6 +5,8 @@ use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Laravel\Passport\ClientRepository;
 use Laravel\Passport\Passport;
 use Modules\Accounting\Models\Account;
+use Modules\Authorization\Models\Role;
+use Modules\User\Models\User;
 use Tests\TestCase;
 
 
@@ -17,14 +19,11 @@ beforeEach(function () {
     $this->tenant->domains()->create(['domain' => 'tenant1.localhost']);
     tenancy()->initialize($this->tenant);
 
-            $this->clients = app(ClientRepository::class);
+    $this->user = User::factory()->create();
+    $role = Role::create(['name' => 'accountant' , 'guard_name' => 'web']);
+    $this->user->assignRole($role);
 
-$this->client = $this->clients->createClientCredentialsGrantClient(
-    'main',             
-);
-
-    Passport::actingAsClient($this->client, ['*']);
-
+    Passport::actingAs($this->user);
 
 
     $this->account = Account::factory()->create();

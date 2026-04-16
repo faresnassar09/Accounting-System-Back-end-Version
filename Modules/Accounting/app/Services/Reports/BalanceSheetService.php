@@ -2,8 +2,6 @@
 
 namespace Modules\Accounting\Services\Reports;
 
-use App\Services\Api\ApiResponseFormatter;
-use App\Services\Logging\LoggerService;
 
 use Modules\Accounting\Queries\GetAccountCumulativeBalancesQuery;
 use Modules\Accounting\Queries\GetOpeningBalanceQuery;
@@ -16,10 +14,7 @@ class BalanceSheetService
 
         public GetProfitAndLossDetailsQuery $ProfitLossAccounts,
         public GetOpeningBalanceQuery $getOpeningBalance,
-        public LoggerService $loggerService,
         public GetAccountCumulativeBalancesQuery $accountBalancesQuery,
-        public ApiResponseFormatter $apiResponseFormatter,
-        public IncomeStatementService $incomeStatementService,
     ) {}
 
     public function generateReport($endDate)

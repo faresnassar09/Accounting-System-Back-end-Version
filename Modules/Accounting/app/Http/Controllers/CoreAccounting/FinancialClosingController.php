@@ -89,7 +89,7 @@ class FinancialClosingController extends Controller
     
                     "Closing Year ($year) Failed",
                     [],
-                    $e->getMessage()
+                    $e->getTrace()
                 );
             }
 

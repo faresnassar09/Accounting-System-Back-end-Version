@@ -2,10 +2,13 @@
 
 use App\Models\Tenant;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Laravel\Passport\ClientRepository;
 use Laravel\Passport\Passport;
 use Modules\Accounting\Models\Account;
+use Modules\Accounting\Enums\AccountingMappingType;
+use Modules\Accounting\Models\AccountingMapping;
 use Modules\Accounting\Models\AccountType;
+use Modules\Authorization\Models\Role;
+use Modules\User\Models\User;
 use Tests\TestCase;
 
 
@@ -22,19 +25,14 @@ beforeEach(function () {
 
 
 
-            $this->clients = app(ClientRepository::class);
+    $this->user = User::factory()->create();
+    $role = Role::create(['name' => 'accountant' , 'guard_name' => 'web']);
+    $this->user->assignRole($role);
 
-$this->client = $this->clients->createClientCredentialsGrantClient(
-    'main',             
-);
-
-    Passport::actingAsClient($this->client, ['*']);
+    Passport::actingAs($this->user);
 
     $accountType = AccountType::where('type','opening_balance_diff')->first();
-    $this->accountDiffBalancer = Account::factory()->create([
 
-        'account_type_id' => $accountType->id, 
-    ]);
 
 });
 
@@ -43,6 +41,10 @@ test('user can add opening balance journal entry',function(){
 
 
     $account = Account::factory()->create();
+
+AccountingMapping::where('integration_key', AccountingMappingType::OPENING_DIFFERENT->value)
+    ->update(['account_id' => $account->id]);
+
     $data = [
 
         'header' => [
@@ -73,7 +75,7 @@ test('user can add opening balance journal entry',function(){
 
         $this->assertDatabaseHas('journal_entry_lines',[
 
-            'account_id' => $this->accountDiffBalancer->id,
+            'account_id' => $account->id,
             'credit' => 100
         ]);
 

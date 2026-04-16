@@ -9,4 +9,5 @@ class JournalEntryPolicy
     use HandlesAuthorization;
 
     public function __construct() {}
+
 }

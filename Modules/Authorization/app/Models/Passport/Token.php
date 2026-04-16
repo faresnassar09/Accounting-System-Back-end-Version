@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Passport;
+namespace Modules\Authorization\Models\Passport;
 
 use Laravel\Passport\Token as PassportToken;
 

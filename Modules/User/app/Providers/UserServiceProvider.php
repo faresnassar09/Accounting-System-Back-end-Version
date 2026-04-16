@@ -2,8 +2,9 @@
 
 namespace Modules\User\Providers;
 
-use Illuminate\Support\Facades\Blade;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Blade;
+use Laravel\Passport\ClientRepository;
 use Modules\User\Models\User;
 use Modules\User\Observers\UserObserver;
 use Modules\User\Policies\UserPolicy;
@@ -39,7 +40,7 @@ class UserServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(module_path($this->name, 'database/migrations'));
 
         User::Observe(UserObserver::class);
-        
+
         $this->registerPolicies();
 
     }

@@ -2,8 +2,6 @@
 
 namespace Modules\Accounting\Services\Reports;
 
-use App\Services\Api\ApiResponseFormatter;
-use App\Services\Logging\LoggerService;
 use Modules\Accounting\Queries\GeneralLedgerQuery;
 use Modules\Accounting\Queries\GetOpeningBalanceQuery;
 use Modules\Accounting\Repositories\Contracts\AccountRepositoryInterface as AccountInterface;
@@ -14,8 +12,6 @@ class GeneralLedgerService
         public AccountInterface $AccountInterface,
         public GetOpeningBalanceQuery $getOpeningBalance,
         public GeneralLedgerQuery $generalLedgerQuery,
-        public ApiResponseFormatter $apiResponseFormatter,
-        public LoggerService $loggerService,
 
     ) {}
 

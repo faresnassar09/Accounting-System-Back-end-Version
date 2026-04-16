@@ -16,41 +16,44 @@ class JournalEntryLine extends Model
      */
     protected $fillable = [
 
+        'source_type',
+        'source_reference',
         'journal_entry_id',
         'account_id',
         'credit',
         'debit',
-        'created_at'
+        'date'
     ];
 
-    public function journalEntry(){
+    public function journalEntry()
+    {
 
         return $this->belongsTo(JournalEntry::class);
     }
 
-    public function account(){
+    public function account()
+    {
 
         return $this->belongsTo(Account::class);
     }
 
 
 
-    protected function casts(){
+    protected function casts()
+    {
 
 
         return [
-             
-        'created_at' => 'datetime',
+
+            'created_at' => 'datetime',
 
         ];
-
     }
 
 
-    public static function newFactory(){
-         
+    public static function newFactory()
+    {
+
         return JournalEntryLineFactory::new();
     }
-    
-
 }

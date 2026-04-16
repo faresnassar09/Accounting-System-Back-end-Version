@@ -2,12 +2,13 @@
 
 use App\Models\Tenant;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Laravel\Passport\ClientRepository;
 use Laravel\Passport\Passport;
 use Modules\Accounting\Models\Account;
 use Modules\Accounting\Models\AccountType;
 use Modules\Accounting\Models\JournalEntry;
 use Modules\Accounting\Models\JournalEntryLine;
+use Modules\Authorization\Models\Role;
+use Modules\User\Models\User;
 use Tests\TestCase;
 
 uses(TestCase::class, DatabaseMigrations::class);
@@ -17,13 +18,12 @@ beforeEach(function () {
     $this->tenant->domains()->create(['domain' => 'tenant1.localhost']);
     tenancy()->initialize($this->tenant);
 
-    $clients = app(ClientRepository::class);
+    $this->user = User::factory()->create();
+    $role = Role::create(['name' => 'accountant' , 'guard_name' => 'web']);
+    $this->user->assignRole($role);
 
-$client = $clients->createClientCredentialsGrantClient(
-    'main',             
-);
+    Passport::actingAs($this->user);
 
-    Passport::actingAsClient($client, ['*']);
     
     $this->revenueType = AccountType::where('type', 'operating_revenue')->first();
     $this->expenseType = AccountType::where('type', 'operating_expenses')->first();

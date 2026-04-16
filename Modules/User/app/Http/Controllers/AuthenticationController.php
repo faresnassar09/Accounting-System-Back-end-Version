@@ -5,7 +5,9 @@ namespace Modules\User\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Services\Api\ApiResponseFormatter;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Modules\User\Http\Requests\AuthenticationRequest;
+use Modules\User\Http\Requests\LogoutRequest;
 use Modules\User\Services\AuthenticationService;
 use Modules\User\Transformers\UserResource;
 
@@ -34,20 +36,13 @@ class AuthenticationController extends Controller
 
             $user = Auth::user();
 
-            $deviceName = $this->authenticationService->getdeviceName();
-
-            $this->authenticationService->deletePreviousToken($deviceName,$user);
-
-            $token = $this->authenticationService->createToken($deviceName,$user);
-
-            $user->token = $token;
-
+$token = $user->createToken('Token Name')->accessToken;
 
             return $this->apiResponse
                 ->successResponse(
 
                     'Logged In Successfully',
-                    new UserResource($user)->additional(['token' => $token]),
+                    new UserResource($user,$token),
                     200
                 );
         }
@@ -60,5 +55,12 @@ class AuthenticationController extends Controller
 
                 [],
             );
+    }
+
+    public function logout(LogoutRequest $request){
+
+
+ $request->user()->token()->revoke();
+
     }
 }

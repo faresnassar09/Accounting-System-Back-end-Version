@@ -13,7 +13,7 @@ class JournalEntry extends Model
 
     protected $fillable = [
 
-        'user_id',
+
         'type',
         'total_credit',
         'total_debit',

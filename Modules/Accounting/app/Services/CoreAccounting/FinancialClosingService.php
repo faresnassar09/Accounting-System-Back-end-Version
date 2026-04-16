@@ -5,11 +5,14 @@ namespace Modules\Accounting\Services\CoreAccounting;
 use App\Services\Logging\LoggerService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Modules\Accounting\Enums\ActorType;
 use Modules\Accounting\Queries\GetAccountCumulativeBalancesQuery;
 use Modules\Accounting\Queries\GetProfitAndLossDetailsQuery;
 use Modules\Accounting\Queries\GetProfitAndLossTotalsQuery;
 use Modules\Accounting\Repositories\Contracts\FinancialClosingReposiroryInterface;
 use Modules\Accounting\Repositories\Contracts\JournalEntryRepositoryInterface;
+
+use function Symfony\Component\Clock\now;
 
 class FinancialClosingService
 {
@@ -56,9 +59,13 @@ class FinancialClosingService
         $year = $data->year;
         $startFrom = get_start_of_year($year);
         $endAt = get_end_of_year($year);
+        $actorType = ActorType::USER->value;
+        $userId = current_guard_user()->id;
 
 
             DB::transaction(function () use (
+                $actorType,
+                $userId,
                 $year,
                 $endAt,
                 $startFrom,
@@ -98,6 +105,7 @@ class FinancialClosingService
                 ];
 
                 $journalHeader =  $this->journalRepositoryInterface->store(
+                    $actorType,
                     $header,
                     $lines,
                     'closing'
@@ -106,6 +114,8 @@ class FinancialClosingService
                 if ($diffTotals != 0) {
 
                     $this->journalRepositoryInterface->storeDiffBalancerLines(
+                        $actorType,
+                        $userId,
                         $journalHeader,
                         $diffTotals,
                         $accountId,
@@ -114,7 +124,7 @@ class FinancialClosingService
 
                 $this->financialClosingInterFace->flagYearAsClosed(
                     $year,
-                    abs($diffTotals),
+                    $diffTotals,
                     $accountId
                 );
 
@@ -135,6 +145,7 @@ class FinancialClosingService
 
 
                 $journalHeader =  $this->journalRepositoryInterface->store(
+                    $actorType,
                     $header,
                     $lines,
                     'opening'
@@ -156,6 +167,8 @@ class FinancialClosingService
                 'account_id' => $query->id,
                 'debit' => $baseType === "revenues" && $query->type !==  'sales_deductions'? $balance : 0.00,
                 'credit' => $baseType === "expenses" || $query->type === 'sales_deductions' ?$balance : 0.00,
+                'date' => now(),
+                'source_reference' => current_guard_user()->id,
 
             ];
         });
@@ -172,6 +185,9 @@ class FinancialClosingService
                 'account_id' => $query->id,
                 'debit' => $totalDebit,
                 'credit' => $totalCredit,
+                'date' => now(),
+                'source_reference' => current_guard_user()->id,
+
 
             ];
         });

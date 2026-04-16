@@ -23,7 +23,7 @@ class CreateSuperAdminListener
 
       $admin =  Admin::create([
             'name' => 'Super Admin',
-            'email' => 'admin@'.'super_admin'.'.com',
+            'email' => 'admin@superadmin.com',
             'password' => Hash::make('00000000'),
         ]);
 

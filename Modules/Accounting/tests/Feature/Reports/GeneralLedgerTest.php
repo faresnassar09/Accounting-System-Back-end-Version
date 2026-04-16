@@ -8,6 +8,8 @@ use Modules\Accounting\Models\Account;
 use Modules\Accounting\Models\AccountType;
 use Modules\Accounting\Models\JournalEntry;
 use Modules\Accounting\Models\JournalEntryLine;
+use Modules\Authorization\Models\Role;
+use Modules\User\Models\User;
 use Tests\TestCase;
 
 
@@ -20,13 +22,11 @@ beforeEach(function () {
     $this->tenant->domains()->create(['domain' => 'tenant1.localhost']);
     tenancy()->initialize($this->tenant);
 
-    $clients = app(ClientRepository::class);
+    $this->user = User::factory()->create();
+    $role = Role::create(['name' => 'accountant' , 'guard_name' => 'web']);
+    $this->user->assignRole($role);
 
-$client = $clients->createClientCredentialsGrantClient(
-    'main',             
-);
-
-    Passport::actingAsClient($client, ['*']);
+    Passport::actingAs($this->user);
 
 
     $this->accounts = Account::factory()
@@ -56,8 +56,7 @@ $client = $clients->createClientCredentialsGrantClient(
         ->sequence(
             [
 
-                'user_id' => current_guard_user()->id ?? null,
-                'reference' => '#cash1',
+                            'reference' => '#cash1',
                 'description' => 'test cash1 entry',
                 'date' => '2026-01-01',
                 'total_debit' => 1200,
@@ -66,8 +65,8 @@ $client = $clients->createClientCredentialsGrantClient(
             ],
 
             [
-                'user_id' => current_guard_user()->id ?? null ,
-                'reference' => '#cash2',
+
+            'reference' => '#cash2',
                 'description' => 'test cash2 entry',
                 'date' => '2026-02-01',
                 'total_debit' => 5000,
@@ -83,6 +82,11 @@ $client = $clients->createClientCredentialsGrantClient(
         ->sequence(
 
             [
+
+
+                            'source_type' => 'test',
+            'source_reference' => 1,
+            
                 'account_id' => $this->accounts->where('name', 'Cash')->first()->id,
                 'journal_entry_id' => $this->JournalEntrieHeader->where('reference', '#cash1')->first()->id,
                 'debit' => 1200,
@@ -90,12 +94,18 @@ $client = $clients->createClientCredentialsGrantClient(
             ],
 
             [
+                            'source_type' => 'test',
+            'source_reference' => 1,
+            
                 'account_id' => $this->accounts->where('name', 'Bank Loan')->first()->id,
                 'journal_entry_id' => $this->JournalEntrieHeader->where('reference', '#cash1')->first()->id,
                 'credit' => 0,
                 'credit' => 1200,
             ],
             [
+                            'source_type' => 'test',
+            'source_reference' => 1,
+            
                 'account_id' => $this->accounts->where('name', 'Cash')->first()->id,
                 'journal_entry_id' => $this->JournalEntrieHeader->where('reference', '#cash2')->first()->id,
                 'debit' => 2300,
@@ -103,6 +113,9 @@ $client = $clients->createClientCredentialsGrantClient(
                 'credit' => 0
             ],
             [
+                            'source_type' => 'test',
+            'source_reference' => 1,
+            
                 'account_id' => $this->accounts->where('name', 'Bank Loan')->first()->id,
                 'journal_entry_id' => $this->JournalEntrieHeader->where('reference', '#cash2')->first()->id,
                 'debit' => 2300,

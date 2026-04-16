@@ -5,8 +5,8 @@ namespace Modules\Accounting\Http\Controllers\CoreAccounting;
 use App\Http\Controllers\Controller;
 use App\Services\Api\ApiResponseFormatter;
 use App\Services\Logging\LoggerService;
-use Modules\Accounting\Services\CoreAccounting\OpeningBalanceService;
 use Modules\Accounting\Http\Requests\OpeningBalanceRequest;
+use Modules\Accounting\Services\CoreAccounting\OpeningBalanceService;
 
 class OpeningBalanceController extends Controller
 {
@@ -17,19 +17,20 @@ class OpeningBalanceController extends Controller
         public LoggerService $loggerService,
         public ApiResponseFormatter $apiResponseFormatter,
 
-    ){} 
+    ) {}
 
     /**
-   * 
-   * store opening journal entry 
-   *
-   * @group opening journal entry
-   */
+     * 
+     * store opening journal entry 
+     *
+     * @group opening journal entry
+     */
 
-    public function store(OpeningBalanceRequest $data) {
+    public function store(OpeningBalanceRequest $data)
+    {
 
 
-        try{
+        try {
 
             $this->openingBalanceService->store($data);
 
@@ -41,7 +42,10 @@ class OpeningBalanceController extends Controller
 
             );
 
-        }        catch (\Exception $e) {
+            
+        }
+        
+        catch (\Exception $e) {
 
             $this->loggerService->failedLogger(
 
@@ -50,6 +54,7 @@ class OpeningBalanceController extends Controller
                 $e->getMessage(),
             );
 
+
             return $this->apiResponseFormatter->failedResponse(
 
                 'Failed To Save Opening Balance Entry Please Try Again Later',
@@ -57,8 +62,5 @@ class OpeningBalanceController extends Controller
 
             );
         }
-
-
     }
-
 }

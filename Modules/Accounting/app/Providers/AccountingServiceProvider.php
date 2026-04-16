@@ -4,6 +4,8 @@ namespace Modules\Accounting\Providers;
 
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Blade;
+use Modules\Accounting\Adapters\Contracts\ExternalTransactionAdapterInterface;
+use Modules\Accounting\Adapters\ExternalTransactionAdapter;
 use Modules\Accounting\Http\Middleware\PreventActionOnClosedYearMiddleware;
 use Modules\Accounting\Models\Account;
 use Modules\Accounting\Models\JournalEntry;
@@ -12,9 +14,12 @@ use Modules\Accounting\Observers\AccountObserver;
 use Modules\Accounting\Observers\JournalEntryLineObserver;
 use Modules\Accounting\Observers\JournalEntryObserver;
 use Modules\Accounting\Policies\ChartAccountingPolicy;
+use Modules\Accounting\Policies\JournalEntryPolicy;
+use Modules\Accounting\Repositories\Contracts\AccountingMappingRepositoryInterface;
 use Modules\Accounting\Repositories\Contracts\AccountRepositoryInterface;
 use Modules\Accounting\Repositories\Contracts\FinancialClosingReposiroryInterface;
 use Modules\Accounting\Repositories\Contracts\JournalEntryRepositoryInterface;
+use Modules\Accounting\Repositories\Eloquent\AccountingMappingRepository;
 use Modules\Accounting\Repositories\Eloquent\AccountRepository;
 use Modules\Accounting\Repositories\Eloquent\FinancialClosingRepository;
 use Modules\Accounting\Repositories\Eloquent\JournalEntryRepository;
@@ -33,8 +38,9 @@ class AccountingServiceProvider extends ServiceProvider
     protected $policies = [
 
         Account::class  => ChartAccountingPolicy::class,
+        JournalEntry::class => JournalEntryPolicy::class,
     ];
-  
+
     /**
      * Boot the application events.
      */
@@ -53,32 +59,43 @@ class AccountingServiceProvider extends ServiceProvider
 
         $this->registerPolicies();
         $this->app['router']->aliasMiddleware('check_year', PreventActionOnClosedYearMiddleware::class);
-
     }
 
     /**
      * Register the service provider.
      */
     public function register(): void
-    {  
+    {
         $this->app->register(EventServiceProvider::class);
         $this->app->register(RouteServiceProvider::class);
-        
+
         $this->app->singleton(
             AccountRepositoryInterface::class,
-            AccountRepository::class);
+            AccountRepository::class
+        );
 
-            $this->app->singleton(
+        $this->app->singleton(
             JournalEntryRepositoryInterface::class,
-            JournalEntryRepository::class);
+            JournalEntryRepository::class
+        );
 
-            $this->app->singleton(
-                
-                FinancialClosingReposiroryInterface::class,
-                FinancialClosingRepository::class
-                
-            );
-            
+        $this->app->singleton(
+            FinancialClosingReposiroryInterface::class,
+            FinancialClosingRepository::class
+        );
+
+        $this->app->singleton(
+
+            AccountingMappingRepositoryInterface::class,
+            AccountingMappingRepository::class
+
+        );
+
+
+        $this->app->singleton(
+            ExternalTransactionAdapterInterface::class,
+            ExternalTransactionAdapter::class
+        );
     }
 
 
@@ -106,7 +123,7 @@ class AccountingServiceProvider extends ServiceProvider
      */
     public function registerTranslations(): void
     {
-        $langPath = resource_path('lang/modules/'.$this->nameLower);
+        $langPath = resource_path('lang/modules/' . $this->nameLower);
 
         if (is_dir($langPath)) {
             $this->loadTranslationsFrom($langPath, $this->nameLower);
@@ -129,9 +146,9 @@ class AccountingServiceProvider extends ServiceProvider
 
             foreach ($iterator as $file) {
                 if ($file->isFile() && $file->getExtension() === 'php') {
-                    $config = str_replace($configPath.DIRECTORY_SEPARATOR, '', $file->getPathname());
+                    $config = str_replace($configPath . DIRECTORY_SEPARATOR, '', $file->getPathname());
                     $config_key = str_replace([DIRECTORY_SEPARATOR, '.php'], ['.', ''], $config);
-                    $segments = explode('.', $this->nameLower.'.'.$config_key);
+                    $segments = explode('.', $this->nameLower . '.' . $config_key);
 
                     // Remove duplicated adjacent segments
                     $normalized = [];
@@ -166,14 +183,14 @@ class AccountingServiceProvider extends ServiceProvider
      */
     public function registerViews(): void
     {
-        $viewPath = resource_path('views/modules/'.$this->nameLower);
+        $viewPath = resource_path('views/modules/' . $this->nameLower);
         $sourcePath = module_path($this->name, 'resources/views');
 
-        $this->publishes([$sourcePath => $viewPath], ['views', $this->nameLower.'-module-views']);
+        $this->publishes([$sourcePath => $viewPath], ['views', $this->nameLower . '-module-views']);
 
         $this->loadViewsFrom(array_merge($this->getPublishableViewPaths(), [$sourcePath]), $this->nameLower);
 
-        Blade::componentNamespace(config('modules.namespace').'\\' . $this->name . '\\View\\Components', $this->nameLower);
+        Blade::componentNamespace(config('modules.namespace') . '\\' . $this->name . '\\View\\Components', $this->nameLower);
     }
 
     /**
@@ -188,8 +205,8 @@ class AccountingServiceProvider extends ServiceProvider
     {
         $paths = [];
         foreach (config('view.paths') as $path) {
-            if (is_dir($path.'/modules/'.$this->nameLower)) {
-                $paths[] = $path.'/modules/'.$this->nameLower;
+            if (is_dir($path . '/modules/' . $this->nameLower)) {
+                $paths[] = $path . '/modules/' . $this->nameLower;
             }
         }
 

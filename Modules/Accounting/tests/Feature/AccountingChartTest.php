@@ -3,13 +3,14 @@
 use \Filament\Actions\DeleteAction;
 use App\Models\Tenant;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Laravel\Passport\ClientRepository;
 use Laravel\Passport\Passport;
 use Livewire\Livewire;
 use Modules\Accounting\Models\Account;
 use Modules\Admin\Filament\Resources\Accounts\Pages\CreateAccount;
 use Modules\Admin\Filament\Resources\Accounts\Pages\ListAccounts;
 use Modules\Admin\Models\Admin;
+use Modules\Authorization\Models\Role;
+use Modules\User\Models\User;
 use Tests\TestCase;
 
 
@@ -26,14 +27,16 @@ beforeEach(function () {
     tenancy()->initialize($this->tenant1);
 
 
-    $this->admin = Admin::factory()->create();
 
     // There Is listener creates a super_admin role automatically
     // check  Modules/Admin/Listeners/CreateSuperAdminListener.php
 
-
+    $this->admin = Admin::factory()->create();
     $this->admin->assignRole('super_admin');
-    $this->actingAs($this->admin, 'admin');
+
+    $this->user = User::factory()->create();
+    $role = Role::create(['name' => 'accountant' , 'guard_name' => 'web']);
+    $this->user->assignRole($role);
 });
 
 /** -------------------------------------------------------
@@ -41,6 +44,8 @@ beforeEach(function () {
  * ------------------------------------------------------- */
 
 it('validates required fields and unique account number', function () {
+
+        $this->actingAs($this->admin, 'admin');
 
 
     Livewire::test(CreateAccount::class)
@@ -61,6 +66,10 @@ it('validates required fields and unique account number', function () {
  * ------------------------------------------------------- */
 
 it('prevents tenant A from seeing accounts of tenant B', function () {
+
+        $this->actingAs($this->admin, 'admin');
+
+
     // 1. Create a specific account for the first tenant (initialized in beforeEach)
     $account1 = Account::create([
         'number' => '111',
@@ -94,6 +103,8 @@ it('prevents tenant A from seeing accounts of tenant B', function () {
 
 it('forbids unauthorized Admins from accessing account creation', function () {
 
+
+
     $unauthorizedAdmin = Admin::factory()->create();
     $this->actingAs($unauthorizedAdmin);
 
@@ -106,18 +117,10 @@ it('forbids unauthorized Admins from accessing account creation', function () {
  * ------------------------------------------------------- */
 
  it('prevents deletion of account if it has transactions', function () {
+    
+Passport::actingAs($this->user);
 
-        
-        
     $account = Account::create(['number' => '201', 'name' => 'Bank', 'type' => 'asset']);
- 
-    $clients = app(ClientRepository::class);
-
-$client = $clients->createClientCredentialsGrantClient(
-    'main',             
-);
-
-    Passport::actingAsClient($client, ['*']);
 
 
     $data = [
@@ -134,7 +137,11 @@ $client = $clients->createClientCredentialsGrantClient(
         ]
     ];
 
-    $this->postJson('api/v1/accounting/journal-entries', $data)->assertStatus(201);
+
+    $this->postJson('api/v1/accounting/journal-entries', $data);
+
+            $this->actingAs($this->admin, 'admin');
+
 
     Livewire::test(\Modules\Admin\Filament\Resources\Accounts\Pages\EditAccount::class, [
         'record' => $account->getRouteKey(),
@@ -149,14 +156,8 @@ $client = $clients->createClientCredentialsGrantClient(
 
 test('external service can see Accounting Chart', function () {
 
-$clients = app(ClientRepository::class);
+Passport::actingAs($this->user);
 
-
-$client = $clients->createClientCredentialsGrantClient(
-    'main',             
-);
-
-    Passport::actingAsClient($client, ['*']);
     $response = $this->getJson("api/v1/accounting/charts");
 
     $response->assertStatus(200);

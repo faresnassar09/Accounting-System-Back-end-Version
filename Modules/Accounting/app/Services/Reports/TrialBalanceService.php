@@ -2,17 +2,13 @@
 
 namespace Modules\Accounting\Services\Reports;
 
-use App\Services\Api\ApiResponseFormatter;
-use App\Services\Logging\LoggerService;
 use Modules\Accounting\Queries\TrialBalanceQuery;
 
 class TrialBalanceService
 {
     
     public function __construct(
-        public ApiResponseFormatter $apiResponseFormatter,
         public TrialBalanceQuery $trialBalanceQuery,
-        public LoggerService $loggerService,
     ) {}
 
     public function generateReport($endDate)

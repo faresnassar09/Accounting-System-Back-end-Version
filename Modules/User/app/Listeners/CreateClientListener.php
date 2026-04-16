@@ -3,6 +3,7 @@
 namespace Modules\User\Listeners;
 
 use Laravel\Passport\ClientRepository;
+use Log;
 
 class CreateClientListener
 {
@@ -14,13 +15,17 @@ class CreateClientListener
     /**
      * Handle the event.
      */
-    public function handle($event): void {
+    public function handle($event): void
+    {
 
-    
-$clients = app(ClientRepository::class);
 
-$client = $clients->createClientCredentialsGrantClient(
-    'main',             
-);
-}
+        $clients = app(ClientRepository::class);
+
+        $client = $clients->createClientCredentialsGrantClient(
+            'main',
+        );
+
+        Log::info('secret',[$client->id,$client->plainSecret]);
+
+    }
 }

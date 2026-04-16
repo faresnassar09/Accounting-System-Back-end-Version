@@ -8,10 +8,13 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
+use Modules\Accounting\Listeners\CreateAccountingMappingsListener;
 use Modules\Accounting\Listeners\CreateAccountTypesListener;
 use Modules\Accounting\Listeners\CreateMainAccountsListener;
 use Modules\Admin\Listeners\CreateSuperAdminListener;
 use Modules\User\Listeners\CreateClientListener;
+use Modules\User\Listeners\CreatePersonalAuthenticationListener;
+use Modules\User\Listeners\CreateUserListener;
 use Stancl\JobPipeline\JobPipeline;
 use Stancl\Tenancy\Events;
 use Stancl\Tenancy\Jobs;
@@ -79,6 +82,10 @@ class TenancyServiceProvider extends ServiceProvider
                 CreateAccountTypesListener::class,
                 CreateMainAccountsListener::class,
                 CreateClientListener::class,
+                CreateUserListener::class,
+                CreatePersonalAuthenticationListener::class,
+                CreateAccountingMappingsListener::class,
+
             ],
             Events\DatabaseSeeded::class => [],
             Events\DatabaseRolledBack::class => [],

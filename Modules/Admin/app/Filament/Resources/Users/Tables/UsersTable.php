@@ -17,11 +17,6 @@ class UsersTable
     {
         return $table
             ->columns([
-                
-                ImageColumn::make('profile_photo_path')
-                ->label('avatar')
-                ->disk('public'),
-                // ->circular(),
 
 
                 TextColumn::make('name')

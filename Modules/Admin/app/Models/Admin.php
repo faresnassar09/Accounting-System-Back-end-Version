@@ -4,7 +4,6 @@ namespace Modules\Admin\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Laravel\Sanctum\HasApiTokens;
 use Modules\Admin\Database\Factories\AdminFactory;
 use Modules\Branch\Models\Branch;
 use Spatie\Permission\Traits\HasRoles;
@@ -15,7 +14,6 @@ class Admin extends Authenticatable
     // protected $connection = 'tenant';
 
     use HasFactory,
-        HasApiTokens,
         HasRoles
         
         
@@ -26,7 +24,6 @@ class Admin extends Authenticatable
         'name',
         'email',
         'password',  
-        'organization_id',
         'branch_id',
         
     ];

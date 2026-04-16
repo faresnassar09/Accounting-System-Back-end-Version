@@ -8,5 +8,7 @@
     "Branch": true,
     "SystemAdmin": true,
     "Organization": true,
-    "Authorization": true
+    "Authorization": true,
+    "Integration": true,
+    "Connect": true
 }

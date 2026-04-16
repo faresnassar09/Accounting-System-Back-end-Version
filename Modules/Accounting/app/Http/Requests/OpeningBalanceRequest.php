@@ -3,6 +3,8 @@
 namespace Modules\Accounting\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Modules\Accounting\Repositories\Contracts\AccountingMappingRepositoryInterface;
+use Modules\Accounting\Repositories\Eloquent\AccountRepository;
 
 class OpeningBalanceRequest extends FormRequest
 {
@@ -39,6 +41,15 @@ class OpeningBalanceRequest extends FormRequest
         ];
     }
 
+public function withValidator($validator)
+{
+    $validator->after(function ($validator) {
+        $account = app(AccountingMappingRepositoryInterface::class)->getOpeningBalanceAccount();
+        if (!$account) {
+            $validator->errors()->add('opening_balance', 'You Need To Create An Opening Account to balance the entry * Contact With Your Administrator');
+        }
+    });
+}
     /**
      * Determine if the user is authorized to make this request.
      */
