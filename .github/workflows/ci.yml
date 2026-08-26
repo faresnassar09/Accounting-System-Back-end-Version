@@ -44,11 +44,18 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --prefer-dist --no-progress --optimize-autoloader
 
+      # 1. نسخ ملف البيئة الافتراضي ليصبح ملف .env الخاص بالسيرفر
+      - name: Copy .env.example to .env
+        run: cp .env.example .env
+
+      # 2. توليد مفتاح التطبيق
       - name: Generate Application Key
         run: php artisan key:generate
 
+      # 3. توليد مفاتيح Passport للتشفير
       - name: Generate Passport Keys
         run: php artisan passport:keys --no-interaction
 
+      # 4. تشغيل التيستات
       - name: Run Test suite
         run: php artisan test Modules/Accounting/tests/
