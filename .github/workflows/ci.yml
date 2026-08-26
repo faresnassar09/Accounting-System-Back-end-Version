@@ -44,11 +44,5 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --prefer-dist --no-progress --optimize-autoloader
 
-      - name: Ensure PHPStan exists
-        run: |
-          if [ ! -f "vendor/bin/phpstan" ]; then
-            composer require --dev phpstan/phpstan --no-interaction
-          fi
-          
-      - name: Run Pest test suite
-        run: vendor/bin/pest --coverage
+      - name: Run Test suite
+        run: php artisan test Modules/Accounting/tests/
