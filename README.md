@@ -1,3 +1,5 @@
+[![tests](https://github.com/faresnassar09/Accounting-System-Back-end-Version/actions/workflows/tests.yml/badge.svg)](https://github.com/faresnassar09/Accounting-System-Back-end-Version/actions/workflows/tests.yml)
+
 # Accounting System – Backend
 
 Enterprise‑grade **Accounting & ERP backend** built with **Laravel**, designed with **SaaS scalability** and **enterprise architecture** in mind.
