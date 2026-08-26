@@ -51,7 +51,7 @@ jobs:
           fi
 
       - name: Run PHPStan static analysis
-        run: vendor/bin/phpstan analyse --no-progress
+        run: vendor/bin/phpstan analyse app Modules --no-progress
 
       - name: Run Pint coding style check
         run: vendor/bin/pint --test
