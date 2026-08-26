@@ -28,12 +28,11 @@ jobs:
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4' # أو 8.3 حسب ما تفضل
+          php-version: '8.4'
           extensions: mbstring, curl, xml, zip, bcmath, pcntl, gd
           ini-values: post_max_size=256M, upload_max_filesize=256M
           coverage: none
 
-      # 1. ضع خطوة الـ Cache أولاً قبل تثبيت الحزم
       - name: Cache vendor directory
         uses: actions/cache@v3
         with:
@@ -42,9 +41,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-composer-
 
-      # 2. ثم قم بتثبيت الحزم (ستعمل بسرعة لو الـ Cache موجود)
       - name: Install Composer dependencies
         run: composer install --prefer-dist --no-progress --optimize-autoloader
+
+      - name: Ensure PHPStan exists
+        run: |
+          if [ ! -f "vendor/bin/phpstan" ]; then
+            composer require --dev phpstan/phpstan --no-interaction
+          fi
 
       - name: Run PHPStan static analysis
         run: vendor/bin/phpstan analyse --no-progress
