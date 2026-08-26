@@ -28,7 +28,7 @@ Route::middleware([
         });
 
 
-        Route::middleware('check_year')->group(function () {
+        Route::middleware(['check_year','ensure_idempotency'])->group(function () {
             Route::post('journal-entries', [JournalEntriesController::class, 'store']);
             Route::post('opening-balances', [OpeningBalanceController::class, 'store']);
         });

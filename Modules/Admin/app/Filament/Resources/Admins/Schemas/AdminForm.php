@@ -37,13 +37,12 @@ class AdminForm
                 TextInput::make('password')
                 ->rules(['required','min:8','max:20']),
 
-                Select::make('role')
-                ->label('assign Role *Admin Role is default')
-                ->default('admin')
-                ->dehydrated(false)
-                ->options(Role::query()->where('guard_name','admin')->pluck('name','id')),
-      
-
+Select::make('role') 
+    ->relationship(name: 'roles', titleAttribute: 'name', modifyQueryUsing: fn ($query) => $query->where('guard_name', 'admin'))
+    ->label('Assign Role (*Admin Role is default)')
+    ->default(fn () => Role::where('name','admin')->where('guard_name', 'admin')->first()?->id)
+    ->preload()
+    ->searchable(),
             ]);
     }
 }

@@ -21,6 +21,13 @@ class CreateSuperAdminListener
     
     ]);
 
+           $superAdminRole =  Role::create([
+        'name' => 'admin',
+        'lable' => 'Super Admin',
+        'guard_name' => 'admin',
+    
+    ]);
+
       $admin =  Admin::create([
             'name' => 'Super Admin',
             'email' => 'admin@superadmin.com',

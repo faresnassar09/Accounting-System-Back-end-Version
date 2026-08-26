@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: secret
+          MYSQL_DATABASE: accounting
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, curl, xml, zip, bcmath, pcntl, gd
+          ini-values: post_max_size=256M, upload_max_filesize=256M
+          coverage: none
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest --optimize-autoloader
+      - name: Cache vendor directory
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+      - name: Run PHPStan static analysis
+        run: vendor/bin/phpstan analyse --no-progress
+      - name: Run Pint coding style check
+        run: vendor/bin/pint --test
+      - name: Run Pest test suite
+        run: vendor/bin/pest --coverage

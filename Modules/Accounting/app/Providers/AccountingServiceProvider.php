@@ -6,6 +6,7 @@ use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvid
 use Illuminate\Support\Facades\Blade;
 use Modules\Accounting\Adapters\Contracts\ExternalTransactionAdapterInterface;
 use Modules\Accounting\Adapters\ExternalTransactionAdapter;
+use Modules\Accounting\Http\Middleware\EnsureIdempotency;
 use Modules\Accounting\Http\Middleware\PreventActionOnClosedYearMiddleware;
 use Modules\Accounting\Models\Account;
 use Modules\Accounting\Models\JournalEntry;
@@ -59,6 +60,8 @@ class AccountingServiceProvider extends ServiceProvider
 
         $this->registerPolicies();
         $this->app['router']->aliasMiddleware('check_year', PreventActionOnClosedYearMiddleware::class);
+        $this->app['router']->aliasMiddleware('ensure_idempotency', EnsureIdempotency::class);
+
     }
 
     /**
