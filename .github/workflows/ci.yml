@@ -44,5 +44,11 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --prefer-dist --no-progress --optimize-autoloader
 
+      - name: Generate Application Key
+        run: php artisan key:generate
+
+      - name: Generate Passport Keys
+        run: php artisan passport:keys --no-interaction
+
       - name: Run Test suite
         run: php artisan test Modules/Accounting/tests/
