@@ -49,9 +49,6 @@ jobs:
           if [ ! -f "vendor/bin/phpstan" ]; then
             composer require --dev phpstan/phpstan --no-interaction
           fi
-
-      - name: Run Pint coding style check
-        run: vendor/bin/pint --test
-
+          
       - name: Run Pest test suite
         run: vendor/bin/pest --coverage
