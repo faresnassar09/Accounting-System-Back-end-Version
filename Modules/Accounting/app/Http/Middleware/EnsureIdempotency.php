@@ -17,7 +17,7 @@ class EnsureIdempotency
 
         $userIp = $request->ip();
 
-        $idempotencyKey = $request->Idempotency_Key;
+        $idempotencyKey = $request->header('Idempotency-Key');
         $lockKey = "lock:journal:" . $userIp . ":{$idempotencyKey}";
         $responseKey = "response:idempotency:{$userIp}:{$idempotencyKey}";
 

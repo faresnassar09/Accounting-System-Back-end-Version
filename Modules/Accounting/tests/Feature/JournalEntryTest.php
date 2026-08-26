@@ -127,12 +127,12 @@ test("can't create unbalanced journal entry",function(){
 
 test("can't create journal entry with a duplicate reference", function () {
 
-    $commonReference = 'REF-100';
+ $commonReference = 'REF-100';
 
     $data1 = [
         'header' => [
             'reference' => $commonReference,
-            'date' => now(),
+            'date' => now()->toDateString(),
             'description' => 'First Entry',
             'total_debit' => 1000,
             'total_credit' => 1000,
@@ -142,15 +142,21 @@ test("can't create journal entry with a duplicate reference", function () {
             ['account_id' => $this->account->id, 'debit' => 0, 'credit' => 1000]
         ]
     ];
-    $this->postJson('api/v1/accounting/journal-entries', $data1);
 
-    $data2 = $data1; 
+    $data2 = $data1;
     $data2['header']['description'] = 'Duplicate Entry Attempt';
 
-    $response = $this->postJson('api/v1/accounting/journal-entries', $data2);
+    $this->postJson('api/v1/accounting/journal-entries', $data1, [
+        'Accept' => 'application/json',
+        'Idempotency-Key' => 'key-request-1' 
+    ]);
+
+    $response = $this->postJson('api/v1/accounting/journal-entries', $data2, [
+        'Accept' => 'application/json',
+        'Idempotency-Key' => 'key-request-2' 
+    ]);
 
     $response->assertStatus(422);
-    
     $response->assertJsonValidationErrors(['header.reference']);
 });
 

@@ -14,27 +14,37 @@ class CreateSuperAdminListener
     public function handle(DatabaseMigrated $event): void
     {
 
-       $superAdminRole =  Role::create([
-        'name' => 'super_admin',
-        'lable' => 'Super Admin',
-        'guard_name' => 'admin',
-    
-    ]);
+$superAdminRole = Role::firstOrCreate(
+        [
+            'name' => 'super_admin',
+            'guard_name' => 'admin',
+        ],
+        [
+            'lable' => 'Super Admin',
+        ]
+    );
 
-           $superAdminRole =  Role::create([
-        'name' => 'admin',
-        'lable' => 'Super Admin',
-        'guard_name' => 'admin',
-    
-    ]);
+    $adminRole = Role::firstOrCreate(
+        [
+            'name' => 'admin',
+            'guard_name' => 'admin',
+        ],
+        [
+            'lable' => 'Admin', 
+        ]
+    );
 
-      $admin =  Admin::create([
-            'name' => 'Super Admin',
+    $admin = Admin::firstOrCreate(
+        [
             'email' => 'admin@superadmin.com',
+        ],
+        [
+            'name' => 'Super Admin',
             'password' => Hash::make('00000000'),
-        ]);
+        ]
+    );
 
-        $admin->assignRole($superAdminRole);
+    $admin->assignRole($superAdminRole);
 
     }
 }

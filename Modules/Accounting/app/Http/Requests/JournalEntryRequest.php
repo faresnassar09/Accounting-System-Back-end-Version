@@ -72,16 +72,18 @@ class JournalEntryRequest extends FormRequest
         ];
     }
 
-    public function withValidator($validator)
-    {
-        $validator->after(function ($validator) {
-            $lines = $this->input('lines', []);
-            $totalDebit = collect($lines)->sum('debit');
-            $totalCredit = collect($lines)->sum('credit');
+public function withValidator($validator)
+{
+    $validator->after(function ($validator) {
+        $lines = $this->input('lines', []);
+        
+        // تحويل القيم لأرقام صريحة لضمان دقة المقارنة
+        $totalDebit = collect($lines)->sum(fn($line) => floatval($line['debit'] ?? 0));
+        $totalCredit = collect($lines)->sum(fn($line) => floatval($line['credit'] ?? 0));
 
-            if ($totalDebit !== $totalCredit) {
-                $validator->errors()->add('lines', 'The journal entry is unbalanced. Total debits must equal total credits.');
-            }
-        });
-    }
+        if ($totalDebit !== $totalCredit) {
+            $validator->errors()->add('lines', 'The journal entry is unbalanced. Total debits must equal total credits.');
+        }
+    });
+}
 }
