@@ -24,15 +24,16 @@ jobs:
           --health-retries=3
     steps:
       - uses: actions/checkout@v3
+
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4.16'
+          php-version: '8.4' # أو 8.3 حسب ما تفضل
           extensions: mbstring, curl, xml, zip, bcmath, pcntl, gd
           ini-values: post_max_size=256M, upload_max_filesize=256M
           coverage: none
-      - name: Install Composer dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest --optimize-autoloader
+
+      # 1. ضع خطوة الـ Cache أولاً قبل تثبيت الحزم
       - name: Cache vendor directory
         uses: actions/cache@v3
         with:
@@ -40,9 +41,16 @@ jobs:
           key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
           restore-keys: |
             ${{ runner.os }}-composer-
+
+      # 2. ثم قم بتثبيت الحزم (ستعمل بسرعة لو الـ Cache موجود)
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress --optimize-autoloader
+
       - name: Run PHPStan static analysis
         run: vendor/bin/phpstan analyse --no-progress
+
       - name: Run Pint coding style check
         run: vendor/bin/pint --test
+
       - name: Run Pest test suite
         run: vendor/bin/pest --coverage
