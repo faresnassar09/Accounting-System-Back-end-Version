@@ -19,8 +19,7 @@ class User extends OriginalUsreModel
      HasRoles,
      HasApiTokens,
      Notifiable,
-     SoftDeletes,
-     HasRoles;
+     SoftDeletes;
 
     protected static function newFactory()
     {        return UserFactory::new();

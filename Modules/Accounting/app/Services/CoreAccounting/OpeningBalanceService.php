@@ -35,6 +35,7 @@ class OpeningBalanceService
 
             return $line;
         });
+        
         $totalDebit = $lines->sum('debit');
         $totalCredit = $lines->sum('credit');
         $header['total_debit'] = $header['total_credit'] = max($totalDebit, $totalCredit);

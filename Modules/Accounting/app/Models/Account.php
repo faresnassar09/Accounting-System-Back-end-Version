@@ -19,10 +19,11 @@ class Account extends Model
         'name',
         'number',
         'description',
+        'calculated_balance',
     ];
 
 
-
+ 
     protected static function newFactory()
     {        return AccountFactory::new();
     }

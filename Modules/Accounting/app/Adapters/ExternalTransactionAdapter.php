@@ -22,8 +22,7 @@ class ExternalTransactionAdapter implements ExternalTransactionAdapterInterface
         $customersAccount = $this->accountingMapping->getCustomerAccount()?->id;
         $provierAccount =  $this->accountingMapping->getProviderAccoount()?->id;
 
-
-        if ( $customersAccount === null || $customersAccount === null ){
+        if ( $customersAccount === null || $provierAccount === null ){
 
              throw new \Exception('make sure the accounts coustomer and provider assigned in the system');
         }

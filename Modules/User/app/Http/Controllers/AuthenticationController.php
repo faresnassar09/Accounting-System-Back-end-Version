@@ -61,6 +61,14 @@ $token = $user->createToken('Token Name')->accessToken;
 
 
  $request->user()->token()->revoke();
+ 
+        return $this->apiResponse
+            ->successResponse(
+
+                'User Is Loged Out',
+
+                [],
+            );
 
     }
 }

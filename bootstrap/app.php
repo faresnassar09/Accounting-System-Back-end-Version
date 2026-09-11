@@ -4,6 +4,7 @@ use \Spatie\Permission\Middleware\RoleMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Middleware\HandleCors;
 use Illuminate\Session\Middleware\StartSession;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 
@@ -26,6 +27,10 @@ return Application::configure(basePath: dirname(__DIR__))
             StartSession::class,
 
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
+        ]);
+
+        $middleware->api(prepend:[
+            HandleCors::class,
         ]);
 
         $middleware->api(append:[

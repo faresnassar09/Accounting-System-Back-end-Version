@@ -3,7 +3,6 @@
 namespace Modules\User\Listeners;
 
 use Laravel\Passport\ClientRepository;
-use Log;
 
 class CreateClientListener
 {
@@ -25,7 +24,7 @@ class CreateClientListener
             'main',
         );
 
-        Log::info('secret',[$client->id,$client->plainSecret]);
+        \Log::info('secret',[$client->id,$client->plainSecret]);
 
     }
 }

@@ -31,17 +31,17 @@ class TeamPolicy
 
     public function view(Admin $admin, Team $team)
     {
-        return $admin->hasRole('super_admin')  && $admin->company_id === $team->company_id;
+        return $admin->hasRole('super_admin');
     }
 
 
     public function update(Admin $admin, Team $team)
 {
-    return  $admin->hasRole('super_admin') &&  $admin->company_id === $team->company_id;
+    return  $admin->hasRole('super_admin');
 }
 public function delete(Admin $admin, Team $team)
 {
-    return$admin->hasRole('super_admin') && $admin->company_id === $team->company_id;
+    return$admin->hasRole('super_admin');
 }
 
 

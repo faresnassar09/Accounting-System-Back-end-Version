@@ -24,10 +24,6 @@ class AccountObserver
             data:     [],
         );
 
-        if ($account->account_id) {
-            $account->recalculateParentBalances();
-            $account->recalculateDescendantsCount();
-        }
 
 
     }
@@ -59,10 +55,10 @@ public function deleting(Account $account){
 
     if ($account->entryLines()->exists()) {
         \Filament\Notifications\Notification::make()
-        ->title('فشل الحذف')
-        ->body('لا يمكن حذف حساب مرتبط بحركات مالية.')
+        ->title("can't delete")
+        ->body("an account has transactions can't be deleted")
         ->danger()
-        ->persistent() // عشان الرسالة متختفيش بسرعة
+        ->persistent()  
         ->send();
         
         return false; 

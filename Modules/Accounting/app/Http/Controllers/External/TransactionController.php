@@ -28,6 +28,14 @@ class TransactionController extends Controller
             
         } catch (\Exception $e) {
 
+
+                return $this->apiFormatter->failedResponse(
+
+                'Failed To Retrive The Transactions',
+                [],
+                500
+            );
+
         }
  
     }

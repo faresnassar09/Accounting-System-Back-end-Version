@@ -15,7 +15,7 @@ class AccountingMappingRepository implements AccountingMappingRepositoryInterfac
         $mapping = AccountingMapping::where('integration_key', AccountingMappingType::OPENING_DIFFERENT->value)->first();
 
 
-        return $mapping?->account;
+        return $mapping;
     }
 
     public function getCustomerAccount()
@@ -24,7 +24,7 @@ class AccountingMappingRepository implements AccountingMappingRepositoryInterfac
         $mapping = AccountingMapping::where('integration_key', AccountingMappingType::PAYMENT_SYSTEM_CUSTOMER->value)->first();
 
 
-        return $mapping?->account;
+        return $mapping;
     }
 
     public function getProviderAccoount()
@@ -34,6 +34,6 @@ class AccountingMappingRepository implements AccountingMappingRepositoryInterfac
         $mapping = AccountingMapping::where('integration_key', AccountingMappingType::PAYMENT_SYSTEM_PROVIDER->value)->first();
 
 
-        return $mapping?->account;
+        return $mapping;
     }
 }

@@ -23,7 +23,7 @@ class JournalEntryService
     public function store($data)
     {
 
-        $header = $data->header;
+        $journalHeader = $data->journalHeader;
         $entryLines = collect($data->lines);
         $actorType = ActorType::USER->value;
 
@@ -36,9 +36,9 @@ class JournalEntryService
         });
 
         
-        DB::transaction(function () use ($actorType, $header, $lines) {
+        DB::transaction(function () use ($actorType, $journalHeader, $lines) {
 
-            $this->journalInterface->store($actorType,$header, $lines);
+            $this->journalInterface->store($actorType,$journalHeader, $lines);
         });
 
         return true;

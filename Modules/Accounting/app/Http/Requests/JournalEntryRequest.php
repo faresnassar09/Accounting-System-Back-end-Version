@@ -13,11 +13,11 @@ class JournalEntryRequest extends FormRequest
     {
         return [
 
-            'header.reference' => ['required', 'min:1', 'max:255', 'unique:journal_entries,reference'],
-            'header.date' => ['nullable', 'date'],
-            'header.description' => ['required', 'min:5', 'max:255'],
-            'header.total_debit' => ['required', 'numeric'],
-            'header.total_credit' => ['required', 'numeric'],
+            'journalHeader.reference' => ['required', 'min:1', 'max:255', 'unique:journal_entries,reference'],
+            'journalHeader.date' => ['nullable', 'date'],
+            'journalHeader.description' => ['required', 'min:5', 'max:255'],
+            'journalHeader.total_debit' => ['required', 'numeric'],
+            'journalHeader.total_credit' => ['required', 'numeric'],
 
             'lines.*.account_id' => ['required', 'exists:accounts,id'],
 
@@ -47,13 +47,13 @@ class JournalEntryRequest extends FormRequest
     public function messages()
     {
         return [
-            'header.reference.required' => 'Enter A reference For Your Entry ',
-            'header.reference.min' => 'Reference Should Contain at Least 1 Charecter or Number',
-            'header.reference.max' => "Reference Shouldn't Excide 255 Charecter",
+            'journalHeader.reference.required' => 'Enter A reference For Your Entry ',
+            'journalHeader.reference.min' => 'Reference Should Contain at Least 1 Charecter or Number',
+            'journalHeader.reference.max' => "Reference Shouldn't Excide 255 Charecter",
 
-            'header.description.required' => 'Enter A Descrption For Your Entry ',
-            'header.description.min' => 'Description should be at least 5 char',
-            'header.description.max' => 'Description should be less than 255 char',
+            'journalHeader.description.required' => 'Enter A Descrption For Your Entry ',
+            'journalHeader.description.min' => 'Description should be at least 5 char',
+            'journalHeader.description.max' => 'Description should be less than 255 char',
 
             'lines.*.account_id.required' => 'Choose An Account',
             'lines.*.account_id.exists' => 'Account Is Not Found',

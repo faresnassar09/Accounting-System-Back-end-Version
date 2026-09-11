@@ -16,4 +16,5 @@ class AccountType extends Model
         'account_group',
     ];
 
+
 }

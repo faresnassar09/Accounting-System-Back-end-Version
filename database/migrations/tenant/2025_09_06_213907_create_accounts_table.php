@@ -27,16 +27,14 @@ return new class extends Migration
             $table->string('name',50);
             $table->string('number');
 
-            $table->decimal('initial_balance',15,2)->nullable();
+            $table->decimal('initial_balance',15,2)->default(0);
             $table->string('description',180)->nullable();
 
             $table->boolean('active')
             ->default(1)
             ->comment(" 1 => Active  0 => Not Active");  
 
-            $table->decimal('calculated_balance',15,2)->nullable();
-
-            $table->decimal('descendants_count',15,2)->nullable();
+            $table->decimal('calculated_balance',15,2)->default(0);
             
             $table->timestamps();
 

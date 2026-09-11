@@ -93,7 +93,12 @@ class FinancialClosingController extends Controller
                 );
             }
 
-        
+                    return $this->apiResponseFormatter->failedResponse(
+
+                'Failed To Close The Financial Year ',
+                [],
+
+            );
 
     }
 }

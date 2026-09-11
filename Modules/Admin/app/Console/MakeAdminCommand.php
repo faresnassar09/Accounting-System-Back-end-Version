@@ -62,7 +62,6 @@ class MakeAdminCommand extends Command
             'name' => $name,
             'email' =>$email,
             'password' => $password,
-            'company_id' => $copany_id,
             'branch_id' => $branch_id,
             
         ]);

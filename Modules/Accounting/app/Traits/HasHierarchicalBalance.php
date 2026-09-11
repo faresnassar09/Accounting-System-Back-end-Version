@@ -36,7 +36,7 @@ trait HasHierarchicalBalance {
         return $this->hasMany(Account::class, 'parent_id')
             ->with(
 
-                'descendants:id,parent_id,name,number,description,calculated_balance,descendants_count',
+                'descendants:id,parent_id,name,number,description,calculated_balance',
 
                 'accountType:id,type'
             );
@@ -56,56 +56,7 @@ trait HasHierarchicalBalance {
         return $this->hasMany(JournalEntryLine::class);
     }
 
-    public function recalculateParentBalances()
-    {
 
-        $children_balance = $this->children()->sum('calculated_balance');
-
-        $newCalculatedBalance = $this->calculated_balance + $children_balance;
-
-        if ($this->calculated_balance !== $newCalculatedBalance) {
-
-            $this->calculated_balance =  $newCalculatedBalance;
-            $this->saveQuietly();
-        }
-
-
-        if ($this->parent) {
-
-            $this->parent->recalculateParentBalances();
-        }
-    }
-
-    public function recalculateDescendantsCount()
-    {
-
-        $childCount = $this->children()->count();
-        $descendantsCount = $this->children()->sum('descendants_count');
-        $newDescendantsCount = $childCount + $descendantsCount;
-
-        if ($this->descendants_count !== $newDescendantsCount) {
-
-            $this->descendants_count = $newDescendantsCount;
-            $this->saveQuietly();
-        }
-
-        if ($this->parent) {
-
-            $this->parent->recalculateDescendantsCount();
-        }
-    }
-
-    public function propagateBalanceChange($amount){
-
-        $this->incrementQuietly('calculated_balance',$amount);
-
-        if ($this->account_id) {
-
-            $this->parent->propagateBalanceChange($amount);
-
-        }
-
-    }
 
 
 }

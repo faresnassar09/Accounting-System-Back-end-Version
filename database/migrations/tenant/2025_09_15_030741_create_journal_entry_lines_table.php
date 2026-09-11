@@ -25,8 +25,8 @@ return new class extends Migration
             ->cascadeOnDelete();
 
 
-            $table->string('debit')->default(0.00);
-            $table->string('credit')->default(0.00);
+            $table->decimal('debit', 15, 2)->default(0.00);
+            $table->decimal('credit', 15, 2)->default(0.00);
 
             $table->timestamp('date')->nullable();
             $table->timestamps();

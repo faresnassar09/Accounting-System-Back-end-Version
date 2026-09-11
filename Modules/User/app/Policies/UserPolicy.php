@@ -16,20 +16,6 @@ class UserPolicy
     public function __construct() {}
 
 
-public function update(Admin $admin, User $user)
-{
-    return $admin->company_id === $user->company_id;
-}
-
-public function view(Admin $admin, User $user)
-{
-    return $admin->company_id === $user->company_id;
-}
-
-public function delete(Admin $admin, User $user)
-{
-    return $admin->company_id === $user->company_id;
-}
 }
 
 
