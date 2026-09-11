@@ -63,7 +63,7 @@ class OpeningBalanceService
                 $userId,
                 $journalentryHeader,
                 $diffTotals,
-                $BalanceDiffAccount->id
+                $BalanceDiffAccount->account_id
             );
         }
         }); 

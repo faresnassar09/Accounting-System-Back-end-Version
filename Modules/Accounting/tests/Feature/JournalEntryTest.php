@@ -36,7 +36,7 @@ test('user can create a entry journal ',function(){
 
     $data = [
 
-        'header' => [
+        'journalHeader' => [
             'reference' => rand(1,5),
             'date' => now(),
             'description' => 'test entry',
@@ -68,7 +68,7 @@ test('user can create a entry journal ',function(){
 
     $response->assertStatus(201);
     $this->assertDatabaseHas('journal_entries',
-     ['reference' => $data['header']['reference']]);
+     ['reference' => $data['journalHeader']['reference']]);
 
      $this->assertDatabaseHas('journal_entry_lines', [
         'account_id' => $this->account->id
@@ -81,7 +81,7 @@ test("can't create unbalanced journal entry",function(){
 
     $data = [
 
-            'header' => [
+            'journalHeader' => [
                 'reference' => 'UNBALANCED-REF',
                 'date' => now(),
                 'description' => 'test entry',
@@ -117,7 +117,7 @@ test("can't create unbalanced journal entry",function(){
 
     $response->assertStatus(422);
     $this->assertDatabaseMissing('journal_entries',
-     ['reference' => $data['header']['reference']]);
+     ['reference' => $data['journalHeader']['reference']]);
 
      $this->assertDatabaseMissing('journal_entry_lines', [
         'account_id' => $this->account->id
@@ -130,7 +130,7 @@ test("can't create journal entry with a duplicate reference", function () {
  $commonReference = 'REF-100';
 
     $data1 = [
-        'header' => [
+        'journalHeader' => [
             'reference' => $commonReference,
             'date' => now()->toDateString(),
             'description' => 'First Entry',
@@ -144,7 +144,7 @@ test("can't create journal entry with a duplicate reference", function () {
     ];
 
     $data2 = $data1;
-    $data2['header']['description'] = 'Duplicate Entry Attempt';
+    $data2['journalHeader']['description'] = 'Duplicate Entry Attempt';
 
     $this->postJson('api/v1/accounting/journal-entries', $data1, [
         'Accept' => 'application/json',
@@ -157,7 +157,7 @@ test("can't create journal entry with a duplicate reference", function () {
     ]);
 
     $response->assertStatus(422);
-    $response->assertJsonValidationErrors(['header.reference']);
+    $response->assertJsonValidationErrors(['journalHeader.reference']);
 });
 
 afterEach(function () {
