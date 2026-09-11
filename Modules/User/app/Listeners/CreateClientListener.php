@@ -24,7 +24,7 @@ class CreateClientListener
             'main',
         );
 
-        \Log::info('secret',[$client->id,$client->plainSecret]);
+        \Log::info('OAuth Client created', ['client_id' => $client->id]);
 
     }
 }
