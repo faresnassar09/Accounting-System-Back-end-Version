@@ -2,9 +2,12 @@
 
 namespace Modules\Accounting\Providers;
 
+use App\Services\Api\ApiResponseFormatter;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Blade;
-use Modules\Accounting\Adapters\Contracts\ExternalTransactionAdapterInterface;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Http\Request;use Modules\Accounting\Adapters\Contracts\ExternalTransactionAdapterInterface;
 use Modules\Accounting\Adapters\ExternalTransactionAdapter;
 use Modules\Accounting\Http\Middleware\EnsureIdempotency;
 use Modules\Accounting\Http\Middleware\PreventActionOnClosedYearMiddleware;
@@ -53,6 +56,20 @@ class AccountingServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerViews();
         $this->loadMigrationsFrom(module_path($this->name, 'database/migrations'));
+
+
+RateLimiter::for('api_limiter', function (Request $request) {
+    return Limit::perMinute(40)
+                ->by($request->user()?->id ?: $request->ip()) 
+                ->response(function (Request $request, array $headers) {
+                    return app(ApiResponseFormatter::class)->failedResponse(
+                        'Too many requests in a short time. Please wait a moment before trying again.',
+                        [],
+                        429,
+                        $headers
+                    );
+                });
+});
 
         Account::observe(AccountObserver::class);
         JournalEntryLine::observe(JournalEntryLineObserver::class);

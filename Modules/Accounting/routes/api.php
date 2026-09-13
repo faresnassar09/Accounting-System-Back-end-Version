@@ -15,6 +15,7 @@ use Modules\Accounting\Http\Controllers\Reports\TrialBalanceController;
 Route::middleware([
 
 'auth:api',
+'throttle:api_limiter'
 
 ])
     ->prefix('v1/accounting')
