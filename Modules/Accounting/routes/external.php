@@ -4,7 +4,9 @@ use Illuminate\Support\Facades\Route;
 use Laravel\Passport\Http\Middleware\EnsureClientIsResourceOwner;
 use Modules\Accounting\Http\Controllers\External\TransactionController;
 
-Route::middleware(EnsureClientIsResourceOwner::class)->prefix('external/')->group(function(){
+Route::middleware([EnsureClientIsResourceOwner::class,'throttle:external_api'])
+->prefix('external/')
+->group(function(){
 
 
     Route::controller(TransactionController::class)->prefix('transaction/')->group(function(){

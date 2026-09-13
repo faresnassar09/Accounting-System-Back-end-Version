@@ -58,12 +58,43 @@ class AccountingServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(module_path($this->name, 'database/migrations'));
 
 
+        //limit users access 
+
 RateLimiter::for('api_limiter', function (Request $request) {
     return Limit::perMinute(40)
                 ->by($request->user()?->id ?: $request->ip()) 
                 ->response(function (Request $request, array $headers) {
                     return app(ApiResponseFormatter::class)->failedResponse(
                         'Too many requests in a short time. Please wait a moment before trying again.',
+                        [],
+                        429,
+                        $headers
+                    );
+                });
+});
+
+ // limit external service acess
+
+ RateLimiter::for('external_api', function (Request $request) {
+    $clientId = null;
+    $token = $request->bearerToken(); 
+    if ($token) {
+        $tokenParts = explode('.', $token);
+        
+        if (isset($tokenParts[1])) {
+            $payload = json_decode(base64_decode(strtr($tokenParts[1], '-_', '+/')), true);
+            
+            $clientId = $payload['aud'] ?? $payload['client_id'] ?? null;
+        }
+    }
+
+    $identifier = $clientId ? 'm2m_client_' . $clientId : 'ip_' . $request->ip();
+
+    return Limit::perMinute(10)
+                ->by($identifier)
+                ->response(function (Request $request, array $headers) {
+                    return app(ApiResponseFormatter::class)->failedResponse(
+                        'External rate limit exceeded. Please respect the API limits.',
                         [],
                         429,
                         $headers
