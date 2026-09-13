@@ -7,6 +7,7 @@ use App\Services\Api\ApiResponseFormatter;
 use App\Services\Logging\LoggerService;
 use Modules\Accounting\Http\Requests\CreateTransactionRequest;
 use Modules\Accounting\Http\Requests\External\GetTransaction;
+use Modules\Accounting\Jobs\External\CreateTransactionJob;
 use Modules\Accounting\Services\External\TransactionService;
 
 class TransactionController extends Controller
@@ -46,7 +47,8 @@ class TransactionController extends Controller
 
         try {
 
-            $this->transactionService->create($data);
+
+            CreateTransactionJob::dispatch($data->validated());
 
             return $this->apiFormatter->successResponse(
 

@@ -76,19 +76,20 @@ RateLimiter::for('api_limiter', function (Request $request) {
  // limit external service acess
 
  RateLimiter::for('external_api', function (Request $request) {
-    $clientId = null;
-    $token = $request->bearerToken(); 
-    if ($token) {
+    $clientId = $request->attributes->get('oauth_client_id');
+
+    if (! $clientId && ($token = $request->bearerToken())) {
         $tokenParts = explode('.', $token);
         
         if (isset($tokenParts[1])) {
             $payload = json_decode(base64_decode(strtr($tokenParts[1], '-_', '+/')), true);
             
-            $clientId = $payload['aud'] ?? $payload['client_id'] ?? null;
+            $rawClient = $payload['client_id'] ?? $payload['aud'] ?? null;
+            $clientId = is_array($rawClient) ? ($rawClient[0] ?? null) : $rawClient;
         }
     }
 
-    $identifier = $clientId ? 'm2m_client_' . $clientId : 'ip_' . $request->ip();
+    $identifier = $clientId ? 'm2m_client_' . (string) $clientId : 'ip_' . $request->ip();
 
     return Limit::perMinute(10)
                 ->by($identifier)

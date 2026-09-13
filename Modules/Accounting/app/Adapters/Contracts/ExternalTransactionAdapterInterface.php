@@ -7,6 +7,6 @@ namespace Modules\Accounting\Adapters\Contracts;
 interface ExternalTransactionAdapterInterface {
 
 
-    public function transformToJournal($data);
+    public function transformToJournal(array $data);
     
 }

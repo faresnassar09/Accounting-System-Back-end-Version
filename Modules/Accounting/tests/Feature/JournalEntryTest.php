@@ -71,7 +71,8 @@ test('user can create a entry journal ',function(){
      ['reference' => $data['journalHeader']['reference']]);
 
      $this->assertDatabaseHas('journal_entry_lines', [
-        'account_id' => $this->account->id
+        'account_id' => $this->account->id,
+        'source_reference' => (string) $this->user->id,
     ]);
 
 });

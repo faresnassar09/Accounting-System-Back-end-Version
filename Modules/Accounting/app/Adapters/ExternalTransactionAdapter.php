@@ -16,7 +16,7 @@ class ExternalTransactionAdapter implements ExternalTransactionAdapterInterface
     ) {}
 
 
-    public function transformToJournal($data)
+    public function transformToJournal(array $data)
     {
 
         $customersAccount = $this->accountingMapping->getCustomerAccount()?->id;
@@ -26,11 +26,10 @@ class ExternalTransactionAdapter implements ExternalTransactionAdapterInterface
 
              throw new \Exception('make sure the accounts coustomer and provider assigned in the system');
         }
-
-        $lines = collect($data->parties['senders'])
+        $lines = collect($data['parties']['senders'])
             ->map(fn($item) => $this->mapLine($item, $customersAccount, 'debit'))
             ->concat(
-                collect($data->parties['receivers'])->map(fn($item) => $this->mapLine($item, $provierAccount, 'credit'))
+                collect($data['parties']['receivers'])->map(fn($item) => $this->mapLine($item, $provierAccount, 'credit'))
             );
 
 
@@ -39,10 +38,10 @@ class ExternalTransactionAdapter implements ExternalTransactionAdapterInterface
             'header' => [
 
                 'reference' => Str::uuid(),
-                'date' => $data->timestamp,
-                'description' => $data->description,
-                'total_debit' => $data->total_amount,
-                'total_credit' => $data->total_amount,
+                'date' => $data['timestamp'],
+                'description' => $data['description'],
+                'total_debit' => $data['total_amount'],
+                'total_credit' => $data['total_amount'],
             ],
 
             'lines' => $lines,
@@ -53,6 +52,8 @@ class ExternalTransactionAdapter implements ExternalTransactionAdapterInterface
 
     private function mapLine($item, $accountId, $type): array
     {
+
+
         return [
             'account_id'  => $accountId,
             'debit'       =>  $type === 'debit' ? $item['amount'] : 0,

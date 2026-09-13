@@ -18,6 +18,8 @@ class CreateTransactionRequest extends FormRequest
             'total_amount' => ['required','min:1','max:999999999'],
             'parties.senders.*.source_reference' => ['required'],
             'parties.receivers.*.source_reference' => ['required'],
+            'parties.senders.*.amount' => ['required'],
+            'parties.receivers.*.amount' => ['required'],
 
         ];
     }

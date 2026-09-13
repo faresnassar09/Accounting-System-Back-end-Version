@@ -13,15 +13,12 @@ class CreateJournalEntryJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
- 
     public array $data;
-    public int $userId;
+    public ?int $userId;
 
-    public function __construct(array $data, int $userId) {
-
+    public function __construct(array $data, ?int $userId = null) {
         $this->data = $data;
         $this->userId = $userId;
-
     }
 
 

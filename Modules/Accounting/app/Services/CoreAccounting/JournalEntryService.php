@@ -21,19 +21,17 @@ class JournalEntryService
     ) {}
 
 
-    public function store(array $data,int $userId)
+    public function store(array $data, ?int $userId = null)
     {
 
         $journalHeader = $data['journalHeader'];
         $entryLines = collect($data['lines']);
         $actorType = ActorType::USER->value;
 
-      $lines =  $entryLines->map(function ($line,$userId) {
+        $lines = $entryLines->map(function ($line) use ($userId) {
+            $line['source_reference'] = $userId ?? 0;
 
-
-             $line['source_reference'] = $userId;
-
-             return $line;
+            return $line;
         });
 
         

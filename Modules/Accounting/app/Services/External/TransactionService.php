@@ -14,7 +14,7 @@ class TransactionService {
         public JournalEntryRepositoryInterface $journal,
         public AccountingMappingRepositoryInterface $accounting,
         ){}
-    public function create($data){
+    public function create(array $data){
 
         $sourceType = 'external_service';
         
