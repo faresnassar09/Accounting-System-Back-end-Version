@@ -7,6 +7,7 @@ use App\Services\Api\ApiResponseFormatter;
 use App\Services\Logging\LoggerService;
 
 use Modules\Accounting\Http\Requests\JournalEntryRequest;
+use Modules\Accounting\Jobs\CreateJournalEntryJob;
 use Modules\Accounting\Services\CoreAccounting\JournalEntryService;
 
 class JournalEntriesController extends Controller
@@ -33,8 +34,8 @@ class JournalEntriesController extends Controller
 
         try {
 
-            $this->journalEntryService->store($data);
-
+            $userId = current_guard_user()?->id;
+            CreateJournalEntryJob::dispatch($data->validated(), $userId);
 
             return $this->apiResponseFormatter->successResponse(
 
