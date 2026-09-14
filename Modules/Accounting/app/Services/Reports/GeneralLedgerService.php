@@ -15,43 +15,27 @@ class GeneralLedgerService
 
     ) {}
 
-    public function generateReport($data)
+    public function generateReport(array $data): array
     {
-
-
-        $account = $this->AccountInterface->findAccount($data->accountId);
+        $account = $this->AccountInterface->findAccount($data['accountId']);
         $accountId = $account->id;
-        $startDate = $data->startDate;
-        $endDate = $data->endDate;
+        $startDate = $data['startDate'];
+        $endDate = $data['endDate'];
 
         $openingBalance = ($this->getOpeningBalance)([$accountId], $startDate);
-        $ReportData = ($this->generalLedgerQuery)($openingBalance, $accountId, $startDate, $endDate);
-        $transactions = collect($ReportData['transactions']);
 
-        $openingBalance = $ReportData['opening_balance'];
-
-        $periodTotals = [
-            'total_debit'  => $transactions->sum('debit'),
-            'total_credit' => $transactions->sum('credit'),
-            'final_balance' => $openingBalance +
-                $transactions->sum('debit') -
-                $transactions->sum('credit')
-        ];
-
-        $closingBalance = $periodTotals['final_balance'];
+        $reportData = ($this->generalLedgerQuery)($openingBalance, $accountId, $startDate, $endDate);
 
         return [
-
             'account_info' => [
                 'name' => $account->name,
                 'number' => $account->number
             ],
-
-            'opening_balance' => $openingBalance,
-            'closing_balance' => $closingBalance,
-            'total_debit' => $periodTotals['total_debit'],
-            'total_credit' => $periodTotals['total_credit'],
-            'transactions' => $transactions
+            'opening_balance' => $reportData['opening_balance'],
+            'closing_balance' => $reportData['closing_balance'],
+            'total_debit'     => $reportData['total_debit'],
+            'total_credit'    => $reportData['total_credit'],
+            'transactions'    => $reportData['transactions'],
         ];
     }
 }

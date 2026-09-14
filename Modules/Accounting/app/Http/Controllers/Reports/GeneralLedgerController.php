@@ -33,7 +33,7 @@ class GeneralLedgerController extends Controller
 
         try {
 
-            $reportData =  $this->generalLedgerService->generateReport($data);
+            $reportData =  $this->generalLedgerService->generateReport($data->validated());
 
             return $this->apiResponseFormatter->successResponse(
 

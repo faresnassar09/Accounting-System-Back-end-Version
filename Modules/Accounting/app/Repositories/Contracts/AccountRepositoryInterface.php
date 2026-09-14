@@ -6,7 +6,7 @@ interface AccountRepositoryInterface{
 
     public function chartTree();
     public function getAllAccounts();
-    public function findAccount($accountId);
+    public function findAccount(int $accountId);
     public function getClosingAccounts();
     public function findRootAccount($id);
 

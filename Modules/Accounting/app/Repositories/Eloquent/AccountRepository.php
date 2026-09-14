@@ -15,9 +15,9 @@ class AccountRepository implements AccountingChartInterface{
 
     }
 
-    public function findAccount($accountId)
+    public function findAccount(int $accountId)
     {
-       return Account::select('id','name','number')->find($accountId);
+       return Account::select(['id','name','number'])->find($accountId);
 
     }
 
