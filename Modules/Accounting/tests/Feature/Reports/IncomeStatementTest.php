@@ -80,6 +80,16 @@ test('income statement handles net loss scenario', function () {
     expect($response->json('data.final_result.net_income'))->toBe(-3000);
 });
 
+test('income statement works when startDate is omitted or null', function () {
+    $response = $this->getJson('api/v1/accounting/reports/income-statement?endDate=2026-01-31');
+    $response->assertStatus(200);
+});
+
+test('income statement accepts snake_case parameters', function () {
+    $response = $this->getJson('api/v1/accounting/reports/income-statement?start_date=2026-01-01&end_date=2026-01-31');
+    $response->assertStatus(200);
+});
+
 afterEach(function () {
     if (tenancy()->initialized) {
         $tenant = tenancy()->tenant;

@@ -19,8 +19,8 @@ class GeneralLedgerService
     {
         $account = $this->AccountInterface->findAccount($data['accountId']);
         $accountId = $account->id;
-        $startDate = $data['startDate'];
-        $endDate = $data['endDate'];
+        $endDate   = $data['endDate'] ?? $data['end_date'] ?? now()->format('Y-m-d');
+        $startDate = $data['startDate'] ?? $data['start_date'] ?? get_start_of_year($endDate);
 
         $openingBalance = ($this->getOpeningBalance)([$accountId], $startDate);
 

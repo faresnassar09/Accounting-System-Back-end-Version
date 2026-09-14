@@ -2,102 +2,57 @@
 
 namespace Modules\Accounting\Services\Reports;
 
-use Modules\Accounting\Queries\GetProfitAndLossDetailsQuery;
+use Modules\Accounting\Queries\IncomeStatementQuery;
 
 class IncomeStatementService
 {
-
     public function __construct(
-
-        public GetProfitAndLossDetailsQuery $profitAndLossAccounts,
-
-
+        public IncomeStatementQuery $incomeStatementQuery,
     ) {}
 
-    public function generateReport($startDate, $endDate)
+    public function generateReport(?string $startDate = null, ?string $endDate = null): array
     {
+        $endDate   = $endDate ?: now()->format('Y-m-d');
+        $startDate = $startDate ?: get_start_of_year($endDate);
 
-        $accounts =  ($this->profitAndLossAccounts)($startDate, $endDate);
-        $processedData =  $this->processIncomeStatementData($accounts);
+        $report = ($this->incomeStatementQuery)($startDate, $endDate);
 
-        return $this->preparedReportData($startDate, $endDate, $processedData);
-    }
+        $groupedAccounts = $report['accounts']->groupBy('type');
+        $metrics = $report['metrics'];
 
-    private function processIncomeStatementData($accounts)
-    {
-
-        $groupedAccounts = $accounts->groupBy('type');
-        $classifications = [
-            'gross_sales',
-            'sales_deductions',
-            'operating_revenue',
-            'non_operating_revenue',
-            'cogs',
-            'operating_expenses',
-            'non_operating_expenses',
-            'income_tax_expenses'
-        ];
-        $results = [];
-        foreach ($classifications as $group) {
-
-            $groupData = $groupedAccounts->get($group, collect([]));
-            $sum = $groupData->sum('balance');
-
-            $results[$group] = $sum;
-            $results[$group . '_details'] = $groupData->values();
-        }
-        return $results;
-    }
-
-    private function preparedReportData($startDate, $endDate, $processedData)
-    {
-
-        $netSales = $processedData['gross_sales'] - abs($processedData['sales_deductions']);
-
-        $totalOperatingRevenue = $netSales + $processedData['operating_revenue'];
-        $grossProfit = $totalOperatingRevenue - $processedData['cogs'];
-
-        $operatingIncome = $grossProfit - $processedData['operating_expenses'];
-
-
-        $nonOperatingNet = $processedData['non_operating_revenue'] - $processedData['non_operating_expenses'];
-
-        $incomeBeforeTax = $operatingIncome + $nonOperatingNet;
-
-        $netIncome = $incomeBeforeTax - $processedData['income_tax_expenses'];
-        
-                return  [
+        return [
             'start_date' => $startDate,
             'end_date'   => $endDate,
 
-            'net_sales'         => $netSales,
-            'operating_revenue' => $processedData['operating_revenue'],
-            'total_revenue'     => $totalOperatingRevenue,
+            'net_sales'         => $metrics['net_sales'],
+            'operating_revenue' => $metrics['operating_revenue'],
+            'total_revenue'     => $metrics['total_revenue'],
 
-            'gross_sales'      => $processedData['gross_sales'],
-            'sales_deductions' => $processedData['sales_deductions'],
+            'gross_sales'      => $metrics['gross_sales'],
+            'sales_deductions' => $metrics['sales_deductions'],
 
-            'gross_sales_details'       => $processedData['gross_sales_details'],
-            'sales_deductions_details'  => $processedData['sales_deductions_details'],
-            'operating_revenue_details' => $processedData['operating_revenue_details'],
+            'gross_sales_details'       => $groupedAccounts->get('gross_sales', collect())->values(),
+            'sales_deductions_details'  => $groupedAccounts->get('sales_deductions', collect())->values(),
+            'operating_revenue_details' => $groupedAccounts->get('operating_revenue', collect())->values(),
 
-            'total_cogs'   => $processedData['cogs'],
-            'gross_profit' => $grossProfit,
-            'cogs_details' => $processedData['cogs_details'],
+            'total_cogs'   => $metrics['total_cogs'],
+            'gross_profit' => $metrics['gross_profit'],
+            'cogs_details' => $groupedAccounts->get('cogs', collect())->values(),
 
-            'total_expenses'   => $processedData['operating_expenses'],
-            'operating_income' => $operatingIncome,
-            'operating_expenses_details' => $processedData['operating_expenses_details'],
+            'total_expenses'             => $metrics['total_expenses'],
+            'operating_income'           => $metrics['operating_income'],
+            'operating_expenses_details' => $groupedAccounts->get('operating_expenses', collect())->values(),
 
-            'non_operating_net' => $nonOperatingNet,
-            'non_operating_revenue_details'  => $processedData['non_operating_revenue_details'],
-            'non_operating_expenses_details' => $processedData['non_operating_expenses_details'],
+            'non_operating_net'              => $metrics['non_operating_net'],
+            'non_operating_revenue_details'  => $groupedAccounts->get('non_operating_revenue', collect())->values(),
+            'non_operating_expenses_details' => $groupedAccounts->get('non_operating_expenses', collect())->values(),
 
-            'income_before_tax' => $incomeBeforeTax,
-            'tax_expense_total' => $processedData['income_tax_expenses'],
-            'tax_expenses_details' => $processedData['income_tax_expenses_details'] ?? [],
+            'income_before_tax'    => $metrics['income_before_tax'],
+            'tax_expense_total'    => $metrics['tax_expense_total'],
+            'tax_expenses_details' => $groupedAccounts->get('income_tax_expenses', collect())->values(),
 
-            'net_income' => $netIncome ,
+            'net_income' => $metrics['net_income'],
         ];
     }
 }
+

@@ -25,19 +25,17 @@ class IncomeStatementController extends Controller
    * @group income statement report
    */
 
-    public function generateReport(IncomeStatementRequest $data)
+    public function generateReport(IncomeStatementRequest $request)
     {
-
         try {
+            $startDate = $request->input('startDate') ?? $request->input('start_date');
+            $endDate   = $request->input('endDate') ?? $request->input('end_date');
 
-            $data =  $this->incomeStatementService->generateReport($data->startDate, $data->endDate);
+            $data = $this->incomeStatementService->generateReport($startDate, $endDate);
 
             return $this->apiResponseFormatter->successResponse(
-
                 'Income Statment Report Generated Successfully',
-
                 new IncomeStatementResource($data),
-
             );
         } catch (\Exception $e) {
 
