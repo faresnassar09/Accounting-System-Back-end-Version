@@ -20,20 +20,16 @@ class BalanceSheetController extends Controller
 
     ) {}
 
-    public function generateReport(BalanceSheetRequest $data)
+    public function generateReport(BalanceSheetRequest $request)
     {
-
         try {
-
-           $reportData = $this->balanceSheetService->generateReport($data->endDate);
+            $endDate = $request->input('endDate') ?? $request->input('end_date');
+            $reportData = $this->balanceSheetService->generateReport($endDate);
            
             return $this->apiResponseFormatter->successResponse(
-
                 'Balance Sheet Report Generated Successfully',
                 BalanceSheetResource::collection($reportData),
-
             );
-
         } catch (\Exception $e) {
 
 

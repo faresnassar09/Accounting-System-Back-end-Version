@@ -12,8 +12,8 @@ class BalanceSheetRequest extends FormRequest
     public function rules(): array
     {
         return [
-
-            'endDate' => ['required','date'],
+            'endDate'  => ['nullable', 'date'],
+            'end_date' => ['nullable', 'date'],
         ];
     }
 

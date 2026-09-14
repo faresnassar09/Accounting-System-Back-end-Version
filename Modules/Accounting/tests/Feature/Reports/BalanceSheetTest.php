@@ -104,6 +104,16 @@ test('balance sheet ignores transactions after the end date', function () {
     expect($response->json('data.assets_group.group_total'))->toBe(100);
 });
 
+test('balance sheet works when endDate is omitted or null', function () {
+    $response = $this->getJson('api/v1/accounting/reports/balance-sheet');
+    $response->assertStatus(200);
+});
+
+test('balance sheet accepts snake_case end_date parameter', function () {
+    $response = $this->getJson('api/v1/accounting/reports/balance-sheet?end_date=2026-02-13');
+    $response->assertStatus(200);
+});
+
 afterEach(function () {
     if (tenancy()->initialized) {
         $tenant = tenancy()->tenant;
