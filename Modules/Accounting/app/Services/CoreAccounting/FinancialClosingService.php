@@ -6,190 +6,111 @@ use App\Services\Logging\LoggerService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Modules\Accounting\Enums\ActorType;
-use Modules\Accounting\Queries\GetAccountCumulativeBalancesQuery;
-use Modules\Accounting\Queries\GetProfitAndLossDetailsQuery;
+use Modules\Accounting\Queries\FinancialClosingQuery;
 use Modules\Accounting\Queries\GetProfitAndLossTotalsQuery;
 use Modules\Accounting\Repositories\Contracts\FinancialClosingReposiroryInterface;
 use Modules\Accounting\Repositories\Contracts\JournalEntryRepositoryInterface;
 
-use function Symfony\Component\Clock\now;
-
 class FinancialClosingService
 {
-
     public function __construct(
-
         public FinancialClosingReposiroryInterface $financialClosingInterFace,
         public GetProfitAndLossTotalsQuery $getProfitAndLossTotalsQuery,
-        public GetProfitAndLossDetailsQuery $getProfitAndLossDetailsQuery,
-        public GetAccountCumulativeBalancesQuery $getAccountsBalance,
+        public FinancialClosingQuery $financialClosingQuery,
         public JournalEntryRepositoryInterface $journalRepositoryInterface,
         public LoggerService $loggerService,
-
     ) {}
 
-
-    public  function getRevenuesAndExpenses($year)
+    public function getRevenuesAndExpenses($year): array
     {
-
         $startDate = get_start_of_year($year);
-        $endDate = get_end_of_year($year);
-        $summary = ($this->getProfitAndLossTotalsQuery)($startDate, $endDate);
+        $endDate   = get_end_of_year($year);
+        $summary   = ($this->getProfitAndLossTotalsQuery)($startDate, $endDate);
 
-        $totalRevenues = $summary->total_revenues ?? 0;
-        $totalExpenses = $summary->total_expenses ?? 0;
-
-        $finalExpenses = $totalExpenses;
-        $netProfit     = $totalRevenues - $finalExpenses;
-
-        $summary = [
-
-            'total_revenues' => $totalRevenues,
-            'total_expenses' => $totalExpenses,
-            'net_profit' =>  $netProfit
+        return [
+            'total_revenues' => (float) ($summary->total_revenues ?? 0.00),
+            'total_expenses' => (float) ($summary->total_expenses ?? 0.00),
+            'net_profit'     => (float) ($summary->net_profit ?? 0.00),
         ];
-
-        return $summary;
     }
 
-    public function applyClosingFinancialYear($data)
+    public function applyClosingFinancialYear($data): bool
     {
-
-        $accountId = $data->account_id;
-        $year = $data->year;
+        $accountId = is_array($data) ? $data['account_id'] : ($data->account_id ?? $data['account_id']);
+        $year      = is_array($data) ? $data['year'] : ($data->year ?? $data['year']);
         $startFrom = get_start_of_year($year);
-        $endAt = get_end_of_year($year);
+        $endAt     = get_end_of_year($year);
         $actorType = ActorType::USER->value;
-        $userId = current_guard_user()->id;
+        $userId    = current_guard_user()?->id ?? 1;
 
+        DB::transaction(function () use (
+            $actorType,
+            $userId,
+            $year,
+            $endAt,
+            $startFrom,
+            $accountId,
+        ) {
+            $alreadyClosed = $this->financialClosingInterFace->isYearClosed($year);
 
-            DB::transaction(function () use (
+            if ($alreadyClosed) {
+                throw new \Exception("Financial Year ( $year ) Already Closed");
+            }
+
+            // 1. Generate P&L closing lines and exact totals directly from SQL (Zero PHP math)
+            $closingData = $this->financialClosingQuery->getClosingPnlData($startFrom, $endAt, $userId);
+
+            $header = [
+                'date'         => now(),
+                'reference'    => (string) Str::uuid(),
+                'description'  => "closing journal for year ($year)",
+                'total_debit'  => $closingData['total_amount'],
+                'total_credit' => $closingData['total_amount'],
+            ];
+
+            $journalHeader = $this->journalRepositoryInterface->store(
                 $actorType,
-                $userId,
+                $header,
+                $closingData['lines'],
+                'closing'
+            );
+
+            if ($closingData['diff_totals'] != 0) {
+                $this->journalRepositoryInterface->storeDiffBalancerLines(
+                    $actorType,
+                    $userId,
+                    $journalHeader,
+                    $closingData['diff_totals'],
+                    $accountId,
+                );
+            }
+
+            $this->financialClosingInterFace->flagYearAsClosed(
                 $year,
-                $endAt,
-                $startFrom,
-                $accountId,
+                $closingData['diff_totals'],
+                $accountId
+            );
 
-            ) {
+            // 2. Generate Balance Sheet opening lines for next year directly from SQL (Zero PHP math)
+            $openingData = $this->financialClosingQuery->getNextYearOpeningData($endAt, $userId);
+            $nextYear    = get_start_of_next_financial_year($year);
 
-                $alreadyClosed = $this->financialClosingInterFace->isYearClosed($year);
-
-                if ($alreadyClosed) {
-
-                    throw new \Exception("Financial Year ( $year ) Already Closed");
-                }
-
-
-                $accounts = ($this->getProfitAndLossDetailsQuery)(
-                    $startFrom,
-                    $endAt
-                );
-
-                $lines = collect($this->prepareClosingLines($accounts));
-
-
-                $totalDebit = $lines->sum('debit');
-                $totalCredit = $lines->sum('credit');
-                $totalAmount = max($totalDebit, $totalCredit);
-                $diffTotals = abs($totalCredit - $totalDebit);
-
-
-                $header = [
-
-                    'date' => now(),
-                    'reference' => Str::uuid(),
-                    "description" => "closing journal for year ($year)",
-                    'total_debit' => $totalAmount,
-                    'total_credit' => $totalAmount,
-                ];
-
-                $journalHeader =  $this->journalRepositoryInterface->store(
-                    $actorType,
-                    $header,
-                    $lines,
-                    'closing'
-                );
-
-                if ($diffTotals != 0) {
-
-                    $this->journalRepositoryInterface->storeDiffBalancerLines(
-                        $actorType,
-                        $userId,
-                        $journalHeader,
-                        $diffTotals,
-                        $accountId,
-                    );
-                }
-
-                $this->financialClosingInterFace->flagYearAsClosed(
-                    $year,
-                    $diffTotals,
-                    $accountId
-                );
-
-                $balances = ($this->getAccountsBalance)($endAt);
-                $lines = collect($this->prepareClosingLinesForcurrentAccounts($balances));
-                $year = get_start_of_next_financial_year($year);
-                $totalDebit = $lines->sum('debit');
-                $totalCredit = $lines->sum('credit');
-                $totalAmount = max($totalDebit, $totalCredit);
-
-                $header = [
-                    'date' => "$year-1-1",
-                    'reference' => Str::uuid(),
-                    "description" => "Opening journal for year ($year)",
-                    'total_debit' => $totalAmount,
-                    'total_credit' => $totalAmount,
-                ];
-
-
-                $journalHeader =  $this->journalRepositoryInterface->store(
-                    $actorType,
-                    $header,
-                    $lines,
-                    'opening'
-                );
-            });
-
-            return true;
-    }
-
-    private function prepareClosingLines($data)
-    {
-
-        return $data->map(function ($query) {
-
-            $balance = $query->balance;
-            $baseType = $query->account_group;
-
-            return [
-                'account_id' => $query->id,
-                'debit' => $baseType === "revenues" && $query->type !==  'sales_deductions'? $balance : 0.00,
-                'credit' => $baseType === "expenses" || $query->type === 'sales_deductions' ?$balance : 0.00,
-                'date' => now(),
-                'source_reference' => current_guard_user()->id,
-
+            $openingHeader = [
+                'date'         => "$nextYear-1-1",
+                'reference'    => (string) Str::uuid(),
+                'description'  => "Opening journal for year ($nextYear)",
+                'total_debit'  => $openingData['total_amount'],
+                'total_credit' => $openingData['total_amount'],
             ];
+
+            $this->journalRepositoryInterface->store(
+                $actorType,
+                $openingHeader,
+                $openingData['lines'],
+                'opening'
+            );
         });
-    }
-    
-    private function prepareClosingLinesForcurrentAccounts($data)
-    {
 
-        return $data->map(function ($query) {
-
-            $totalDebit = $query->debit;
-            $totalCredit = $query->credit;
-            return [
-                'account_id' => $query->id,
-                'debit' => $totalDebit,
-                'credit' => $totalCredit,
-                'date' => now(),
-                'source_reference' => current_guard_user()->id,
-
-
-            ];
-        });
+        return true;
     }
 }
