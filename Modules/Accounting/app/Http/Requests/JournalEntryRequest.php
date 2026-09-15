@@ -62,7 +62,6 @@ class JournalEntryRequest extends FormRequest
             'lines.*.debit.max' => 'Maxmum Debit Amount Should be 9999999999',
             'lines.*.debit.min' => 'Debit Amount Should be at Least 1',
             'lines.*.credit.required' => 'Enter The Credit Amount',
-            'lines.*.credit.required' => 'Enter The Credit Amount',
             'lines.*.credit.max' => 'Maxmum Cebit Amount Should be 9999999999',
             'lines.*.credit.min' => 'Credit Amount Should be at Least 1',
             'lines.*.credit.required_without' => 'The Entry Must Contain a Credit or Debit Amount',
@@ -77,7 +76,6 @@ public function withValidator($validator)
     $validator->after(function ($validator) {
         $lines = $this->input('lines', []);
         
-        // تحويل القيم لأرقام صريحة لضمان دقة المقارنة
         $totalDebit = collect($lines)->sum(fn($line) => floatval($line['debit'] ?? 0));
         $totalCredit = collect($lines)->sum(fn($line) => floatval($line['credit'] ?? 0));
 

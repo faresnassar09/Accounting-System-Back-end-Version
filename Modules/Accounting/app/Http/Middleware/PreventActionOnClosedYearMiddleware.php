@@ -19,7 +19,7 @@ class PreventActionOnClosedYearMiddleware
     public function handle(Request $request, Closure $next)
     {
             
-        $year = Carbon::parse($request->input('header.date'))->format('Y');
+        $year = Carbon::parse($request->input('journalHeader.date'))->format('Y');
 
         $alreadyClosed = $this->financialClosedRepository->isYearClosed($year);
 
