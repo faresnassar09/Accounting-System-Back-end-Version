@@ -11,6 +11,7 @@ uses(TestCase::class, RefreshDatabase::class);
 test('allows a user to login with correct credentials', function () {
     $tenant = Tenant::create();
     $tenant->domains()->create(['domain' => 'tenant1.app.test']);
+    $tenant->domains()->create(['domain' => 'tenant1.localhost']);
     tenancy()->initialize($tenant);
 
     $user = User::factory()->create([

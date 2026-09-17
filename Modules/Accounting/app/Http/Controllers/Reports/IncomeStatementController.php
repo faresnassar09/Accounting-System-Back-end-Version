@@ -52,6 +52,7 @@ class IncomeStatementController extends Controller
                 }
 
                 $attachments = $this->reportExportService->resolveAttachments($request, $export);
+                $isQueued = $request->boolean('queue');
                 $period = ($startDate && $endDate)
                     ? "Period: {$startDate} to {$endDate}"
                     : ($endDate ? "As of {$endDate}" : 'All Time');
@@ -70,7 +71,7 @@ class IncomeStatementController extends Controller
                         ],
                         exportObject: new IncomeStatementExport($data, $startDate, $endDate),
                         formats: $attachments,
-                        queue: true,
+                        queue: $isQueued,
                     );
                 } catch (\Throwable $mailError) {
                     $this->loggerService->failedLogger(
@@ -81,6 +82,25 @@ class IncomeStatementController extends Controller
                 }
             }
 
+            // 2. Return binary download if export format is specified
+            if ($export === 'pdf') {
+                return $this->reportExportService->exportPdf(
+                    'accounting::reports.pdf.income-statement',
+                    [
+                        'data'      => $data,
+                        'startDate' => $startDate,
+                        'endDate'   => $endDate,
+                    ],
+                    $filename
+                );
+            }
+
+            if ($export === 'excel') {
+                return $this->reportExportService->exportExcel(
+                    new IncomeStatementExport($data, $startDate, $endDate),
+                    $filename
+                );
+            }
 
             // 3. Return standard JSON response
             $formatString = ! empty($attachments) ? strtoupper(implode(' & ', $attachments)) : 'PDF & EXCEL';

@@ -58,6 +58,7 @@ class GeneralLedgerController extends Controller
                 }
 
                 $attachments = $this->reportExportService->resolveAttachments($request, $export);
+                $isQueued = $request->boolean('queue');
                 $period = 'Period: ' . ($params['startDate'] ?? 'Beginning') . ' to ' . ($params['endDate'] ?? now()->format('Y-m-d'));
 
                 try {
@@ -74,7 +75,7 @@ class GeneralLedgerController extends Controller
                         ],
                         exportObject: new GeneralLedgerExport($reportData, $params['startDate'], $params['endDate']),
                         formats: $attachments,
-                        queue: true,
+                        queue: $isQueued,
                     );
                 } catch (\Throwable $mailError) {
                     $this->loggerService->failedLogger(
@@ -83,6 +84,26 @@ class GeneralLedgerController extends Controller
                         $mailError->getMessage()
                     );
                 }
+            }
+
+            // 2. Return binary download if export format is specified
+            if ($export === 'pdf') {
+                return $this->reportExportService->exportPdf(
+                    'accounting::reports.pdf.general-ledger',
+                    [
+                        'data'      => $reportData,
+                        'startDate' => $params['startDate'],
+                        'endDate'   => $params['endDate'],
+                    ],
+                    $filename
+                );
+            }
+
+            if ($export === 'excel') {
+                return $this->reportExportService->exportExcel(
+                    new GeneralLedgerExport($reportData, $params['startDate'], $params['endDate']),
+                    $filename
+                );
             }
 
             // 3. Return standard JSON response

@@ -49,6 +49,7 @@ class TrialBalanceController extends Controller
                 }
 
                 $attachments = $this->reportExportService->resolveAttachments($request, $export);
+                $isQueued = $request->boolean('queue');
 
                 try {
                     $this->reportExportService->sendReportMail(
@@ -60,7 +61,7 @@ class TrialBalanceController extends Controller
                         viewData: ['data' => $reportData, 'endDate' => $endDate],
                         exportObject: new TrialBalanceExport($reportData, $endDate),
                         formats: $attachments,
-                        queue: true,
+                        queue: $isQueued,
                     );
                 } catch (\Throwable $mailError) {
                     $this->loggerService->failedLogger(
@@ -71,6 +72,21 @@ class TrialBalanceController extends Controller
                 }
             }
 
+            // 2. Return binary download if export format is specified
+            if ($export === 'pdf') {
+                return $this->reportExportService->exportPdf(
+                    'accounting::reports.pdf.trial-balance',
+                    ['data' => $reportData, 'endDate' => $endDate],
+                    'trial_balance_' . $endDate
+                );
+            }
+
+            if ($export === 'excel') {
+                return $this->reportExportService->exportExcel(
+                    new TrialBalanceExport($reportData, $endDate),
+                    'trial_balance_' . $endDate
+                );
+            }
 
             // 3. Return standard JSON response
             $formatString = ! empty($attachments) ? strtoupper(implode(' & ', $attachments)) : 'PDF & EXCEL';
