@@ -1,13 +1,13 @@
 # Introduction
 
-
+Enterprise Multi-Tenant Double-Entry Accounting & ERP Engine API documentation.
 
 <aside>
-    <strong>Base URL</strong>: <code>http://tenant1.app.test</code>
+    <strong>Base URL</strong>: <code>http://localhost</code>
 </aside>
 
-    This documentation aims to provide all the information you need to work with our API.
+    Welcome to the Accounting System API documentation.
+    This API provides endpoints for Double-Entry Bookkeeping, Chart of Accounts, Journal Entries, Fiscal Year Closing, Financial Reports (Trial Balance, General Ledger, Income Statement, Balance Sheet), and 3rd-Party Integrations.
 
-    <aside>As you scroll, you'll see code examples for working with the API in different programming languages in the dark area to the right (or as part of the content on mobile).
-    You can switch the language used with the tabs at the top right (or from the nav menu at the top left on mobile).</aside>
+    <aside>All endpoints require multi-tenant domain routing. Ensure your requests include the tenant host header (e.g. `tenant1.localhost`).</aside>
 

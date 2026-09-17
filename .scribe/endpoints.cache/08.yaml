@@ -19,7 +19,7 @@ endpoints:
       authenticated: true
       deprecated: false
     headers:
-      Authorization: '{YOUR_AUTH_KEY}'
+      Authorization: 'Bearer {YOUR_BEARER_TOKEN}'
       Content-Type: application/json
       Accept: application/json
     urlParameters: []
@@ -32,7 +32,7 @@ endpoints:
         name: email
         description: 'Must be a valid email address. Must not be greater than 50 characters.'
         required: false
-        example: qkunze@example.com
+        example: gbailey@example.net
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -43,22 +43,22 @@ endpoints:
         name: password
         description: 'Must be at least 8 characters. Must not be greater than 32 characters.'
         required: false
-        example: 'Z5ij-e/dl4m{o,'
+        example: '+-0pBNvYgxwmi/#iw'
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      email: qkunze@example.com
-      password: 'Z5ij-e/dl4m{o,'
+      email: gbailey@example.net
+      password: '+-0pBNvYgxwmi/#iw'
     fileParameters: []
     responses: []
     responseFields: []
     auth:
       - headers
       - Authorization
-      - 3V5EgbkvZcDPa166h8fd4ae
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
     controller: null
     method: null
     route: null

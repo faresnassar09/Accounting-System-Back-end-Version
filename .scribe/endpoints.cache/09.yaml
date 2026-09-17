@@ -19,7 +19,7 @@ endpoints:
       authenticated: true
       deprecated: false
     headers:
-      Authorization: '{YOUR_AUTH_KEY}'
+      Authorization: 'Bearer {YOUR_BEARER_TOKEN}'
       Content-Type: application/json
       Accept: application/json
     urlParameters: []
@@ -29,21 +29,12 @@ endpoints:
     bodyParameters: []
     cleanBodyParameters: []
     fileParameters: []
-    responses:
-      -
-        custom: []
-        status: 401
-        content: '{"message":"Unauthenticated."}'
-        headers:
-          cache-control: 'no-cache, private'
-          content-type: application/json
-          vary: Origin
-        description: null
+    responses: []
     responseFields: []
     auth:
       - headers
       - Authorization
-      - 3V5EgbkvZcDPa166h8fd4ae
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
     controller: null
     method: null
     route: null

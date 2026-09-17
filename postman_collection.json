@@ -1,0 +1,660 @@
+{
+    "variable": [
+        {
+            "id": "baseUrl",
+            "key": "baseUrl",
+            "type": "string",
+            "name": "string",
+            "value": "http:\/\/tenant1.localhost"
+        }
+    ],
+    "info": {
+        "name": "Accounting System API Documentation",
+        "_postman_id": "e1e7c848-cef4-4b38-8b39-d843f1201aca",
+        "description": "Enterprise Multi-Tenant Double-Entry Accounting & ERP Engine API documentation.",
+        "schema": "https:\/\/schema.getpostman.com\/json\/collection\/v2.1.0\/collection.json"
+    },
+    "item": [
+        {
+            "name": "Endpoints",
+            "description": "",
+            "item": [
+                {
+                    "name": "Issue an access token.",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/oauth\/token",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/oauth\/token"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "GET api\/v1\/accounting\/reports\/balance-sheet",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/accounting\/reports\/balance-sheet",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/accounting\/reports\/balance-sheet"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"endDate\":\"2026-09-16T13:53:32\",\"end_date\":\"2026-09-16T13:53:32\",\"export\":\"pdf\"}"
+                        },
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "GET api\/external\/transaction\/get",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/external\/transaction\/get",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/external\/transaction\/get"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"start_date\":\"2026-09-16T13:53:32\",\"end_date\":\"2026-09-16T13:53:32\",\"source_reference\":\"architecto\"}"
+                        },
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "POST api\/external\/transaction\/create",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/external\/transaction\/create",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/external\/transaction\/create"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"timestamp\":\"architecto\",\"description\":\"Et animi quos velit et fugiat.\",\"total_amount\":\"d\",\"parties\":{\"senders\":[{\"source_reference\":\"architecto\",\"amount\":\"architecto\"}],\"receivers\":[{\"source_reference\":\"architecto\",\"amount\":\"architecto\"}]}}"
+                        },
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Generate Trial Balance Report for External Services",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/external\/reports\/trial-balance",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/external\/reports\/trial-balance"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"endDate\":\"2026-09-16T13:53:32\",\"end_date\":\"2026-09-16T13:53:32\",\"export\":\"excel\"}"
+                        },
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Generate General Ledger Report for External Services",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/external\/reports\/general-ledger",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/external\/reports\/general-ledger"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Generate Income Statement Report for External Services",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/external\/reports\/income-statement",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/external\/reports\/income-statement"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"startDate\":\"2026-09-16T13:53:32\",\"start_date\":\"2026-09-16T13:53:32\",\"endDate\":\"2026-09-16T13:53:32\",\"end_date\":\"2026-09-16T13:53:32\",\"export\":\"excel\"}"
+                        },
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Generate Balance Sheet Report for External Services",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/external\/reports\/balance-sheet",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/external\/reports\/balance-sheet"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"endDate\":\"2026-09-16T13:53:32\",\"end_date\":\"2026-09-16T13:53:32\",\"export\":\"excel\"}"
+                        },
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "POST api\/v1\/auth\/logout",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/auth\/logout",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/auth\/logout"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "chart accounting",
+            "description": "",
+            "item": [
+                {
+                    "name": "retrieve the chart accounting's accounts",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/accounting\/charts",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/accounting\/charts"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "retrieve all accounts",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/accounting\/accounts",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/accounting\/accounts"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "retrieve the closing accounts",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/accounting\/accounts\/closing",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/accounting\/accounts\/closing"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "financial year",
+            "description": "",
+            "item": [
+                {
+                    "name": "retrieve revenues and expenses accounts",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/accounting\/financial-closing\/preview\/:year",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/accounting\/financial-closing\/preview\/:year",
+                            "variable": [
+                                {
+                                    "id": "year",
+                                    "key": "year",
+                                    "value": "architecto",
+                                    "description": ""
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "process clsing financial year",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/accounting\/financial-closing\/apply",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/accounting\/financial-closing\/apply"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"year\":\"architecto\",\"account_id\":\"architecto\"}"
+                        },
+                        "description": ""
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "general ledger report",
+            "description": "",
+            "item": [
+                {
+                    "name": "Generate general ledger report",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/accounting\/reports\/general-ledger",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/accounting\/reports\/general-ledger"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"startDate\":\"2026-09-16T13:53:31\",\"start_date\":\"2026-09-16T13:53:31\",\"endDate\":\"2026-09-16T13:53:31\",\"end_date\":\"2026-09-16T13:53:31\",\"export\":\"pdf\"}"
+                        },
+                        "description": ""
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "income statement report",
+            "description": "",
+            "item": [
+                {
+                    "name": "Generate income statement report",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/accounting\/reports\/income-statement",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/accounting\/reports\/income-statement"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"startDate\":\"2026-09-16T13:53:32\",\"start_date\":\"2026-09-16T13:53:32\",\"endDate\":\"2026-09-16T13:53:32\",\"end_date\":\"2026-09-16T13:53:32\",\"export\":\"pdf\"}"
+                        },
+                        "description": ""
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "journal entry",
+            "description": "",
+            "item": [
+                {
+                    "name": "store normal journal entry",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/accounting\/journal-entries",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/accounting\/journal-entries"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"journalHeader\":{\"reference\":\"b\",\"date\":\"2026-09-16T13:53:31\",\"description\":\"Et animi quos velit et fugiat.\",\"total_debit\":4326.41688,\"total_credit\":4326.41688},\"lines\":[{\"account_id\":\"architecto\",\"debit\":22,\"credit\":7}]}"
+                        },
+                        "description": ""
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "opening journal entry",
+            "description": "",
+            "item": [
+                {
+                    "name": "store opening journal entry",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/accounting\/opening-balances",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/accounting\/opening-balances"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"header\":{\"reference\":\"b\",\"date\":\"2026-09-16T13:53:31\",\"description\":\"Et animi quos velit et fugiat.\"},\"lines\":[{\"account_id\":\"architecto\",\"debit\":22,\"credit\":7}]}"
+                        },
+                        "description": ""
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "trial balance report",
+            "description": "",
+            "item": [
+                {
+                    "name": "Generate trial balance report",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/accounting\/reports\/trial-balance",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/accounting\/reports\/trial-balance"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"endDate\":\"2026-09-16T13:53:31\",\"end_date\":\"2026-09-16T13:53:31\",\"export\":\"excel\"}"
+                        },
+                        "description": ""
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "user auth",
+            "description": "",
+            "item": [
+                {
+                    "name": "user login",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/auth\/login",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/auth\/login"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"email\":\"gbailey@example.net\",\"password\":\"+-0pBNvYgxwmi\\\/#iw\"}"
+                        },
+                        "description": ""
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "user profile",
+            "description": "",
+            "item": [
+                {
+                    "name": "user login",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/profile",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/profile"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": []
+                }
+            ]
+        }
+    ],
+    "auth": {
+        "type": "bearer",
+        "bearer": [
+            {
+                "key": "Authorization",
+                "type": "string"
+            }
+        ]
+    }
+}

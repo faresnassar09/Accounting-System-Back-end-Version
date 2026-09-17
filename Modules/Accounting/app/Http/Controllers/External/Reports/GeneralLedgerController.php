@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Services\Api\ApiResponseFormatter;
 use App\Services\Logging\LoggerService;
 use Illuminate\Http\Request;
+use Modules\Accounting\Exports\GeneralLedgerExport;
 use Modules\Accounting\Models\Account;
 use Modules\Accounting\Services\Reports\GeneralLedgerService;
+use Modules\Accounting\Services\Reports\ReportExportService;
 use Modules\Accounting\Transformers\GeneralLedgerResource;
 
 class GeneralLedgerController extends Controller
@@ -16,6 +18,7 @@ class GeneralLedgerController extends Controller
         public GeneralLedgerService $generalLedgerService,
         public ApiResponseFormatter $apiResponseFormatter,
         public LoggerService $loggerService,
+        public ReportExportService $reportExportService,
     ) {}
 
     /**
@@ -39,13 +42,39 @@ class GeneralLedgerController extends Controller
         }
 
         try {
+            $startDate = $request->input('startDate') ?? $request->input('start_date');
+            $endDate   = $request->input('endDate') ?? $request->input('end_date');
+
             $params = [
                 'accountId'  => $accountId,
-                'startDate'  => $request->input('startDate') ?? $request->input('start_date'),
-                'endDate'    => $request->input('endDate') ?? $request->input('end_date'),
+                'startDate'  => $startDate,
+                'endDate'    => $endDate,
             ];
 
             $reportData = $this->generalLedgerService->generateReport($params);
+
+            $export = strtolower((string) $request->input('export'));
+            $accountNum = $reportData['account_info']['number'] ?? 'account';
+            $filename = 'general_ledger_' . $accountNum . '_' . ($endDate ?? now()->format('Y-m-d'));
+
+            if ($export === 'pdf') {
+                return $this->reportExportService->exportPdf(
+                    'accounting::reports.pdf.general-ledger',
+                    [
+                        'data'      => $reportData,
+                        'startDate' => $startDate,
+                        'endDate'   => $endDate,
+                    ],
+                    $filename
+                );
+            }
+
+            if ($export === 'excel') {
+                return $this->reportExportService->exportExcel(
+                    new GeneralLedgerExport($reportData, $startDate, $endDate),
+                    $filename
+                );
+            }
 
             return $this->apiResponseFormatter->successResponse(
                 'General Ledger Report Generated Successfully',

@@ -12,8 +12,14 @@ class TrialBalanceRequest extends FormRequest
     public function rules(): array
     {
         return [
-
-            'endDate' => ['date'],
+            'endDate'     => ['nullable', 'date'],
+            'end_date'    => ['nullable', 'date'],
+            'export'      => ['nullable', 'string', 'in:pdf,excel'],
+            'email'       => ['nullable', 'email'],
+            'send_email'  => ['nullable'],
+            'attachments' => ['nullable'],
+            'attach'      => ['nullable'],
+            'queue'       => ['nullable'],
         ];
     }
 

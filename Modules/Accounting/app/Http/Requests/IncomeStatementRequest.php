@@ -12,10 +12,16 @@ class IncomeStatementRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'startDate'  => ['nullable', 'date'],
-            'start_date' => ['nullable', 'date'],
-            'endDate'    => ['nullable', 'date'],
-            'end_date'   => ['nullable', 'date'],
+            'startDate'   => ['nullable', 'date'],
+            'start_date'  => ['nullable', 'date'],
+            'endDate'     => ['nullable', 'date'],
+            'end_date'    => ['nullable', 'date'],
+            'export'      => ['nullable', 'string', 'in:pdf,excel'],
+            'email'       => ['nullable', 'email'],
+            'send_email'  => ['nullable'],
+            'attachments' => ['nullable'],
+            'attach'      => ['nullable'],
+            'queue'       => ['nullable'],
         ];
     }
 

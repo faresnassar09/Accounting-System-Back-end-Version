@@ -1,0 +1,692 @@
+openapi: 3.0.3
+info:
+  title: 'Accounting System API Documentation'
+  description: 'Enterprise Multi-Tenant Double-Entry Accounting & ERP Engine API documentation.'
+  version: 1.0.0
+servers:
+  -
+    url: 'http://tenant1.localhost'
+tags:
+  -
+    name: Endpoints
+    description: ''
+  -
+    name: 'chart accounting'
+    description: ''
+  -
+    name: 'financial year'
+    description: ''
+  -
+    name: 'general ledger report'
+    description: ''
+  -
+    name: 'income statement report'
+    description: ''
+  -
+    name: 'journal entry'
+    description: ''
+  -
+    name: 'opening journal entry'
+    description: ''
+  -
+    name: 'trial balance report'
+    description: ''
+  -
+    name: 'user auth'
+    description: ''
+  -
+    name: 'user profile'
+    description: ''
+components:
+  securitySchemes:
+    default:
+      type: http
+      scheme: bearer
+      description: 'Send your OAuth2 token via the Authorization header: `Bearer {YOUR_TOKEN}`.'
+security:
+  -
+    default: []
+paths:
+  /api/oauth/token:
+    post:
+      summary: 'Issue an access token.'
+      operationId: issueAnAccessToken
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Endpoints
+  /api/v1/accounting/reports/balance-sheet:
+    get:
+      summary: ''
+      operationId: getApiV1AccountingReportsBalanceSheet
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Endpoints
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                endDate:
+                  type: string
+                  description: 'Must be a valid date.'
+                  example: '2026-09-16T13:53:32'
+                  nullable: true
+                end_date:
+                  type: string
+                  description: 'Must be a valid date.'
+                  example: '2026-09-16T13:53:32'
+                  nullable: true
+                export:
+                  type: string
+                  description: ''
+                  example: pdf
+                  enum:
+                    - pdf
+                    - excel
+                  nullable: true
+  /api/external/transaction/get:
+    get:
+      summary: ''
+      operationId: getApiExternalTransactionGet
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Endpoints
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                start_date:
+                  type: string
+                  description: 'Must be a valid date.'
+                  example: '2026-09-16T13:53:32'
+                end_date:
+                  type: string
+                  description: 'Must be a valid date.'
+                  example: '2026-09-16T13:53:32'
+                source_reference:
+                  type: string
+                  description: ''
+                  example: architecto
+  /api/external/transaction/create:
+    post:
+      summary: ''
+      operationId: postApiExternalTransactionCreate
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                timestamp:
+                  type: string
+                  description: ''
+                  example: architecto
+                description:
+                  type: string
+                  description: 'Must be at least 5 characters. Must not be greater than 255 characters.'
+                  example: 'Et animi quos velit et fugiat.'
+                total_amount:
+                  type: string
+                  description: 'Must be at least 1 character. Must not be greater than 999999999 characters.'
+                  example: d
+                parties:
+                  type: object
+                  description: ''
+                  example: []
+                  properties:
+                    senders:
+                      type: array
+                      description: ''
+                      example:
+                        - []
+                      items:
+                        type: object
+                        properties:
+                          source_reference:
+                            type: string
+                            description: ''
+                            example: architecto
+                          amount:
+                            type: string
+                            description: ''
+                            example: architecto
+                        required:
+                          - source_reference
+                          - amount
+                    receivers:
+                      type: array
+                      description: ''
+                      example:
+                        - []
+                      items:
+                        type: object
+                        properties:
+                          source_reference:
+                            type: string
+                            description: ''
+                            example: architecto
+                          amount:
+                            type: string
+                            description: ''
+                            example: architecto
+                        required:
+                          - source_reference
+                          - amount
+              required:
+                - timestamp
+                - description
+                - total_amount
+  /api/external/reports/trial-balance:
+    get:
+      summary: 'Generate Trial Balance Report for External Services'
+      operationId: generateTrialBalanceReportForExternalServices
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Endpoints
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                endDate:
+                  type: string
+                  description: 'Must be a valid date.'
+                  example: '2026-09-16T13:53:32'
+                  nullable: true
+                end_date:
+                  type: string
+                  description: 'Must be a valid date.'
+                  example: '2026-09-16T13:53:32'
+                  nullable: true
+                export:
+                  type: string
+                  description: ''
+                  example: excel
+                  enum:
+                    - pdf
+                    - excel
+                  nullable: true
+  /api/external/reports/general-ledger:
+    get:
+      summary: 'Generate General Ledger Report for External Services'
+      operationId: generateGeneralLedgerReportForExternalServices
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Endpoints
+  /api/external/reports/income-statement:
+    get:
+      summary: 'Generate Income Statement Report for External Services'
+      operationId: generateIncomeStatementReportForExternalServices
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Endpoints
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                startDate:
+                  type: string
+                  description: 'Must be a valid date.'
+                  example: '2026-09-16T13:53:32'
+                  nullable: true
+                start_date:
+                  type: string
+                  description: 'Must be a valid date.'
+                  example: '2026-09-16T13:53:32'
+                  nullable: true
+                endDate:
+                  type: string
+                  description: 'Must be a valid date.'
+                  example: '2026-09-16T13:53:32'
+                  nullable: true
+                end_date:
+                  type: string
+                  description: 'Must be a valid date.'
+                  example: '2026-09-16T13:53:32'
+                  nullable: true
+                export:
+                  type: string
+                  description: ''
+                  example: excel
+                  enum:
+                    - pdf
+                    - excel
+                  nullable: true
+  /api/external/reports/balance-sheet:
+    get:
+      summary: 'Generate Balance Sheet Report for External Services'
+      operationId: generateBalanceSheetReportForExternalServices
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Endpoints
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                endDate:
+                  type: string
+                  description: 'Must be a valid date.'
+                  example: '2026-09-16T13:53:32'
+                  nullable: true
+                end_date:
+                  type: string
+                  description: 'Must be a valid date.'
+                  example: '2026-09-16T13:53:32'
+                  nullable: true
+                export:
+                  type: string
+                  description: ''
+                  example: excel
+                  enum:
+                    - pdf
+                    - excel
+                  nullable: true
+  /api/v1/auth/logout:
+    post:
+      summary: ''
+      operationId: postApiV1AuthLogout
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - Endpoints
+  /api/v1/accounting/charts:
+    get:
+      summary: "retrieve the chart accounting's accounts"
+      operationId: retrieveTheChartAccountingsAccounts
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - 'chart accounting'
+  /api/v1/accounting/accounts:
+    get:
+      summary: 'retrieve all accounts'
+      operationId: retrieveAllAccounts
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - 'chart accounting'
+  /api/v1/accounting/accounts/closing:
+    get:
+      summary: 'retrieve the closing accounts'
+      operationId: retrieveTheClosingAccounts
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - 'chart accounting'
+  '/api/v1/accounting/financial-closing/preview/{year}':
+    get:
+      summary: 'retrieve revenues and expenses accounts'
+      operationId: retrieveRevenuesAndExpensesAccounts
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - 'financial year'
+    parameters:
+      -
+        in: path
+        name: year
+        description: ''
+        example: architecto
+        required: true
+        schema:
+          type: string
+  /api/v1/accounting/financial-closing/apply:
+    post:
+      summary: 'process clsing financial year'
+      operationId: processClsingFinancialYear
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - 'financial year'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                year:
+                  type: string
+                  description: ''
+                  example: architecto
+                account_id:
+                  type: string
+                  description: 'Must match an existing stored value.'
+                  example: architecto
+              required:
+                - year
+                - account_id
+  /api/v1/accounting/reports/general-ledger:
+    get:
+      summary: 'Generate general ledger report'
+      operationId: generateGeneralLedgerReport
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - 'general ledger report'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                accountId:
+                  type: string
+                  description: 'This field is required when <code>account_id</code> is not present. Must match an existing stored value.'
+                  example: null
+                  nullable: true
+                account_id:
+                  type: string
+                  description: 'This field is required when <code>accountId</code> is not present. Must match an existing stored value.'
+                  example: null
+                  nullable: true
+                startDate:
+                  type: string
+                  description: 'Must be a valid date.'
+                  example: '2026-09-16T13:53:31'
+                  nullable: true
+                start_date:
+                  type: string
+                  description: 'Must be a valid date.'
+                  example: '2026-09-16T13:53:31'
+                  nullable: true
+                endDate:
+                  type: string
+                  description: 'Must be a valid date.'
+                  example: '2026-09-16T13:53:31'
+                  nullable: true
+                end_date:
+                  type: string
+                  description: 'Must be a valid date.'
+                  example: '2026-09-16T13:53:31'
+                  nullable: true
+                export:
+                  type: string
+                  description: ''
+                  example: pdf
+                  enum:
+                    - pdf
+                    - excel
+                  nullable: true
+  /api/v1/accounting/reports/income-statement:
+    get:
+      summary: 'Generate income statement report'
+      operationId: generateIncomeStatementReport
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - 'income statement report'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                startDate:
+                  type: string
+                  description: 'Must be a valid date.'
+                  example: '2026-09-16T13:53:32'
+                  nullable: true
+                start_date:
+                  type: string
+                  description: 'Must be a valid date.'
+                  example: '2026-09-16T13:53:32'
+                  nullable: true
+                endDate:
+                  type: string
+                  description: 'Must be a valid date.'
+                  example: '2026-09-16T13:53:32'
+                  nullable: true
+                end_date:
+                  type: string
+                  description: 'Must be a valid date.'
+                  example: '2026-09-16T13:53:32'
+                  nullable: true
+                export:
+                  type: string
+                  description: ''
+                  example: pdf
+                  enum:
+                    - pdf
+                    - excel
+                  nullable: true
+  /api/v1/accounting/journal-entries:
+    post:
+      summary: 'store normal journal entry'
+      operationId: storeNormalJournalEntry
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - 'journal entry'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                journalHeader:
+                  type: object
+                  description: ''
+                  example: []
+                  properties:
+                    reference:
+                      type: string
+                      description: 'Must be at least 1 character. Must not be greater than 255 characters.'
+                      example: b
+                    date:
+                      type: string
+                      description: 'Must be a valid date.'
+                      example: '2026-09-16T13:53:31'
+                      nullable: true
+                    description:
+                      type: string
+                      description: 'Must be at least 5 characters. Must not be greater than 255 characters.'
+                      example: 'Et animi quos velit et fugiat.'
+                    total_debit:
+                      type: number
+                      description: ''
+                      example: 4326.41688
+                    total_credit:
+                      type: number
+                      description: ''
+                      example: 4326.41688
+                  required:
+                    - reference
+                    - description
+                    - total_debit
+                    - total_credit
+                lines:
+                  type: array
+                  description: ''
+                  example:
+                    - []
+                  items:
+                    type: object
+                    properties:
+                      account_id:
+                        type: string
+                        description: 'Must match an existing stored value.'
+                        example: architecto
+                      debit:
+                        type: number
+                        description: 'This field is required when <code>lines.*.credit</code> is <code>0</code>. Must be at least 0. Must not be greater than 9999999999.'
+                        example: 22
+                      credit:
+                        type: number
+                        description: 'This field is required when <code>lines.*.debit</code> is <code>0</code>. Must be at least 0. Must not be greater than 9999999999.'
+                        example: 7
+                    required:
+                      - account_id
+  /api/v1/accounting/opening-balances:
+    post:
+      summary: 'store opening journal entry'
+      operationId: storeOpeningJournalEntry
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - 'opening journal entry'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                header:
+                  type: object
+                  description: ''
+                  example: []
+                  properties:
+                    reference:
+                      type: string
+                      description: 'Must be at least 1 character. Must not be greater than 255 characters.'
+                      example: b
+                    date:
+                      type: string
+                      description: 'Must be a valid date.'
+                      example: '2026-09-16T13:53:31'
+                      nullable: true
+                    description:
+                      type: string
+                      description: 'Must be at least 5 characters. Must not be greater than 255 characters.'
+                      example: 'Et animi quos velit et fugiat.'
+                  required:
+                    - reference
+                    - description
+                lines:
+                  type: array
+                  description: ''
+                  example:
+                    - []
+                  items:
+                    type: object
+                    properties:
+                      account_id:
+                        type: string
+                        description: 'Must match an existing stored value.'
+                        example: architecto
+                      debit:
+                        type: number
+                        description: 'This field is required when <code>lines.*.credit</code> is <code>0</code>. Must be at least 0. Must not be greater than 9999999999.'
+                        example: 22
+                      credit:
+                        type: number
+                        description: 'This field is required when <code>lines.*.debit</code> is <code>0</code>. Must be at least 0. Must not be greater than 9999999999.'
+                        example: 7
+                    required:
+                      - account_id
+                      - debit
+                      - credit
+  /api/v1/accounting/reports/trial-balance:
+    get:
+      summary: 'Generate trial balance report'
+      operationId: generateTrialBalanceReport
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - 'trial balance report'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                endDate:
+                  type: string
+                  description: 'Must be a valid date.'
+                  example: '2026-09-16T13:53:31'
+                  nullable: true
+                end_date:
+                  type: string
+                  description: 'Must be a valid date.'
+                  example: '2026-09-16T13:53:31'
+                  nullable: true
+                export:
+                  type: string
+                  description: ''
+                  example: excel
+                  enum:
+                    - pdf
+                    - excel
+                  nullable: true
+  /api/v1/auth/login:
+    post:
+      summary: 'user login'
+      operationId: userLogin
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - 'user auth'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: 'Must be a valid email address. Must not be greater than 50 characters.'
+                  example: gbailey@example.net
+                password:
+                  type: string
+                  description: 'Must be at least 8 characters. Must not be greater than 32 characters.'
+                  example: '+-0pBNvYgxwmi/#iw'
+  /api/v1/profile:
+    get:
+      summary: 'user login'
+      operationId: userLogin
+      description: ''
+      parameters: []
+      responses: {}
+      tags:
+        - 'user profile'

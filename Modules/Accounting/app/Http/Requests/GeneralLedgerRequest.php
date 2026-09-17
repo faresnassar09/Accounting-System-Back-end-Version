@@ -11,10 +11,18 @@ class GeneralLedgerRequest extends FormRequest
     public function rules(): array
     {
         return [
-
-            'accountId' => ['required', 'exists:accounts,id'],
-            'startDate' => ['nullable','date'],
-            'endDate' => ['nullable','date'],
+            'accountId'  => ['required_without:account_id', 'nullable', 'exists:accounts,id'],
+            'account_id' => ['required_without:accountId', 'nullable', 'exists:accounts,id'],
+            'startDate'  => ['nullable', 'date'],
+            'start_date' => ['nullable', 'date'],
+            'endDate'     => ['nullable', 'date'],
+            'end_date'    => ['nullable', 'date'],
+            'export'      => ['nullable', 'string', 'in:pdf,excel'],
+            'email'       => ['nullable', 'email'],
+            'send_email'  => ['nullable'],
+            'attachments' => ['nullable'],
+            'attach'      => ['nullable'],
+            'queue'       => ['nullable'],
         ];
     }
 

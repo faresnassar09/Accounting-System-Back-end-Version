@@ -5,7 +5,9 @@ namespace Modules\Accounting\Http\Controllers\External\Reports;
 use App\Http\Controllers\Controller;
 use App\Services\Api\ApiResponseFormatter;
 use App\Services\Logging\LoggerService;
+use Modules\Accounting\Exports\TrialBalanceExport;
 use Modules\Accounting\Http\Requests\TrialBalanceRequest;
+use Modules\Accounting\Services\Reports\ReportExportService;
 use Modules\Accounting\Services\Reports\TrialBalanceService;
 use Modules\Accounting\Transformers\TrialBalanceResource;
 
@@ -15,6 +17,7 @@ class TrialBalanceController extends Controller
         public TrialBalanceService $trialBalanceService,
         public ApiResponseFormatter $apiResponseFormatter,
         public LoggerService $loggerService,
+        public ReportExportService $reportExportService,
     ) {}
 
     /**
@@ -25,6 +28,22 @@ class TrialBalanceController extends Controller
         try {
             $endDate = $request->input('endDate') ?? $request->input('end_date') ?? now()->format('Y-m-d');
             $reportData = $this->trialBalanceService->generateReport($endDate);
+
+            $export = strtolower((string) $request->input('export'));
+            if ($export === 'pdf') {
+                return $this->reportExportService->exportPdf(
+                    'accounting::reports.pdf.trial-balance',
+                    ['data' => $reportData, 'endDate' => $endDate],
+                    'trial_balance_' . $endDate
+                );
+            }
+
+            if ($export === 'excel') {
+                return $this->reportExportService->exportExcel(
+                    new TrialBalanceExport($reportData, $endDate),
+                    'trial_balance_' . $endDate
+                );
+            }
 
             return $this->apiResponseFormatter->successResponse(
                 'Trial Balance Report Generated Successfully',
