@@ -35,85 +35,42 @@ class GeneralLedgerController extends Controller
                 'endDate'   => $validated['endDate'] ?? $validated['end_date'] ?? null,
             ];
 
-            $reportData = $this->generalLedgerService->generateReport($params);
-
             $export = strtolower((string) $request->input('export'));
-            $accountNumber = $reportData['account_info']['number'] ?? 'account';
-            $accountName = $reportData['account_info']['name'] ?? 'Account';
-            $filename = 'general_ledger_' . $accountNumber . '_' . ($params['endDate'] ?? now()->format('Y-m-d'));
-            $shouldEmail = $request->boolean('send_email') || $request->filled('email') || $request->has('attachments') || $request->has('attach');
-            $attachments = [];
-            $recipientEmail = null;
+            $isExport = ! empty($export) || $request->boolean('send_email') || $request->filled('email') || $request->has('attachments') || $request->has('attach');
 
-            // 1. Dispatch email with user-selected attachments (PDF, Excel, or both) if requested
-            if ($shouldEmail) {
+            // If an export or email is requested, enforce backend queuing (no direct download, no frontend queue override)
+            if ($isExport) {
                 $recipientEmail = $request->input('email') ?: auth()->user()?->email;
 
                 if (! $recipientEmail) {
                     return $this->apiResponseFormatter->failedResponse(
-                        'A valid recipient email is required to send the report',
+                        'A valid recipient email is required to receive the exported report',
                         ['email' => ['Please provide an email address or ensure your user profile has an email.']],
                         422
                     );
                 }
 
-                $attachments = $this->reportExportService->resolveAttachments($request, $export);
-                $isQueued = $request->boolean('queue');
-                $period = 'Period: ' . ($params['startDate'] ?? 'Beginning') . ' to ' . ($params['endDate'] ?? now()->format('Y-m-d'));
+                $formats = $this->reportExportService->resolveAttachments($request, $export);
 
-                try {
-                    $this->reportExportService->sendReportMail(
-                        recipientEmail: $recipientEmail,
-                        reportTitle: "General Ledger - {$accountName} ({$accountNumber})",
-                        period: $period,
-                        filenameBase: $filename,
-                        view: 'accounting::reports.pdf.general-ledger',
-                        viewData: [
-                            'data'      => $reportData,
-                            'startDate' => $params['startDate'],
-                            'endDate'   => $params['endDate'],
-                        ],
-                        exportObject: new GeneralLedgerExport($reportData, $params['startDate'], $params['endDate']),
-                        formats: $attachments,
-                        queue: $isQueued,
-                    );
-                } catch (\Throwable $mailError) {
-                    $this->loggerService->failedLogger(
-                        'Failed to send general ledger report email',
-                        ['recipient' => $recipientEmail, 'formats' => $attachments],
-                        $mailError->getMessage()
-                    );
-                }
-            }
+                $this->reportExportService->dispatchReportJob(
+                    reportType: 'general-ledger',
+                    parameters: $params,
+                    recipientEmail: $recipientEmail,
+                    formats: $formats
+                );
 
-            // 2. Return binary download if export format is specified
-            if ($export === 'pdf') {
-                return $this->reportExportService->exportPdf(
-                    'accounting::reports.pdf.general-ledger',
-                    [
-                        'data'      => $reportData,
-                        'startDate' => $params['startDate'],
-                        'endDate'   => $params['endDate'],
-                    ],
-                    $filename
+                $formatLabel = strtoupper(implode(' & ', $formats));
+                return $this->apiResponseFormatter->successResponse(
+                    "General Ledger report generation has been queued. The [{$formatLabel}] report will be sent to {$recipientEmail} shortly.",
+                    null
                 );
             }
 
-            if ($export === 'excel') {
-                return $this->reportExportService->exportExcel(
-                    new GeneralLedgerExport($reportData, $params['startDate'], $params['endDate']),
-                    $filename
-                );
-            }
-
-            // 3. Return standard JSON response
-            $formatString = ! empty($attachments) ? strtoupper(implode(' & ', $attachments)) : 'PDF & EXCEL';
-            $message = $shouldEmail 
-                ? "General Ledger Report [{$formatString}] Generated and Emailed Successfully to {$recipientEmail}" 
-                : 'General Ledger Report Generated Successfully';
+            // Otherwise, render standard JSON for frontend UI display
+            $reportData = $this->generalLedgerService->generateReport($params);
 
             return $this->apiResponseFormatter->successResponse(
-                $message,
+                'General Ledger Report Generated Successfully',
                 new GeneralLedgerResource($reportData),
             );
 

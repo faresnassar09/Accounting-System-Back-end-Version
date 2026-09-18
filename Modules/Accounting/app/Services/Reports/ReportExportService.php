@@ -6,11 +6,31 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Maatwebsite\Excel\Facades\Excel;
+use Modules\Accounting\Jobs\GenerateAndSendReportJob;
 use Modules\Accounting\Mail\FinancialReportMail;
 use Symfony\Component\HttpFoundation\Response;
 
 class ReportExportService
 {
+    /**
+     * Dispatch an asynchronous background job to generate and email the report.
+     */
+    public function dispatchReportJob(
+        string $reportType,
+        array $parameters,
+        string $recipientEmail,
+        array $formats = ['pdf', 'excel'],
+        ?string $tenantId = null
+    ): void {
+        GenerateAndSendReportJob::dispatch(
+            reportType: $reportType,
+            parameters: $parameters,
+            recipientEmail: $recipientEmail,
+            formats: $formats,
+            tenantId: $tenantId ?? tenancy()->tenant?->id
+        );
+    }
+
     /**
      * Generate and download a PDF report from a Blade view.
      *
@@ -137,7 +157,7 @@ class ReportExportService
         array $viewData,
         object $exportObject,
         array $formats = ['pdf', 'excel'],
-        bool $queue = true
+        bool $queue = false
     ): void {
         $formats = array_values(array_intersect(array_map('strtolower', $formats), ['pdf', 'excel']));
         if (empty($formats)) {

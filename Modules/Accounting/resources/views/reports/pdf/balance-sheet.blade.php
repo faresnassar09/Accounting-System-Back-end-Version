@@ -33,8 +33,8 @@
                 @forelse($subType['accounts'] ?? [] as $account)
                     @php $acc = is_array($account) ? (object) $account : $account; @endphp
                     <tr>
-                        <td style="padding-left: 20px;">{{ $acc->name }}</td>
-                        <td class="text-right">{{ number_format($acc->netBalance ?? 0, 2) }}</td>
+                        <td style="padding-left: 20px;">{{ $acc->name ?? 'Account' }}</td>
+                        <td class="text-right">{{ number_format($acc->netBalance ?? $acc->netbalance ?? 0, 2) }}</td>
                     </tr>
                 @empty
                     <tr>
@@ -70,8 +70,8 @@
                 @forelse($subType['accounts'] ?? [] as $account)
                     @php $acc = is_array($account) ? (object) $account : $account; @endphp
                     <tr>
-                        <td style="padding-left: 20px;">{{ $acc->name }}</td>
-                        <td class="text-right">{{ number_format($acc->netBalance ?? 0, 2) }}</td>
+                        <td style="padding-left: 20px;">{{ $acc->name ?? 'Account' }}</td>
+                        <td class="text-right">{{ number_format($acc->netBalance ?? $acc->netbalance ?? 0, 2) }}</td>
                     </tr>
                 @empty
                     <tr>
@@ -95,9 +95,9 @@
                 <td colspan="2" class="text-right" style="padding-top: 8px;">
                     Balance Sheet Status:
                     @if($isBalanced)
-                        <span class="badge-success">Balanced (Assets = Liabilities + Equity) &check;</span>
+                        <span class="badge-success">Balanced (Assets = Liabilities + Equity) &#10003;</span>
                     @else
-                        <span class="badge-danger">Unbalanced Difference: {{ number_format(abs($assetsTotal - $liabEquityTotal), 2) }} &cross;</span>
+                        <span class="badge-danger">Unbalanced Difference: {{ number_format(abs($assetsTotal - $liabEquityTotal), 2) }} &#10007;</span>
                     @endif
                 </td>
             </tr>

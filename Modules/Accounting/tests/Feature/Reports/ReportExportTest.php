@@ -2,8 +2,11 @@
 
 use App\Models\Tenant;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Laravel\Passport\ClientRepository;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Queue;
 use Laravel\Passport\Passport;
+use Modules\Accounting\Jobs\GenerateAndSendReportJob;
+use Modules\Accounting\Mail\FinancialReportMail;
 use Modules\Accounting\Models\Account;
 use Modules\Accounting\Models\AccountType;
 use Modules\Accounting\Models\JournalEntry;
@@ -69,113 +72,177 @@ beforeEach(function () {
     ]);
 });
 
-test('trial balance exports to PDF successfully', function () {
+test('trial balance export queues report generation and returns non-blocking JSON response', function () {
+    Queue::fake();
+
     $response = $this->getJson('/api/v1/accounting/reports/trial-balance?export=pdf&endDate=2026-03-31');
 
     $response->assertStatus(200);
-    expect($response->headers->get('Content-Type'))->toContain('application/pdf');
-    expect($response->headers->get('Content-Disposition'))->toContain('attachment;');
-    expect($response->headers->get('Content-Disposition'))->toContain('.pdf');
+    $response->assertJsonPath('success', true);
+    expect($response->json('message'))->toContain('Trial Balance report generation has been queued');
+
+    Queue::assertPushed(GenerateAndSendReportJob::class, function ($job) {
+        return $job->reportType === 'trial-balance'
+            && $job->parameters['endDate'] === '2026-03-31'
+            && $job->formats === ['pdf']
+            && $job->recipientEmail === $this->user->email;
+    });
 });
 
-test('trial balance export sends email containing both PDF and Excel reports when explicitly requested', function () {
-    \Illuminate\Support\Facades\Mail::fake();
+test('trial balance queues email with explicit recipient email and multiple attachments', function () {
+    Queue::fake();
 
-    $response = $this->getJson('/api/v1/accounting/reports/trial-balance?export=pdf&send_email=1&attachments=pdf,excel&email=fares.ahmed.nassar0@gmail.com&endDate=2026-12-31');
+    $response = $this->getJson('/api/v1/accounting/reports/trial-balance?send_email=1&attachments=pdf,excel&email=fares.ahmed.nassar0@gmail.com&endDate=2026-12-31');
+
     $response->assertStatus(200);
+    $response->assertJsonPath('success', true);
 
-    \Illuminate\Support\Facades\Mail::assertSent(\Modules\Accounting\Mail\FinancialReportMail::class, function ($mail) {
+    Queue::assertPushed(GenerateAndSendReportJob::class, function ($job) {
+        return $job->reportType === 'trial-balance'
+            && $job->recipientEmail === 'fares.ahmed.nassar0@gmail.com'
+            && count($job->formats) === 2
+            && in_array('pdf', $job->formats)
+            && in_array('excel', $job->formats);
+    });
+});
+
+test('trial balance queued job generates and sends email with attachments', function () {
+    Mail::fake();
+
+    $job = new GenerateAndSendReportJob(
+        reportType: 'trial-balance',
+        parameters: ['endDate' => '2026-03-31'],
+        recipientEmail: 'fares.ahmed.nassar0@gmail.com',
+        formats: ['pdf', 'excel'],
+        tenantId: $this->tenant->id
+    );
+
+    app()->call([$job, 'handle']);
+
+    Mail::assertSent(FinancialReportMail::class, function ($mail) {
         $attachments = $mail->attachments();
         return $mail->hasTo('fares.ahmed.nassar0@gmail.com')
             && count($attachments) === 2
-            && $attachments[0]->as === 'trial_balance_2026-12-31.pdf'
-            && $attachments[1]->as === 'trial_balance_2026-12-31.xlsx';
+            && $attachments[0]->as === 'trial_balance_2026-03-31.pdf'
+            && $attachments[1]->as === 'trial_balance_2026-03-31.xlsx';
     });
 });
 
-test('trial balance sends email to authenticated user when email parameter is omitted but send_email is true', function () {
-    \Illuminate\Support\Facades\Mail::fake();
+test('general ledger export queues report generation and returns non-blocking JSON response', function () {
+    Queue::fake();
 
-    $response = $this->getJson('/api/v1/accounting/reports/trial-balance?send_email=1&endDate=2026-12-31');
+    $response = $this->getJson('/api/v1/accounting/reports/general-ledger?accountId=' . $this->cashAccount->id . '&export=excel');
+
     $response->assertStatus(200);
+    $response->assertJsonPath('success', true);
+    expect($response->json('message'))->toContain('General Ledger report generation has been queued');
 
-    \Illuminate\Support\Facades\Mail::assertSent(\Modules\Accounting\Mail\FinancialReportMail::class, function ($mail) {
-        return $mail->hasTo($this->user->email);
+    Queue::assertPushed(GenerateAndSendReportJob::class, function ($job) {
+        return $job->reportType === 'general-ledger'
+            && (int) $job->parameters['accountId'] === (int) $this->cashAccount->id
+            && $job->formats === ['excel'];
     });
 });
 
-test('trial balance sends email with only PDF attachment when requested', function () {
-    \Illuminate\Support\Facades\Mail::fake();
+test('general ledger queued job generates and sends email with attachments', function () {
+    Mail::fake();
 
-    $response = $this->getJson('/api/v1/accounting/reports/trial-balance?send_email=1&attachments=pdf&endDate=2026-12-31');
-    $response->assertStatus(200);
+    $job = new GenerateAndSendReportJob(
+        reportType: 'general-ledger',
+        parameters: ['accountId' => $this->cashAccount->id, 'endDate' => '2026-03-31'],
+        recipientEmail: 'fares.ahmed.nassar0@gmail.com',
+        formats: ['pdf', 'excel'],
+        tenantId: $this->tenant->id
+    );
 
-    \Illuminate\Support\Facades\Mail::assertSent(\Modules\Accounting\Mail\FinancialReportMail::class, function ($mail) {
+    app()->call([$job, 'handle']);
+
+    Mail::assertSent(FinancialReportMail::class, function ($mail) {
         $attachments = $mail->attachments();
-        return count($attachments) === 1 && $attachments[0]->as === 'trial_balance_2026-12-31.pdf';
+        return $mail->hasTo('fares.ahmed.nassar0@gmail.com')
+            && count($attachments) === 2
+            && str_contains($attachments[0]->as, 'general_ledger_')
+            && str_ends_with($attachments[0]->as, '.pdf')
+            && str_contains($attachments[1]->as, 'general_ledger_')
+            && str_ends_with($attachments[1]->as, '.xlsx');
     });
 });
 
-test('trial balance sends email with only Excel attachment when requested', function () {
-    \Illuminate\Support\Facades\Mail::fake();
+test('income statement export queues report generation and returns non-blocking JSON response', function () {
+    Queue::fake();
 
-    $response = $this->getJson('/api/v1/accounting/reports/trial-balance?send_email=1&attachments=excel&endDate=2026-12-31');
+    $response = $this->getJson('/api/v1/accounting/reports/income-statement?export=pdf&startDate=2026-01-01&endDate=2026-03-31');
+
     $response->assertStatus(200);
+    $response->assertJsonPath('success', true);
+    expect($response->json('message'))->toContain('Income Statement report generation has been queued');
 
-    \Illuminate\Support\Facades\Mail::assertSent(\Modules\Accounting\Mail\FinancialReportMail::class, function ($mail) {
+    Queue::assertPushed(GenerateAndSendReportJob::class, function ($job) {
+        return $job->reportType === 'income-statement'
+            && $job->parameters['startDate'] === '2026-01-01'
+            && $job->parameters['endDate'] === '2026-03-31'
+            && $job->formats === ['pdf'];
+    });
+});
+
+test('income statement queued job generates and sends email with attachments', function () {
+    Mail::fake();
+
+    $job = new GenerateAndSendReportJob(
+        reportType: 'income-statement',
+        parameters: ['startDate' => '2026-01-01', 'endDate' => '2026-03-31'],
+        recipientEmail: 'fares.ahmed.nassar0@gmail.com',
+        formats: ['pdf', 'excel'],
+        tenantId: $this->tenant->id
+    );
+
+    app()->call([$job, 'handle']);
+
+    Mail::assertSent(FinancialReportMail::class, function ($mail) {
         $attachments = $mail->attachments();
-        return count($attachments) === 1 && $attachments[0]->as === 'trial_balance_2026-12-31.xlsx';
+        return $mail->hasTo('fares.ahmed.nassar0@gmail.com')
+            && count($attachments) === 2
+            && $attachments[0]->as === 'income_statement_2026-03-31.pdf'
+            && $attachments[1]->as === 'income_statement_2026-03-31.xlsx';
     });
 });
 
-test('trial balance download does not send unwanted emails when send_email is omitted', function () {
-    \Illuminate\Support\Facades\Mail::fake();
+test('balance sheet export queues report generation and returns non-blocking JSON response', function () {
+    Queue::fake();
 
-    $response = $this->getJson('/api/v1/accounting/reports/trial-balance?export=pdf&endDate=2026-12-31');
-    $response->assertStatus(200);
-
-    \Illuminate\Support\Facades\Mail::assertNothingSent();
-});
-
-test('trial balance exports to Excel successfully', function () {
-    $response = $this->get('/api/v1/accounting/reports/trial-balance?export=excel&endDate=2026-03-31');
+    $response = $this->getJson('/api/v1/accounting/reports/balance-sheet?export=excel&endDate=2026-03-31');
 
     $response->assertStatus(200);
-    expect($response->headers->get('Content-Disposition'))->toContain('attachment;');
-    expect($response->headers->get('Content-Disposition'))->toContain('.xlsx');
+    $response->assertJsonPath('success', true);
+    expect($response->json('message'))->toContain('Balance Sheet report generation has been queued');
+
+    Queue::assertPushed(GenerateAndSendReportJob::class, function ($job) {
+        return $job->reportType === 'balance-sheet'
+            && $job->parameters['endDate'] === '2026-03-31'
+            && $job->formats === ['excel'];
+    });
 });
 
-test('general ledger exports to PDF and Excel successfully', function () {
-    $pdfResponse = $this->getJson('/api/v1/accounting/reports/general-ledger?accountId=' . $this->cashAccount->id . '&export=pdf');
-    $pdfResponse->assertStatus(200);
-    expect($pdfResponse->headers->get('Content-Type'))->toContain('application/pdf');
-    expect($pdfResponse->headers->get('Content-Disposition'))->toContain('.pdf');
+test('balance sheet queued job generates and sends email with attachments', function () {
+    Mail::fake();
 
-    $excelResponse = $this->get('/api/v1/accounting/reports/general-ledger?accountId=' . $this->cashAccount->id . '&export=excel');
-    $excelResponse->assertStatus(200);
-    expect($excelResponse->headers->get('Content-Disposition'))->toContain('.xlsx');
-});
+    $job = new GenerateAndSendReportJob(
+        reportType: 'balance-sheet',
+        parameters: ['endDate' => '2026-03-31'],
+        recipientEmail: 'fares.ahmed.nassar0@gmail.com',
+        formats: ['pdf', 'excel'],
+        tenantId: $this->tenant->id
+    );
 
-test('income statement exports to PDF and Excel successfully', function () {
-    $pdfResponse = $this->getJson('/api/v1/accounting/reports/income-statement?export=pdf&startDate=2026-01-01&endDate=2026-03-31');
-    $pdfResponse->assertStatus(200);
-    expect($pdfResponse->headers->get('Content-Type'))->toContain('application/pdf');
-    expect($pdfResponse->headers->get('Content-Disposition'))->toContain('.pdf');
+    app()->call([$job, 'handle']);
 
-    $excelResponse = $this->get('/api/v1/accounting/reports/income-statement?export=excel');
-    $excelResponse->assertStatus(200);
-    expect($excelResponse->headers->get('Content-Disposition'))->toContain('.xlsx');
-});
-
-test('balance sheet exports to PDF and Excel successfully', function () {
-    $pdfResponse = $this->getJson('/api/v1/accounting/reports/balance-sheet?export=pdf&endDate=2026-03-31');
-    $pdfResponse->assertStatus(200);
-    expect($pdfResponse->headers->get('Content-Type'))->toContain('application/pdf');
-    expect($pdfResponse->headers->get('Content-Disposition'))->toContain('.pdf');
-
-    $excelResponse = $this->get('/api/v1/accounting/reports/balance-sheet?export=excel&endDate=2026-03-31');
-    $excelResponse->assertStatus(200);
-    expect($excelResponse->headers->get('Content-Disposition'))->toContain('.xlsx');
+    Mail::assertSent(FinancialReportMail::class, function ($mail) {
+        $attachments = $mail->attachments();
+        return $mail->hasTo('fares.ahmed.nassar0@gmail.com')
+            && count($attachments) === 2
+            && $attachments[0]->as === 'balance_sheet_2026-03-31.pdf'
+            && $attachments[1]->as === 'balance_sheet_2026-03-31.xlsx';
+    });
 });
 
 test('standard JSON response is preserved when export parameter is omitted', function () {
@@ -192,89 +259,4 @@ test('standard JSON response is preserved when export parameter is omitted', fun
             'totals' => ['total_debit', 'total_credit', 'isBalanced'],
         ],
     ]);
-});
-
-test('general ledger sends email with requested attachments', function () {
-    \Illuminate\Support\Facades\Mail::fake();
-
-    $response = $this->getJson('/api/v1/accounting/reports/general-ledger?accountId=' . $this->cashAccount->id . '&send_email=1&attachments=pdf,excel&email=fares.ahmed.nassar0@gmail.com');
-    $response->assertStatus(200);
-
-    \Illuminate\Support\Facades\Mail::assertSent(\Modules\Accounting\Mail\FinancialReportMail::class, function ($mail) {
-        $attachments = $mail->attachments();
-        return $mail->hasTo('fares.ahmed.nassar0@gmail.com')
-            && count($attachments) === 2
-            && str_contains($attachments[0]->as, 'general_ledger_')
-            && str_ends_with($attachments[0]->as, '.pdf')
-            && str_contains($attachments[1]->as, 'general_ledger_')
-            && str_ends_with($attachments[1]->as, '.xlsx');
-    });
-});
-
-test('general ledger download does not send unwanted emails when send_email is omitted', function () {
-    \Illuminate\Support\Facades\Mail::fake();
-
-    $response = $this->getJson('/api/v1/accounting/reports/general-ledger?accountId=' . $this->cashAccount->id . '&export=pdf');
-    $response->assertStatus(200);
-
-    \Illuminate\Support\Facades\Mail::assertNothingSent();
-});
-
-test('income statement sends email with requested attachments', function () {
-    \Illuminate\Support\Facades\Mail::fake();
-
-    $response = $this->getJson('/api/v1/accounting/reports/income-statement?send_email=1&attachments=pdf,excel&email=fares.ahmed.nassar0@gmail.com&startDate=2026-01-01&endDate=2026-03-31');
-    $response->assertStatus(200);
-
-    \Illuminate\Support\Facades\Mail::assertSent(\Modules\Accounting\Mail\FinancialReportMail::class, function ($mail) {
-        $attachments = $mail->attachments();
-        return $mail->hasTo('fares.ahmed.nassar0@gmail.com')
-            && count($attachments) === 2
-            && $attachments[0]->as === 'income_statement_2026-03-31.pdf'
-            && $attachments[1]->as === 'income_statement_2026-03-31.xlsx';
-    });
-});
-
-test('income statement download does not send unwanted emails when send_email is omitted', function () {
-    \Illuminate\Support\Facades\Mail::fake();
-
-    $response = $this->getJson('/api/v1/accounting/reports/income-statement?export=pdf&startDate=2026-01-01&endDate=2026-03-31');
-    $response->assertStatus(200);
-
-    \Illuminate\Support\Facades\Mail::assertNothingSent();
-});
-
-test('balance sheet sends email with requested attachments', function () {
-    \Illuminate\Support\Facades\Mail::fake();
-
-    $response = $this->getJson('/api/v1/accounting/reports/balance-sheet?send_email=1&attachments=pdf,excel&email=fares.ahmed.nassar0@gmail.com&endDate=2026-03-31');
-    $response->assertStatus(200);
-
-    \Illuminate\Support\Facades\Mail::assertSent(\Modules\Accounting\Mail\FinancialReportMail::class, function ($mail) {
-        $attachments = $mail->attachments();
-        return $mail->hasTo('fares.ahmed.nassar0@gmail.com')
-            && count($attachments) === 2
-            && $attachments[0]->as === 'balance_sheet_2026-03-31.pdf'
-            && $attachments[1]->as === 'balance_sheet_2026-03-31.xlsx';
-    });
-});
-
-test('balance sheet download does not send unwanted emails when send_email is omitted', function () {
-    \Illuminate\Support\Facades\Mail::fake();
-
-    $response = $this->getJson('/api/v1/accounting/reports/balance-sheet?export=pdf&endDate=2026-03-31');
-    $response->assertStatus(200);
-
-    \Illuminate\Support\Facades\Mail::assertNothingSent();
-});
-
-test('queued email dispatch pushes FinancialReportMail to queue', function () {
-    \Illuminate\Support\Facades\Mail::fake();
-
-    $response = $this->getJson('/api/v1/accounting/reports/trial-balance?send_email=1&queue=1&endDate=2026-12-31');
-    $response->assertStatus(200);
-
-    \Illuminate\Support\Facades\Mail::assertQueued(\Modules\Accounting\Mail\FinancialReportMail::class, function ($mail) {
-        return $mail->hasTo($this->user->email);
-    });
 });

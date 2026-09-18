@@ -9,10 +9,13 @@ class LoggerService {
 
     public function successLogger($message = '' , $data = []){
 
+        $tenant = tenancy()->tenant;
+        $tenantDomain = $tenant?->domain ?? $tenant?->domains?->first()?->domain;
+
         $data = $data+ [
             'userId' => Auth::id(),
-            'tenant_id' => tenancy()->tenant->id,
-            'tenant_domain' => tenancy()->tenant->domain,
+            'tenant_id' => $tenant?->id,
+            'tenant_domain' => $tenantDomain,
         ];
 
         Log::channel('accounting')->info($message , $data);
@@ -21,10 +24,13 @@ class LoggerService {
 
     public function failedLogger($message = '' , $data = [] ,  $errorMessage = null){
 
+        $tenant = tenancy()->tenant;
+        $tenantDomain = $tenant?->domain ?? $tenant?->domains?->first()?->domain;
+
         $data = $data+ [
             'userId' => Auth::id(),
-            'tenant_id' => tenancy()->tenant->id,
-            'tenant_domain' => tenancy()->tenant->domain,
+            'tenant_id' => $tenant?->id,
+            'tenant_domain' => $tenantDomain,
         ];
 
         Log::channel('accounting')->error($message, [$data,$errorMessage] );

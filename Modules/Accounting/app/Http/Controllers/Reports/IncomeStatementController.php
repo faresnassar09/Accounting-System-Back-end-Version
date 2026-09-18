@@ -31,85 +31,45 @@ class IncomeStatementController extends Controller
             $startDate = $request->input('startDate') ?? $request->input('start_date');
             $endDate   = $request->input('endDate') ?? $request->input('end_date');
 
-            $data = $this->incomeStatementService->generateReport($startDate, $endDate);
-
             $export = strtolower((string) $request->input('export'));
-            $filename = 'income_statement_' . ($endDate ?? now()->format('Y-m-d'));
-            $shouldEmail = $request->boolean('send_email') || $request->filled('email') || $request->has('attachments') || $request->has('attach');
-            $attachments = [];
-            $recipientEmail = null;
+            $isExport = ! empty($export) || $request->boolean('send_email') || $request->filled('email') || $request->has('attachments') || $request->has('attach');
 
-            // 1. Dispatch email with user-selected attachments (PDF, Excel, or both) if requested
-            if ($shouldEmail) {
+            // If an export or email is requested, enforce backend queuing (no direct download, no frontend queue override)
+            if ($isExport) {
                 $recipientEmail = $request->input('email') ?: auth()->user()?->email;
 
                 if (! $recipientEmail) {
                     return $this->apiResponseFormatter->failedResponse(
-                        'A valid recipient email is required to send the report',
+                        'A valid recipient email is required to receive the exported report',
                         ['email' => ['Please provide an email address or ensure your user profile has an email.']],
                         422
                     );
                 }
 
-                $attachments = $this->reportExportService->resolveAttachments($request, $export);
-                $isQueued = $request->boolean('queue');
-                $period = ($startDate && $endDate)
-                    ? "Period: {$startDate} to {$endDate}"
-                    : ($endDate ? "As of {$endDate}" : 'All Time');
+                $formats = $this->reportExportService->resolveAttachments($request, $export);
 
-                try {
-                    $this->reportExportService->sendReportMail(
-                        recipientEmail: $recipientEmail,
-                        reportTitle: 'Income Statement',
-                        period: $period,
-                        filenameBase: $filename,
-                        view: 'accounting::reports.pdf.income-statement',
-                        viewData: [
-                            'data'      => $data,
-                            'startDate' => $startDate,
-                            'endDate'   => $endDate,
-                        ],
-                        exportObject: new IncomeStatementExport($data, $startDate, $endDate),
-                        formats: $attachments,
-                        queue: $isQueued,
-                    );
-                } catch (\Throwable $mailError) {
-                    $this->loggerService->failedLogger(
-                        'Failed to send income statement report email',
-                        ['recipient' => $recipientEmail, 'formats' => $attachments],
-                        $mailError->getMessage()
-                    );
-                }
-            }
-
-            // 2. Return binary download if export format is specified
-            if ($export === 'pdf') {
-                return $this->reportExportService->exportPdf(
-                    'accounting::reports.pdf.income-statement',
-                    [
-                        'data'      => $data,
+                $this->reportExportService->dispatchReportJob(
+                    reportType: 'income-statement',
+                    parameters: [
                         'startDate' => $startDate,
                         'endDate'   => $endDate,
                     ],
-                    $filename
+                    recipientEmail: $recipientEmail,
+                    formats: $formats
+                );
+
+                $formatLabel = strtoupper(implode(' & ', $formats));
+                return $this->apiResponseFormatter->successResponse(
+                    "Income Statement report generation has been queued. The [{$formatLabel}] report will be sent to {$recipientEmail} shortly.",
+                    null
                 );
             }
 
-            if ($export === 'excel') {
-                return $this->reportExportService->exportExcel(
-                    new IncomeStatementExport($data, $startDate, $endDate),
-                    $filename
-                );
-            }
-
-            // 3. Return standard JSON response
-            $formatString = ! empty($attachments) ? strtoupper(implode(' & ', $attachments)) : 'PDF & EXCEL';
-            $message = $shouldEmail 
-                ? "Income Statement Report [{$formatString}] Generated and Emailed Successfully to {$recipientEmail}" 
-                : 'Income Statement Report Generated Successfully';
+            // Otherwise, render standard JSON for frontend UI display
+            $data = $this->incomeStatementService->generateReport($startDate, $endDate);
 
             return $this->apiResponseFormatter->successResponse(
-                $message,
+                'Income Statement Report Generated Successfully',
                 new IncomeStatementResource($data),
             );
         } catch (\Exception $e) {
