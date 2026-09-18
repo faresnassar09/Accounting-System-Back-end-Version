@@ -1,5 +1,4 @@
-[![CI](https://github.com/faresnassar09/Accounting-System-Back-end-Version/actions/workflows/ci.yml/badge.svg)](https://github.com/faresnassar09/Accounting-System-Back-end-Version/actions/workflows/ci.yml)
-# Accounting System – Backend
+[![CI](https://github.com/faresnassar09/Accounting-System-Back-end-Version/actions/workflows/ci.yml/badge.svg)](https://github.com/faresnassar09/Accounting-System-Back-end-Version/actions/workflows/ci.yml)# Accounting System – Backend
 
 Enterprise‑grade **Accounting & ERP backend** built with **Laravel**, designed with **SaaS scalability** and **enterprise architecture** in mind.
 
