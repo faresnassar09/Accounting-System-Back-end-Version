@@ -60,7 +60,7 @@
 
             <!-- ================= LIABILITIES & EQUITY ================= -->
             <tr style="background-color: #0f172a; color: #ffffff; font-weight: bold;">
-                <td colspan="2" style="background-color: #0f172a; color: #ffffff; font-size: 11px;">2. LIABILITIES & EQUITY</td>
+                <td colspan="2" style="background-color: #0f172a; color: #ffffff; font-size: 11px;">2. LIABILITIES &amp; EQUITY</td>
             </tr>
 
             @foreach($liabilitiesEquity['sub_types'] ?? [] as $subType)
@@ -86,7 +86,7 @@
             @endforeach
 
             <tr class="total-row" style="background-color: #e0f2fe; font-size: 11px;">
-                <td>TOTAL LIABILITIES & EQUITY</td>
+                <td>TOTAL LIABILITIES &amp; EQUITY</td>
                 <td class="text-right">{{ number_format($liabilitiesEquity['group_total'] ?? 0, 2) }}</td>
             </tr>
         </tbody>
@@ -95,9 +95,9 @@
                 <td colspan="2" class="text-right" style="padding-top: 8px;">
                     Balance Sheet Status:
                     @if($isBalanced)
-                        <span class="badge-success">Balanced (Assets = Liabilities + Equity) &#10003;</span>
+                        <span class="badge-success">Balanced (Assets = Liabilities + Equity)</span>
                     @else
-                        <span class="badge-danger">Unbalanced Difference: {{ number_format(abs($assetsTotal - $liabEquityTotal), 2) }} &#10007;</span>
+                        <span class="badge-danger">Unbalanced Difference: {{ number_format(abs($assetsTotal - $liabEquityTotal), 2) }}</span>
                     @endif
                 </td>
             </tr>

@@ -16,7 +16,7 @@ class IncomeStatementExport implements FromView, ShouldAutoSize
 
     public function view(): View
     {
-        return view('accounting::reports.pdf.income-statement', [
+        return view('accounting::reports.excel.income-statement', [
             'data'      => $this->data,
             'startDate' => $this->startDate,
             'endDate'   => $this->endDate,

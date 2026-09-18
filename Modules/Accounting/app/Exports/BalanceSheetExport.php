@@ -15,7 +15,7 @@ class BalanceSheetExport implements FromView, ShouldAutoSize
 
     public function view(): View
     {
-        return view('accounting::reports.pdf.balance-sheet', [
+        return view('accounting::reports.excel.balance-sheet', [
             'data'    => $this->data,
             'endDate' => $this->endDate,
         ]);

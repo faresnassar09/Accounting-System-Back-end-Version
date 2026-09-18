@@ -15,7 +15,7 @@ class TrialBalanceExport implements FromView, ShouldAutoSize
 
     public function view(): View
     {
-        return view('accounting::reports.pdf.trial-balance', [
+        return view('accounting::reports.excel.trial-balance', [
             'data'    => $this->data,
             'endDate' => $this->endDate,
         ]);

@@ -16,7 +16,7 @@ class GeneralLedgerExport implements FromView, ShouldAutoSize
 
     public function view(): View
     {
-        return view('accounting::reports.pdf.general-ledger', [
+        return view('accounting::reports.excel.general-ledger', [
             'data'      => $this->data,
             'startDate' => $this->startDate,
             'endDate'   => $this->endDate,
