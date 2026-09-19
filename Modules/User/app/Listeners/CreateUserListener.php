@@ -19,16 +19,12 @@ class CreateUserListener
      * Handle the event.
      */
     public function handle($event): void {
-
-        User::create([
-
-            'name' => 'external_service',
-            'email' => 'external@externalservice.com',
-            'password' => Hash::make(Str::uuid()),
-            
-            
-            ]);
-
-
+        User::firstOrCreate(
+            ['email' => 'external@externalservice.com'],
+            [
+                'name' => 'external_service',
+                'password' => Hash::make(Str::uuid()),
+            ]
+        );
     }
 }

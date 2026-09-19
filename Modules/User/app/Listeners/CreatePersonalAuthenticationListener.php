@@ -16,11 +16,13 @@ class CreatePersonalAuthenticationListener
      */
     public function handle($event): void
     {
+        $existing = \DB::table('oauth_clients')
+            ->where('name', 'users')
+            ->first();
 
-        $clients = app(ClientRepository::class);
-
-        $client = $clients->createPersonalAccessGrantClient(
-            'users',
-        );
+        if (! $existing) {
+            $clients = app(ClientRepository::class);
+            $client = $clients->createPersonalAccessGrantClient('users');
+        }
     }
 }
