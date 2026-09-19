@@ -61,9 +61,10 @@
                 <td colspan="2">3. OPERATING EXPENSES</td>
             </tr>
             @forelse($data['operating_expenses_details'] ?? [] as $exp)
+                @php $expObj = is_array($exp) ? (object) $exp : $exp; @endphp
                 <tr>
-                    <td style="padding-left: 20px;">{{ $exp['name'] ?? $exp['account_name'] ?? 'Expense' }}</td>
-                    <td class="text-right">{{ number_format($exp['balance'] ?? 0, 2) }}</td>
+                    <td style="padding-left: 20px;">{{ $expObj->name ?? $expObj->account_name ?? 'Expense' }}</td>
+                    <td class="text-right">{{ number_format($expObj->balance ?? 0, 2) }}</td>
                 </tr>
             @empty
                 <tr>
