@@ -33,6 +33,7 @@ class GeneralLedgerController extends Controller
                 'accountId' => $validated['accountId'] ?? $validated['account_id'] ?? null,
                 'startDate' => $validated['startDate'] ?? $validated['start_date'] ?? null,
                 'endDate'   => $validated['endDate'] ?? $validated['end_date'] ?? null,
+                'branch_id' => $validated['branch_id'] ?? $validated['branchId'] ?? null,
             ];
 
             $export = strtolower((string) $request->input('export'));

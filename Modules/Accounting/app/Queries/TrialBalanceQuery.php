@@ -7,13 +7,16 @@ use Modules\Accounting\Models\Account;
 
 class TrialBalanceQuery
 {
-    public function __invoke(string $startOfYear, string $endDate): array
+    public function __invoke(string $startOfYear, string $endDate, ?int $branchId = null): array
     {
         $subQuery = DB::table('accounts')
             ->leftJoin('journal_entry_lines as ji', 'accounts.id', '=', 'ji.account_id')
             ->join('journal_entries as je', function ($join) use ($startOfYear, $endDate) {
                 $join->on('ji.journal_entry_id', '=', 'je.id')
                      ->whereBetween('je.date', [$startOfYear, $endDate]);
+            })
+            ->when($branchId, function ($q, $branchId) {
+                return $q->where('ji.branch_id', $branchId);
             })
             ->select('accounts.id', 'accounts.name', 'accounts.number')
             ->selectRaw("

@@ -3,6 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Branch\Http\Controllers\BranchController;
 
-// Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
-//     Route::apiResource('branches', BranchController::class)->names('branch');
-// });
+Route::middleware(['auth:api', 'throttle:api_limiter'])
+    ->prefix('v1/branches')
+    ->group(function () {
+        Route::get('/', [BranchController::class, 'index']);
+        Route::get('{id}', [BranchController::class, 'show']);
+    });

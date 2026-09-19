@@ -49,6 +49,7 @@ class GeneralLedgerController extends Controller
                 'accountId'  => $accountId,
                 'startDate'  => $startDate,
                 'endDate'    => $endDate,
+                'branch_id'  => $request->input('branch_id') ?? $request->input('branchId'),
             ];
 
             $reportData = $this->generalLedgerService->generateReport($params);

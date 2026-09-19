@@ -27,7 +27,10 @@ class BalanceSheetController extends Controller
     {
         try {
             $endDate = $request->input('endDate') ?? $request->input('end_date') ?? now()->format('Y-m-d');
-            $reportData = $this->balanceSheetService->generateReport($endDate);
+            $branchId = $request->input('branch_id') ?? $request->input('branchId');
+            $branchId = $branchId ? (int) $branchId : null;
+
+            $reportData = $this->balanceSheetService->generateReport($endDate, $branchId);
 
             $export = strtolower((string) $request->input('export'));
             $filename = 'balance_sheet_' . $endDate;

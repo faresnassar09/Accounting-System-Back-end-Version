@@ -6,12 +6,13 @@ use Illuminate\Support\Facades\DB;
 
 class GeneralLedgerQuery
 {
-    public function __invoke(float $openingBalance, int $accountId, string $startDate, string $endDate): array
+    public function __invoke(float $openingBalance, int $accountId, string $startDate, string $endDate, ?int $branchId = null): array
     {    
         $baseQuery = DB::table('journal_entry_lines as jl')
             ->join('journal_entries as je', 'jl.journal_entry_id', '=', 'je.id')
             ->where('jl.account_id', $accountId)
-            ->whereBetween('je.date', [$startDate, $endDate]);
+            ->whereBetween('je.date', [$startDate, $endDate])
+            ->when($branchId, fn($q) => $q->where('jl.branch_id', $branchId));
 
         $totals = (clone $baseQuery)
             ->selectRaw('

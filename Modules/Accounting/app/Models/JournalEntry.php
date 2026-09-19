@@ -21,12 +21,18 @@ class JournalEntry extends Model
         'description',
         'date',
         'status',
+        'branch_id',
     ];
 
     public function lines(){
 
         return $this->hasMany(JournalEntryLine::class);
 
+    }
+
+    public function branch()
+    {
+        return $this->belongsTo(\Modules\Branch\Models\Branch::class);
     }
 
     public function scopeNormalJournalEntry(Builder $query){

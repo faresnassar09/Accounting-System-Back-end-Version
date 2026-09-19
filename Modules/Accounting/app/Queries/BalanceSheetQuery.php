@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\DB;
 
 class BalanceSheetQuery
 {
-    public function __invoke(string $endDate, float $netProfitValue): array
+    public function __invoke(string $endDate, float $netProfitValue, ?int $branchId = null): array
     {
         // 1. Shared base query for account cumulative balances
         $accountsSubQuery = DB::table('accounts as a')
@@ -15,6 +15,7 @@ class BalanceSheetQuery
             ->join('journal_entries as je', 'ji.journal_entry_id', '=', 'je.id')
             ->whereDate('je.date', '<=', $endDate)
             ->whereIn('at.account_group', ['assets', 'liabilities', 'equity'])
+            ->when($branchId, fn($q) => $q->where('ji.branch_id', $branchId))
             ->select('a.id', 'a.name', 'at.type')
             ->selectRaw('ABS(SUM(ji.debit - ji.credit)) as netBalance')
             ->groupBy('a.id', 'a.name', 'at.type');

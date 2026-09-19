@@ -21,10 +21,12 @@ class GeneralLedgerService
         $accountId = $account->id;
         $endDate   = $data['endDate'] ?? $data['end_date'] ?? now()->format('Y-m-d');
         $startDate = $data['startDate'] ?? $data['start_date'] ?? get_start_of_year($endDate);
+        $branchId  = $data['branch_id'] ?? $data['branchId'] ?? null;
+        $branchId  = $branchId ? (int) $branchId : null;
 
-        $openingBalance = ($this->getOpeningBalance)([$accountId], $startDate);
+        $openingBalance = ($this->getOpeningBalance)([$accountId], $startDate, $branchId);
 
-        $reportData = ($this->generalLedgerQuery)($openingBalance, $accountId, $startDate, $endDate);
+        $reportData = ($this->generalLedgerQuery)($openingBalance, $accountId, $startDate, $endDate, $branchId);
 
         return [
             'account_info' => [

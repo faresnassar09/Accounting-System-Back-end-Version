@@ -20,6 +20,7 @@ class JournalEntryLine extends Model
         'source_reference',
         'journal_entry_id',
         'account_id',
+        'branch_id',
         'credit',
         'debit',
         'date'
@@ -35,6 +36,11 @@ class JournalEntryLine extends Model
     {
 
         return $this->belongsTo(Account::class);
+    }
+
+    public function branch()
+    {
+        return $this->belongsTo(\Modules\Branch\Models\Branch::class);
     }
 
 

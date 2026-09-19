@@ -16,6 +16,8 @@ class JournalEntryListResource extends JsonResource
             'description'  => $this->description,
             'type'         => $this->type,
             'status'       => $this->status,
+            'branch_id'    => $this->branch_id,
+            'branch_name'  => $this->branch?->name,
             'total_debit'  => (float) $this->total_debit,
             'total_credit' => (float) $this->total_credit,
             'lines_count'  => $this->lines_count ?? $this->lines?->count() ?? 0,

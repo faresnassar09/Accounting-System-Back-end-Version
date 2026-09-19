@@ -20,8 +20,8 @@ class GeneralLedgerRequest extends FormRequest
             'export'      => ['nullable', 'string', 'in:pdf,excel'],
             'email'       => ['nullable', 'email'],
             'send_email'  => ['nullable'],
-            'attachments' => ['nullable'],
-            'attach'      => ['nullable'],
+            'branch_id'   => ['nullable', 'integer', 'exists:branches,id'],
+            'branchId'    => ['nullable', 'integer', 'exists:branches,id'],
             'queue'       => ['nullable'],
         ];
     }

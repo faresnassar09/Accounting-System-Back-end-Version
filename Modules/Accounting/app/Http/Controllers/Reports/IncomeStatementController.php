@@ -30,6 +30,8 @@ class IncomeStatementController extends Controller
         try {
             $startDate = $request->input('startDate') ?? $request->input('start_date');
             $endDate   = $request->input('endDate') ?? $request->input('end_date');
+            $branchId  = $request->input('branch_id') ?? $request->input('branchId');
+            $branchId  = $branchId ? (int) $branchId : null;
 
             $export = strtolower((string) $request->input('export'));
             $isExport = ! empty($export) || $request->boolean('send_email') || $request->filled('email') || $request->has('attachments') || $request->has('attach');
@@ -53,6 +55,7 @@ class IncomeStatementController extends Controller
                     parameters: [
                         'startDate' => $startDate,
                         'endDate'   => $endDate,
+                        'branch_id' => $branchId,
                     ],
                     recipientEmail: $recipientEmail,
                     formats: $formats
@@ -66,11 +69,11 @@ class IncomeStatementController extends Controller
             }
 
             // Otherwise, render standard JSON for frontend UI display
-            $data = $this->incomeStatementService->generateReport($startDate, $endDate);
+            $reportData = $this->incomeStatementService->generateReport($startDate, $endDate, $branchId);
 
             return $this->apiResponseFormatter->successResponse(
                 'Income Statement Report Generated Successfully',
-                new IncomeStatementResource($data),
+                new IncomeStatementResource($reportData),
             );
         } catch (\Exception $e) {
             $this->loggerService->failedLogger(

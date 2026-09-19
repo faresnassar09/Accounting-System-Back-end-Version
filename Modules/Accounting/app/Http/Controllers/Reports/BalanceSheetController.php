@@ -25,6 +25,9 @@ class BalanceSheetController extends Controller
         try {
             $endDate = $request->input('endDate') ?? $request->input('end_date') ?? now()->format('Y-m-d');
 
+            $branchId = $request->input('branch_id') ?? $request->input('branchId');
+            $branchId = $branchId ? (int) $branchId : null;
+
             $export = strtolower((string) $request->input('export'));
             $isExport = ! empty($export) || $request->boolean('send_email') || $request->filled('email') || $request->has('attachments') || $request->has('attach');
 
@@ -44,7 +47,7 @@ class BalanceSheetController extends Controller
 
                 $this->reportExportService->dispatchReportJob(
                     reportType: 'balance-sheet',
-                    parameters: ['endDate' => $endDate],
+                    parameters: ['endDate' => $endDate, 'branch_id' => $branchId],
                     recipientEmail: $recipientEmail,
                     formats: $formats
                 );
@@ -57,7 +60,7 @@ class BalanceSheetController extends Controller
             }
 
             // Otherwise, render standard JSON for frontend UI display
-            $reportData = $this->balanceSheetService->generateReport($endDate);
+            $reportData = $this->balanceSheetService->generateReport($endDate, $branchId);
 
             return $this->apiResponseFormatter->successResponse(
                 'Balance Sheet Report Generated Successfully',

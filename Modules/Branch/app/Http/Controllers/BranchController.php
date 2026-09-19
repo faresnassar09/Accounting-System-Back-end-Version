@@ -3,54 +3,44 @@
 namespace Modules\Branch\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Services\Api\ApiResponseFormatter;
 use Illuminate\Http\Request;
+use Modules\Branch\Models\Branch;
 
 class BranchController extends Controller
 {
+    public function __construct(public ApiResponseFormatter $apiResponseFormatter) {}
+
     /**
-     * Display a listing of the resource.
+     * List all active branches for lookup/dropdowns.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view('branch::index');
+        $branches = Branch::query()
+            ->when($request->boolean('active_only', true), fn ($q) => $q->where('active', 1))
+            ->orderBy('name')
+            ->get(['id', 'name', 'code', 'phone', 'address', 'active']);
+
+        return $this->apiResponseFormatter->successResponse(
+            'Branches retrieved successfully',
+            $branches
+        );
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Retrieve single branch details.
      */
-    public function create()
+    public function show(int $id)
     {
-        return view('branch::create');
+        $branch = Branch::find($id);
+
+        if (!$branch) {
+            return $this->apiResponseFormatter->failedResponse('Branch not found', [], 404);
+        }
+
+        return $this->apiResponseFormatter->successResponse(
+            'Branch retrieved successfully',
+            $branch
+        );
     }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request) {}
-
-    /**
-     * Show the specified resource.
-     */
-    public function show($id)
-    {
-        return view('branch::show');
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit($id)
-    {
-        return view('branch::edit');
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id) {}
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id) {}
 }

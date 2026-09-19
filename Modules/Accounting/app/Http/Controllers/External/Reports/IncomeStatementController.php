@@ -28,8 +28,10 @@ class IncomeStatementController extends Controller
         try {
             $startDate = $request->input('startDate') ?? $request->input('start_date');
             $endDate   = $request->input('endDate') ?? $request->input('end_date');
+            $branchId  = $request->input('branch_id') ?? $request->input('branchId');
+            $branchId  = $branchId ? (int) $branchId : null;
 
-            $data = $this->incomeStatementService->generateReport($startDate, $endDate);
+            $data = $this->incomeStatementService->generateReport($startDate, $endDate, $branchId);
 
             $export = strtolower((string) $request->input('export'));
             $filename = 'income_statement_' . ($endDate ?? now()->format('Y-m-d'));

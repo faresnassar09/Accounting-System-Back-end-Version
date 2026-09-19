@@ -24,6 +24,7 @@ class JournalEntryRepository implements JournalEntryRepositoryInterface
             'total_debit' => $header['total_debit'],
             'date' => $header['date'] ?? now(),
             'description' => $header['description'],
+            'branch_id' => $header['branch_id'] ?? null,
         ]);
 
         $this->storeLines($journalentryHeader, $lines, $surceType);
@@ -41,6 +42,7 @@ class JournalEntryRepository implements JournalEntryRepositoryInterface
                 'source_type' => $surceType,
                 'source_reference' => $line['source_reference'],
                 'account_id' => $line['account_id'],
+                'branch_id' => $line['branch_id'] ?? $header->branch_id ?? null,
                 'credit' => $line['credit'] ?? 0.00,
                 'debit' => $line['debit'] ?? 0.00,
                 'date' => $header->date,
@@ -102,6 +104,12 @@ class JournalEntryRepository implements JournalEntryRepositoryInterface
                     $q->where('account_id', $accountId);
                 });
             })
+            ->when($filters['branch_id'] ?? $filters['branchId'] ?? null, function ($query, $branchId) {
+                return $query->where(function ($q) use ($branchId) {
+                    $q->where('branch_id', $branchId)
+                      ->orWhereHas('lines', fn ($l) => $l->where('branch_id', $branchId));
+                });
+            })
             ->orderBy('date', 'desc')
             ->orderBy('id', 'desc')
             ->paginate($perPage);
@@ -134,6 +142,7 @@ class JournalEntryRepository implements JournalEntryRepositoryInterface
             'date' => $date,
             'description' => $description,
             'status' => 'approved',
+            'branch_id' => $entry->branch_id,
         ]);
 
         $sourceType = \Modules\Accounting\Enums\ActorType::USER->value;
@@ -143,6 +152,7 @@ class JournalEntryRepository implements JournalEntryRepositoryInterface
                 'source_type' => $sourceType,
                 'source_reference' => (string) ($userId ?? $line->source_reference ?? 0),
                 'account_id' => $line->account_id,
+                'branch_id' => $line->branch_id ?? $entry->branch_id,
                 'debit' => $line->credit,
                 'credit' => $line->debit,
                 'date' => $date,

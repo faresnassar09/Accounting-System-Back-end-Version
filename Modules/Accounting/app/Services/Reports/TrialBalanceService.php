@@ -11,14 +11,15 @@ class TrialBalanceService
         public TrialBalanceQuery $trialBalanceQuery,
     ) {}
 
-    public function generateReport(string $endDate): array
+    public function generateReport(string $endDate, ?int $branchId = null): array
     {
         $startOfYear = get_start_of_year($endDate);
 
-        $reportData = ($this->trialBalanceQuery)($startOfYear, $endDate);
+        $reportData = ($this->trialBalanceQuery)($startOfYear, $endDate, $branchId);
 
         return [
             'endDate'    => $endDate,
+            'branchId'   => $branchId,
             'reportData' => $reportData['accounts'],
             'totals'     => $reportData['totals'],
         ];

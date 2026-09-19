@@ -29,6 +29,9 @@ class TrialBalanceController extends Controller
     {
         try {
             $endDate = $request->input('endDate') ?? $request->input('end_date') ?? now()->format('Y-m-d');
+            $branchId = $request->input('branch_id') ?? $request->input('branchId');
+            $branchId = $branchId ? (int) $branchId : null;
+
             $export = strtolower((string) $request->input('export'));
             $isExport = ! empty($export) || $request->boolean('send_email') || $request->filled('email') || $request->has('attachments') || $request->has('attach');
 
@@ -48,7 +51,7 @@ class TrialBalanceController extends Controller
 
                 $this->reportExportService->dispatchReportJob(
                     reportType: 'trial-balance',
-                    parameters: ['endDate' => $endDate],
+                    parameters: ['endDate' => $endDate, 'branch_id' => $branchId],
                     recipientEmail: $recipientEmail,
                     formats: $formats
                 );
@@ -61,7 +64,7 @@ class TrialBalanceController extends Controller
             }
 
             // Otherwise, render standard JSON for frontend UI display
-            $reportData = $this->trialBalanceService->generateReport($endDate);
+            $reportData = $this->trialBalanceService->generateReport($endDate, $branchId);
 
             return $this->apiResponseFormatter->successResponse(
                 'Trial Balance Report Generated Successfully',

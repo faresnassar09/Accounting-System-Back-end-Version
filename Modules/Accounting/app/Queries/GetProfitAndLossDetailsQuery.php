@@ -5,13 +5,14 @@ namespace Modules\Accounting\Queries;
 use Illuminate\Support\Facades\DB;
 class GetProfitAndLossDetailsQuery{
 
-     public function __invoke($startDate,$endDate){
+     public function __invoke($startDate, $endDate, ?int $branchId = null){
         return DB::table('journal_entry_lines as jl')
     ->join('journal_entries as je', 'jl.journal_entry_id', '=', 'je.id')
     ->join('accounts as a', 'jl.account_id', '=', 'a.id')
     ->join('account_types as at', 'a.account_type_id', '=', 'at.id')
     ->whereBetween('je.date', [$startDate, $endDate])
-    ->whereIn('at.account_group', ['revenues', 'expenses']) 
+    ->whereIn('at.account_group', ['revenues', 'expenses'])
+    ->when($branchId, fn($q) => $q->where('jl.branch_id', $branchId)) 
     ->select(
         'a.id',
         'a.name',

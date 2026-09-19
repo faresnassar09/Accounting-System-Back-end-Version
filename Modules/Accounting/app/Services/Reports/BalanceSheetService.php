@@ -14,15 +14,15 @@ class BalanceSheetService
         public GetOpeningBalanceQuery $getOpeningBalance,
     ) {}
 
-    public function generateReport(?string $endDate = null): array
+    public function generateReport(?string $endDate = null, ?int $branchId = null): array
     {
         $endDate = $endDate ?: now()->format('Y-m-d');
         $startOfYear = get_start_of_year($endDate);
 
-        $profitLossAccountIds = ($this->profitLossAccounts)($startOfYear, $endDate)->pluck('id');
-        $netProfitValue = ($this->getOpeningBalance)($profitLossAccountIds, $endDate);
+        $profitLossAccountIds = ($this->profitLossAccounts)($startOfYear, $endDate, $branchId)->pluck('id');
+        $netProfitValue = ($this->getOpeningBalance)($profitLossAccountIds, $endDate, $branchId);
 
-        return ($this->balanceSheetQuery)($endDate, $netProfitValue);
+        return ($this->balanceSheetQuery)($endDate, $netProfitValue, $branchId);
     }
 }
 

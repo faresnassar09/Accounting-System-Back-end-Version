@@ -18,8 +18,10 @@ class JournalEntryRequest extends FormRequest
             'journalHeader.description' => ['required', 'min:5', 'max:255'],
             'journalHeader.total_debit' => ['required', 'numeric'],
             'journalHeader.total_credit' => ['required', 'numeric'],
+            'journalHeader.branch_id' => ['nullable', 'integer', 'exists:branches,id'],
 
             'lines.*.account_id' => ['required', 'exists:accounts,id'],
+            'lines.*.branch_id' => ['nullable', 'integer', 'exists:branches,id'],
 
             'lines.*.debit' => [
                 'numeric',

@@ -48,7 +48,9 @@ class GenerateAndSendReportJob implements ShouldQueue
             switch ($this->reportType) {
                 case 'trial-balance':
                     $endDate = $this->parameters['endDate'] ?? now()->format('Y-m-d');
-                    $reportData = $trialBalanceService->generateReport($endDate);
+                    $branchId = $this->parameters['branch_id'] ?? $this->parameters['branchId'] ?? null;
+                    $branchId = $branchId ? (int) $branchId : null;
+                    $reportData = $trialBalanceService->generateReport($endDate, $branchId);
                     $reportTitle = 'Trial Balance';
                     $period = "As of {$endDate}";
                     $filenameBase = 'trial_balance_' . $endDate;
@@ -74,7 +76,9 @@ class GenerateAndSendReportJob implements ShouldQueue
                 case 'income-statement':
                     $startDate = $this->parameters['startDate'] ?? now()->startOfYear()->format('Y-m-d');
                     $endDate = $this->parameters['endDate'] ?? now()->format('Y-m-d');
-                    $reportData = $incomeStatementService->generateReport($startDate, $endDate);
+                    $branchId = $this->parameters['branch_id'] ?? $this->parameters['branchId'] ?? null;
+                    $branchId = $branchId ? (int) $branchId : null;
+                    $reportData = $incomeStatementService->generateReport($startDate, $endDate, $branchId);
                     $reportTitle = 'Income Statement';
                     $period = "From {$startDate} to {$endDate}";
                     $filenameBase = 'income_statement_' . $endDate;
@@ -85,7 +89,9 @@ class GenerateAndSendReportJob implements ShouldQueue
 
                 case 'balance-sheet':
                     $endDate = $this->parameters['endDate'] ?? now()->format('Y-m-d');
-                    $reportData = $balanceSheetService->generateReport($endDate);
+                    $branchId = $this->parameters['branch_id'] ?? $this->parameters['branchId'] ?? null;
+                    $branchId = $branchId ? (int) $branchId : null;
+                    $reportData = $balanceSheetService->generateReport($endDate, $branchId);
                     $reportTitle = 'Balance Sheet';
                     $period = "As of {$endDate}";
                     $filenameBase = 'balance_sheet_' . $endDate;

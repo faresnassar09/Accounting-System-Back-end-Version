@@ -10,12 +10,12 @@ class IncomeStatementService
         public IncomeStatementQuery $incomeStatementQuery,
     ) {}
 
-    public function generateReport(?string $startDate = null, ?string $endDate = null): array
+    public function generateReport(?string $startDate = null, ?string $endDate = null, ?int $branchId = null): array
     {
         $endDate   = $endDate ?: now()->format('Y-m-d');
         $startDate = $startDate ?: get_start_of_year($endDate);
 
-        $report = ($this->incomeStatementQuery)($startDate, $endDate);
+        $report = ($this->incomeStatementQuery)($startDate, $endDate, $branchId);
 
         $groupedAccounts = $report['accounts']->groupBy('type');
         $metrics = $report['metrics'];
@@ -23,6 +23,7 @@ class IncomeStatementService
         return [
             'start_date' => $startDate,
             'end_date'   => $endDate,
+            'branch_id'  => $branchId,
 
             'net_sales'         => $metrics['net_sales'],
             'operating_revenue' => $metrics['operating_revenue'],

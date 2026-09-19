@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\DB;
 
 class IncomeStatementQuery
 {
-    public function __invoke(string $startDate, string $endDate): array
+    public function __invoke(string $startDate, string $endDate, ?int $branchId = null): array
     {
         // 1. Shared base query for profit and loss transactions in date range
         $baseQuery = DB::table('journal_entry_lines as jl')
@@ -14,7 +14,8 @@ class IncomeStatementQuery
             ->join('accounts as a', 'jl.account_id', '=', 'a.id')
             ->join('account_types as at', 'a.account_type_id', '=', 'at.id')
             ->whereBetween('je.date', [$startDate, $endDate])
-            ->whereIn('at.account_group', ['revenues', 'expenses']);
+            ->whereIn('at.account_group', ['revenues', 'expenses'])
+            ->when($branchId, fn($q) => $q->where('jl.branch_id', $branchId));
 
         // 2. Database-computed group sums
         $groupsSubQuery = (clone $baseQuery)
