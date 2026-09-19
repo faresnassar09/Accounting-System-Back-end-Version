@@ -2,22 +2,23 @@
 
 namespace Modules\Admin\Models;
 
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Modules\Admin\Database\Factories\AdminFactory;
 use Modules\Branch\Models\Branch;
 use Spatie\Permission\Traits\HasRoles;
 
-
-class Admin extends Authenticatable
+class Admin extends Authenticatable implements FilamentUser
 {
-    // protected $connection = 'tenant';
-
     use HasFactory,
-        HasRoles
-        
-        
-        ;
+        HasRoles;
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return true;
+    }
 
     protected $fillable = [
 

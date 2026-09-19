@@ -67,11 +67,11 @@ class JournalEntryRepository implements JournalEntryRepositoryInterface
     public function getTransactions($sourceReference, $startDate, $endDate)
     {
 
-        return JournalEntryLine::when($startDate, function ($query, $startDate) {
+        return JournalEntryLine::when($startDate, function ($query) use ($startDate) {
 
                 return $query->whereDate('date', '>=', $startDate);
             })
-            ->when($endDate, function ($query, $endDate) {
+            ->when($endDate, function ($query) use ( $endDate) {
 
                 return $query->whereDate('date', '<=', $endDate);
             })->when($sourceReference, function ($query, $sourceReference) {

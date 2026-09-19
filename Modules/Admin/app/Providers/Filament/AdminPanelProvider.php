@@ -18,6 +18,10 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Modules\Admin\Filament\Pages\Reports\BalanceSheetReport;
+use Modules\Admin\Filament\Pages\Reports\GeneralLedgerReport;
+use Modules\Admin\Filament\Pages\Reports\IncomeStatementReport;
+use Modules\Admin\Filament\Pages\Reports\TrialBalanceReport;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 
 class AdminPanelProvider extends PanelProvider
@@ -37,6 +41,10 @@ class AdminPanelProvider extends PanelProvider
             ->discoverPages(in: base_path('Modules/Admin/app/Filament/Pages'), for: 'Modules\Admin\Filament\Pages')
             ->pages([
                 Dashboard::class,
+                TrialBalanceReport::class,
+                GeneralLedgerReport::class,
+                IncomeStatementReport::class,
+                BalanceSheetReport::class,
             ])  
             ->discoverWidgets(in: base_path('Modules/Admin/app/Filament/Widgets'), for: 'Modules\Admin\Filament\Widgets')
             ->widgets([
