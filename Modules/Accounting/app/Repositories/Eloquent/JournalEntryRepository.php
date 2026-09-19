@@ -79,5 +79,78 @@ class JournalEntryRepository implements JournalEntryRepositoryInterface
             ->get();
     }
 
+    public function paginate(array $filters = [], int $perPage = 15)
+    {
+        return JournalEntry::with(['lines.account'])
+            ->when($filters['reference'] ?? null, function ($query, $reference) {
+                return $query->where('reference', 'like', "%{$reference}%");
+            })
+            ->when($filters['status'] ?? null, function ($query, $status) {
+                return $query->where('status', $status);
+            })
+            ->when($filters['type'] ?? null, function ($query, $type) {
+                return $query->where('type', $type);
+            })
+            ->when($filters['start_date'] ?? $filters['startDate'] ?? null, function ($query, $startDate) {
+                return $query->whereDate('date', '>=', $startDate);
+            })
+            ->when($filters['end_date'] ?? $filters['endDate'] ?? null, function ($query, $endDate) {
+                return $query->whereDate('date', '<=', $endDate);
+            })
+            ->when($filters['account_id'] ?? null, function ($query, $accountId) {
+                return $query->whereHas('lines', function ($q) use ($accountId) {
+                    $q->where('account_id', $accountId);
+                });
+            })
+            ->orderBy('date', 'desc')
+            ->orderBy('id', 'desc')
+            ->paginate($perPage);
+    }
 
+    public function findById(int $id)
+    {
+        return JournalEntry::with(['lines.account'])->find($id);
+    }
+
+    public function reverse(JournalEntry $entry, ?string $reason = null, ?string $reversalDate = null, ?int $userId = null): JournalEntry
+    {
+        $date = $reversalDate ?? now()->format('Y-m-d H:i:s');
+        $reversalReference = 'REV-' . $entry->reference;
+
+        if (JournalEntry::where('reference', $reversalReference)->exists()) {
+            $reversalReference .= '-' . time();
+        }
+
+        $description = 'Reversal of Entry #' . $entry->id . ' (' . $entry->reference . ')';
+        if (!empty($reason)) {
+            $description .= ': ' . $reason;
+        }
+
+        $reversingEntry = JournalEntry::create([
+            'type' => 'adjustment',
+            'reference' => $reversalReference,
+            'total_debit' => $entry->total_credit,
+            'total_credit' => $entry->total_debit,
+            'date' => $date,
+            'description' => $description,
+            'status' => 'approved',
+        ]);
+
+        $sourceType = \Modules\Accounting\Enums\ActorType::USER->value;
+
+        foreach ($entry->lines as $line) {
+            $reversingEntry->lines()->create([
+                'source_type' => $sourceType,
+                'source_reference' => (string) ($userId ?? $line->source_reference ?? 0),
+                'account_id' => $line->account_id,
+                'debit' => $line->credit,
+                'credit' => $line->debit,
+                'date' => $date,
+            ]);
+        }
+
+        $entry->update(['status' => 'cancled']);
+
+        return $reversingEntry->load('lines.account');
+    }
 }

@@ -22,12 +22,15 @@ Route::middleware([
     ->group(function () {
 
 
-  Route::controller(AccountingChartController::class)->group(function () {
+        Route::controller(AccountingChartController::class)->group(function () {
             Route::get('charts', 'getAccountingChart'); 
             Route::get('accounts', 'getAccounts');
             Route::get('accounts/closing', 'getClosingAccounts');
         });
 
+        Route::get('journal-entries', [JournalEntriesController::class, 'index']);
+        Route::get('journal-entries/{id}', [JournalEntriesController::class, 'show']);
+        Route::post('journal-entries/{id}/reverse', [JournalEntriesController::class, 'reverse']);
 
         Route::middleware(['check_year','ensure_idempotency'])->group(function () {
             Route::post('journal-entries', [JournalEntriesController::class, 'store']);

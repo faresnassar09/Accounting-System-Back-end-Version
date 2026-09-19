@@ -20,6 +20,7 @@ class JournalEntry extends Model
         'reference',
         'description',
         'date',
+        'status',
     ];
 
     public function lines(){
