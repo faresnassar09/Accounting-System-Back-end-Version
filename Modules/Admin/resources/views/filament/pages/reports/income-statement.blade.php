@@ -8,6 +8,9 @@
         $salesDeductions = (float) ($reportData['sales_deductions'] ?? 0);
         $netSales = (float) ($reportData['net_sales'] ?? ($grossSales - $salesDeductions));
         $operatingRevenue = (float) ($reportData['operating_revenue'] ?? 0);
+
+        $grossSalesAccounts = $reportData['gross_sales_details'] ?? [];
+        $salesDeductionsAccounts = $reportData['sales_deductions_details'] ?? [];
         $operatingRevenues = $reportData['operating_revenue_details'] ?? [];
 
         $totalCogs = (float) ($reportData['total_cogs'] ?? 0);
@@ -20,12 +23,16 @@
 
         $operatingIncome = (float) ($reportData['operating_income'] ?? ($grossProfit - $totalExpenses));
 
-        $netIncome = (float) ($reportData['net_income'] ?? $operatingIncome);
+        $taxExpenseTotal = (float) ($reportData['tax_expense_total'] ?? 0);
+        $taxExpenses = $reportData['tax_expenses_details'] ?? [];
+
+        $netIncome = (float) ($reportData['net_income'] ?? ($operatingIncome - $taxExpenseTotal));
         $isProfit = ($netIncome >= 0);
         $selectedBranch = $this->branchId ? ($this->branches[$this->branchId] ?? 'Branch #' . $this->branchId) : 'All Branches (Consolidated)';
         
         $startDateFormatted = $this->startDate ? \Carbon\Carbon::parse($this->startDate)->format('M d, Y') : 'Start of Period';
         $endDateFormatted = $this->endDate ? \Carbon\Carbon::parse($this->endDate)->format('M d, Y') : now()->format('M d, Y');
+        $hasRevenues = count($grossSalesAccounts) > 0 || count($salesDeductionsAccounts) > 0 || count($operatingRevenues) > 0;
     @endphp
 
     <div class="fr-wrapper">
@@ -100,7 +107,7 @@
                     </label>
                     <select 
                         wire:model.live="branchId"
-                        class="fr-filter-select"
+                        class="fr-filter-input"
                     >
                         <option value="">All Branches (Consolidated)</option>
                         @foreach($this->branches as $id => $name)
@@ -109,11 +116,11 @@
                     </select>
                 </div>
 
-                <div>
+                <div class="fr-filter-group" style="justify-content: flex-end;">
                     <button 
                         type="button"
                         wire:click="$refresh"
-                        class="fr-btn"
+                        class="fr-btn fr-btn-primary"
                         style="width: 100%;"
                     >
                         <x-filament::icon icon="heroicon-o-arrow-path" class="h-4 w-4" style="width: 16px; height: 16px;" />
@@ -123,22 +130,22 @@
             </div>
         </div>
 
-        {{-- Executive KPI Cards --}}
+        {{-- Executive KPI Metrics Cards --}}
         <div class="fr-kpi-grid cols-4">
-            {{-- Total Revenues --}}
+            {{-- Total Revenue --}}
             <div class="fr-kpi-card">
                 <div class="fr-kpi-header">
-                    <span class="fr-kpi-title">Total Revenues</span>
+                    <span class="fr-kpi-title">Total Revenue</span>
                     <div class="fr-kpi-icon-box fr-bg-emerald">
                         <x-filament::icon icon="heroicon-o-arrow-trending-up" class="h-5 w-5" style="width: 20px; height: 20px;" />
                     </div>
                 </div>
                 <div>
-                    <div class="fr-kpi-val" style="color: #059669;">
+                    <div class="fr-kpi-val fr-text-emerald">
                         ${{ number_format($totalRevenue, 2) }} <span class="fr-kpi-curr">USD</span>
                     </div>
                     <div class="fr-kpi-desc">
-                        Gross operating turnover
+                        Gross sales less deductions
                     </div>
                 </div>
             </div>
@@ -200,13 +207,13 @@
 
         {{-- Financial Statement Breakdown Document --}}
         <div class="fr-card" style="display: flex; flex-direction: column; gap: 2rem;">
-            {{-- 1. OPERATING REVENUES --}}
+            {{-- 1. REVENUES & SALES --}}
             <div>
                 <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.75rem; margin-bottom: 0.75rem;">
                     <div style="display: flex; align-items: center; gap: 0.5rem;">
                         <span class="fr-tag" style="background: rgba(16, 185, 129, 0.15); color: #059669; font-weight: 900;">1</span>
                         <h3 style="font-size: 0.875rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin: 0;">
-                            Operating Revenues
+                            Revenues &amp; Sales
                         </h3>
                     </div>
                     <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8;">Amount (USD)</span>
@@ -222,36 +229,96 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($operatingRevenues as $rev)
-                                @php
-                                    $revObj = is_array($rev) ? (object) $rev : $rev;
-                                    $code = $revObj->account_number ?? $revObj->number ?? '';
-                                    $name = $revObj->name ?? $revObj->account_name ?? 'Revenue Account';
-                                    $bal = (float) ($revObj->balance ?? $revObj->net_balance ?? 0);
-                                @endphp
-                                <tr>
-                                    <td style="font-family: monospace; font-weight: 700; color: #f59e0b;">
-                                        {{ $code ? '#' . $code : '—' }}
-                                    </td>
-                                    <td style="font-weight: 600;">
-                                        {{ $name }}
-                                    </td>
-                                    <td class="fr-num" style="font-weight: 700;">
-                                        ${{ number_format($bal, 2) }}
-                                    </td>
-                                </tr>
-                            @empty
+                            @if(!$hasRevenues)
                                 <tr>
                                     <td colspan="3" style="padding: 2rem 1rem; text-align: center; color: #94a3b8; font-style: italic;">
-                                        No operating revenue accounts found for this period.
+                                        No revenue transactions recorded for this period.
                                     </td>
                                 </tr>
-                            @endforelse
+                            @else
+                                {{-- Gross Sales Accounts --}}
+                                @if(count($grossSalesAccounts) > 0)
+                                    <tr style="background: rgba(148, 163, 184, 0.06);">
+                                        <td colspan="3" style="font-weight: 800; font-size: 0.75rem; text-transform: uppercase; color: #64748b;">
+                                            Gross Sales &amp; Billings
+                                        </td>
+                                    </tr>
+                                    @foreach($grossSalesAccounts as $gs)
+                                        @php
+                                            $gsObj = is_array($gs) ? (object) $gs : $gs;
+                                            $code = $gsObj->account_number ?? $gsObj->number ?? '';
+                                            $name = $gsObj->name ?? $gsObj->account_name ?? 'Sales Account';
+                                            $bal = (float) ($gsObj->balance ?? 0);
+                                        @endphp
+                                        <tr>
+                                            <td style="font-family: monospace; font-weight: 700; color: #f59e0b; padding-left: 1.5rem;">
+                                                {{ $code ? '#' . $code : '—' }}
+                                            </td>
+                                            <td style="font-weight: 600;">{{ $name }}</td>
+                                            <td class="fr-num" style="font-weight: 700;">
+                                                ${{ number_format($bal, 2) }}
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @endif
+
+                                {{-- Sales Deductions --}}
+                                @if(count($salesDeductionsAccounts) > 0)
+                                    <tr style="background: rgba(244, 63, 94, 0.04);">
+                                        <td colspan="3" style="font-weight: 800; font-size: 0.75rem; text-transform: uppercase; color: #e11d48;">
+                                            Less: Sales Deductions &amp; Discounts
+                                        </td>
+                                    </tr>
+                                    @foreach($salesDeductionsAccounts as $sd)
+                                        @php
+                                            $sdObj = is_array($sd) ? (object) $sd : $sd;
+                                            $code = $sdObj->account_number ?? $sdObj->number ?? '';
+                                            $name = $sdObj->name ?? $sdObj->account_name ?? 'Sales Deduction';
+                                            $bal = (float) ($sdObj->balance ?? 0);
+                                        @endphp
+                                        <tr>
+                                            <td style="font-family: monospace; font-weight: 700; color: #f59e0b; padding-left: 1.5rem;">
+                                                {{ $code ? '#' . $code : '—' }}
+                                            </td>
+                                            <td style="font-weight: 600; color: #e11d48;">{{ $name }}</td>
+                                            <td class="fr-num" style="color: #e11d48; font-weight: 700;">
+                                                ({{ number_format($bal, 2) }})
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @endif
+
+                                {{-- Other Operating Revenues --}}
+                                @if(count($operatingRevenues) > 0)
+                                    <tr style="background: rgba(148, 163, 184, 0.06);">
+                                        <td colspan="3" style="font-weight: 800; font-size: 0.75rem; text-transform: uppercase; color: #64748b;">
+                                            Other Operating Revenues
+                                        </td>
+                                    </tr>
+                                    @foreach($operatingRevenues as $rev)
+                                        @php
+                                            $revObj = is_array($rev) ? (object) $rev : $rev;
+                                            $code = $revObj->account_number ?? $revObj->number ?? '';
+                                            $name = $revObj->name ?? $revObj->account_name ?? 'Revenue Account';
+                                            $bal = (float) ($revObj->balance ?? 0);
+                                        @endphp
+                                        <tr>
+                                            <td style="font-family: monospace; font-weight: 700; color: #f59e0b; padding-left: 1.5rem;">
+                                                {{ $code ? '#' . $code : '—' }}
+                                            </td>
+                                            <td style="font-weight: 600;">{{ $name }}</td>
+                                            <td class="fr-num" style="font-weight: 700;">
+                                                ${{ number_format($bal, 2) }}
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @endif
+                            @endif
                         </tbody>
                         <tfoot>
                             <tr>
                                 <td colspan="2" style="text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em;">
-                                    Total Revenues
+                                    Total Revenues (Net Sales)
                                 </td>
                                 <td class="fr-num" style="font-size: 1.125rem; font-weight: 900; color: #059669;">
                                     ${{ number_format($totalRevenue, 2) }}
@@ -290,7 +357,7 @@
                                         $cgObj = is_array($cg) ? (object) $cg : $cg;
                                         $code = $cgObj->account_number ?? $cgObj->number ?? '';
                                         $name = $cgObj->name ?? $cgObj->account_name ?? 'COGS Account';
-                                        $bal = (float) ($cgObj->balance ?? $cgObj->net_balance ?? 0);
+                                        $bal = (float) ($cgObj->balance ?? 0);
                                     @endphp
                                     <tr>
                                         <td style="font-family: monospace; font-weight: 700; color: #f59e0b;">
@@ -360,7 +427,7 @@
                                     $expObj = is_array($exp) ? (object) $exp : $exp;
                                     $code = $expObj->account_number ?? $expObj->number ?? '';
                                     $name = $expObj->name ?? $expObj->account_name ?? 'Expense Account';
-                                    $bal = (float) ($expObj->balance ?? $expObj->net_balance ?? 0);
+                                    $bal = (float) ($expObj->balance ?? 0);
                                 @endphp
                                 <tr>
                                     <td style="font-family: monospace; font-weight: 700; color: #f59e0b;">
@@ -395,6 +462,64 @@
                 </div>
             </div>
 
+            {{-- 4. TAX EXPENSES (IF ANY) --}}
+            @if(count($taxExpenses) > 0 || $taxExpenseTotal > 0)
+                <div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.75rem; margin-bottom: 0.75rem;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span class="fr-tag" style="background: rgba(245, 158, 11, 0.15); color: #d97706; font-weight: 900;">4</span>
+                            <h3 style="font-size: 0.875rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin: 0;">
+                                Income Taxes
+                            </h3>
+                        </div>
+                        <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8;">Amount (USD)</span>
+                    </div>
+
+                    <div class="fr-table-responsive">
+                        <table class="fr-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 140px;">Account Code</th>
+                                    <th>Account Title</th>
+                                    <th style="text-align: right; width: 200px;">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($taxExpenses as $tx)
+                                    @php
+                                        $txObj = is_array($tx) ? (object) $tx : $tx;
+                                        $code = $txObj->account_number ?? $txObj->number ?? '';
+                                        $name = $txObj->name ?? $txObj->account_name ?? 'Tax Account';
+                                        $bal = (float) ($txObj->balance ?? 0);
+                                    @endphp
+                                    <tr>
+                                        <td style="font-family: monospace; font-weight: 700; color: #f59e0b;">
+                                            {{ $code ? '#' . $code : '—' }}
+                                        </td>
+                                        <td style="font-weight: 600;">
+                                            {{ $name }}
+                                        </td>
+                                        <td class="fr-num" style="color: #e11d48; font-weight: 700;">
+                                            ({{ number_format($bal, 2) }})
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="2" style="text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em;">
+                                        Total Tax Expense
+                                    </td>
+                                    <td class="fr-num" style="font-size: 1.125rem; font-weight: 900; color: #e11d48;">
+                                        ({{ number_format($taxExpenseTotal, 2) }})
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            @endif
+
             {{-- Grand Finale Net Income Card --}}
             <div style="border-radius: 1rem; padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; border: 2px solid {{ $isProfit ? 'rgba(16, 185, 129, 0.4)' : 'rgba(244, 63, 94, 0.4)' }}; background: {{ $isProfit ? 'rgba(16, 185, 129, 0.06)' : 'rgba(244, 63, 94, 0.06)' }};">
                 <div>
@@ -424,4 +549,3 @@
         </div>
     </div>
 </x-filament-panels::page>
-

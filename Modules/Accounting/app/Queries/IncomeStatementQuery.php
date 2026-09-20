@@ -15,6 +15,8 @@ class IncomeStatementQuery
             ->join('account_types as at', 'a.account_type_id', '=', 'at.id')
             ->whereBetween('je.date', [$startDate, $endDate])
             ->whereIn('at.account_group', ['revenues', 'expenses'])
+            ->where('je.type', '!=', 'closing')
+            ->where('je.status', '!=', 'cancled')
             ->when($branchId, fn($q) => $q->where('jl.branch_id', $branchId));
 
         // 2. Database-computed group sums
