@@ -23,7 +23,9 @@ class JournalEntryLine extends Model
         'branch_id',
         'credit',
         'debit',
-        'date'
+        'date',
+        'is_reconciled',
+        'reconciled_at',
     ];
 
     public function journalEntry()
@@ -43,6 +45,11 @@ class JournalEntryLine extends Model
         return $this->belongsTo(\Modules\Branch\Models\Branch::class);
     }
 
+    public function matchedStatementLine()
+    {
+        return $this->hasOne(BankStatementLine::class, 'matched_journal_entry_line_id');
+    }
+
 
 
     protected function casts()
@@ -50,9 +57,9 @@ class JournalEntryLine extends Model
 
 
         return [
-
-            'created_at' => 'datetime',
-
+            'created_at'    => 'datetime',
+            'is_reconciled' => 'boolean',
+            'reconciled_at' => 'datetime',
         ];
     }
 

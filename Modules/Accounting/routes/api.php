@@ -51,6 +51,8 @@ Route::middleware([
             Route::get('income-statement', [IncomeStatementController::class, 'generateReport']);
             Route::get('balance-sheet', [BalanceSheetController::class, 'generateReport']);
             Route::get('cash-flow', [CashFlowStatementController::class, 'generateReport']);
+            Route::get('ar-aging', [\Modules\Accounting\Http\Controllers\Reports\AgingReportController::class, 'arAging']);
+            Route::get('ap-aging', [\Modules\Accounting\Http\Controllers\Reports\AgingReportController::class, 'apAging']);
         });
 
     });

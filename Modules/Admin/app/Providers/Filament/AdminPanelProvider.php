@@ -17,6 +17,7 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Modules\Admin\Filament\Pages\Dashboard;
 use Modules\Admin\Filament\Pages\FinancialClosing\FinancialClosingPage;
+use Modules\Admin\Filament\Pages\Reports\AgingReportPage;
 use Modules\Admin\Filament\Pages\Reports\BalanceSheetReport;
 use Modules\Admin\Filament\Pages\Reports\BudgetVsActualReport;
 use Modules\Admin\Filament\Pages\Reports\CashFlowStatementReport;
@@ -54,6 +55,7 @@ class AdminPanelProvider extends PanelProvider
                 BalanceSheetReport::class,
                 CashFlowStatementReport::class,
                 BudgetVsActualReport::class,
+                AgingReportPage::class,
             ])  
             ->discoverWidgets(in: base_path('Modules/Admin/app/Filament/Widgets'), for: 'Modules\Admin\Filament\Widgets')
             ->widgets([

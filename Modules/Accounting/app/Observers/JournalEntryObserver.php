@@ -23,8 +23,12 @@ class JournalEntryObserver
 
         );
 
-        
-
+        app(\Modules\Accounting\Services\Logging\AuditLogService::class)->record(
+            event: 'created',
+            model: $JournalEntry,
+            description: "Created Journal Entry #{$JournalEntry->reference} (Debit: \${$JournalEntry->total_debit})",
+            newValues: $JournalEntry->only(['reference', 'total_debit', 'total_credit', 'status', 'type', 'date'])
+        );
     }
 
     /**
@@ -40,12 +44,18 @@ class JournalEntryObserver
             data:  ["Entry Reference :: $JournalEntry->reference"]
  
          );
+
+        $event = ($JournalEntry->status === 'cancled') ? 'reversed' : 'updated';
+        app(\Modules\Accounting\Services\Logging\AuditLogService::class)->record(
+            event: $event,
+            model: $JournalEntry,
+            description: ucfirst($event) . " Journal Entry #{$JournalEntry->reference}",
+            oldValues: $JournalEntry->getOriginal(),
+            newValues: $JournalEntry->getChanges()
+        );
     }
 
-
-
     public function deleted(JournalEntry $JournalEntry): void {
-
 
         $this->activityService->log(
 
@@ -55,6 +65,13 @@ class JournalEntryObserver
             data:  ["Entry Reference :: $JournalEntry->reference"]
  
          );
+
+        app(\Modules\Accounting\Services\Logging\AuditLogService::class)->record(
+            event: 'deleted',
+            model: $JournalEntry,
+            description: "Deleted Journal Entry #{$JournalEntry->reference}",
+            oldValues: $JournalEntry->toArray()
+        );
     }
 
 }
