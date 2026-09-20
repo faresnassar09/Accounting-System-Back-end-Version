@@ -6,24 +6,27 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Widgets\AccountWidget;
-use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Modules\Admin\Filament\Pages\Dashboard;
 use Modules\Admin\Filament\Pages\FinancialClosing\FinancialClosingPage;
 use Modules\Admin\Filament\Pages\Reports\BalanceSheetReport;
 use Modules\Admin\Filament\Pages\Reports\BudgetVsActualReport;
 use Modules\Admin\Filament\Pages\Reports\GeneralLedgerReport;
 use Modules\Admin\Filament\Pages\Reports\IncomeStatementReport;
 use Modules\Admin\Filament\Pages\Reports\TrialBalanceReport;
+use Modules\Admin\Filament\Widgets\AccountingOverviewHeaderWidget;
+use Modules\Admin\Filament\Widgets\AccountingStatsOverviewWidget;
+use Modules\Admin\Filament\Widgets\BudgetUtilizationChartWidget;
+use Modules\Admin\Filament\Widgets\CashflowTrendChartWidget;
+use Modules\Admin\Filament\Widgets\LatestJournalEntriesWidget;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 
 class AdminPanelProvider extends PanelProvider
@@ -52,8 +55,11 @@ class AdminPanelProvider extends PanelProvider
             ])  
             ->discoverWidgets(in: base_path('Modules/Admin/app/Filament/Widgets'), for: 'Modules\Admin\Filament\Widgets')
             ->widgets([
-                AccountWidget::class,
-                FilamentInfoWidget::class,
+                AccountingOverviewHeaderWidget::class,
+                AccountingStatsOverviewWidget::class,
+                CashflowTrendChartWidget::class,
+                BudgetUtilizationChartWidget::class,
+                LatestJournalEntriesWidget::class,
             ])
             
             ->middleware([
