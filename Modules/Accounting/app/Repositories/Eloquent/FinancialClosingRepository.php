@@ -19,9 +19,12 @@ class FinancialClosingRepository implements FinancialClosingReposiroryInterface{
     
     public function flagYearAsClosed($year,$netProfit,$clogingAccountId){
 
+        $guardUser = current_guard_user();
+        $closedBy = ($guardUser instanceof \Modules\User\Models\User) ? $guardUser->id : null;
+
         ClosedFinancialYear::create([
 
-            'closed_by' => current_guard_user()?->id ?? null,
+            'closed_by' => $closedBy,
             'year' => $year,
             'net_profit_loss' => $netProfit,
             'retained_earnings_account_id' => $clogingAccountId, 

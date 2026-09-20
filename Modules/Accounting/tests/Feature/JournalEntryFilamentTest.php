@@ -84,6 +84,73 @@ test('admin can reverse a journal entry via filament action', function () {
     ]);
 });
 
+test('admin can create a balanced journal entry via filament create page', function () {
+    $account2 = Account::factory()->create();
+
+    Livewire::test(\Modules\Admin\Filament\Resources\JournalEntries\Pages\CreateJournalEntry::class)
+        ->fillForm([
+            'reference'   => 'JV-MANUAL-001',
+            'date'        => '2026-05-01 10:00:00',
+            'description' => 'Manual Salary Adjustment',
+            'lines'       => [
+                [
+                    'account_id'  => $this->account->id,
+                    'debit'       => 2500.00,
+                    'credit'      => 0.00,
+                    'description' => 'Salary Expense',
+                ],
+                [
+                    'account_id'  => $account2->id,
+                    'debit'       => 0.00,
+                    'credit'      => 2500.00,
+                    'description' => 'Bank Account',
+                ],
+            ],
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $this->assertDatabaseHas('journal_entries', [
+        'reference'    => 'JV-MANUAL-001',
+        'total_debit'  => 2500.00,
+        'total_credit' => 2500.00,
+        'status'       => 'approved',
+        'type'         => 'journal',
+    ]);
+
+    $created = JournalEntry::where('reference', 'JV-MANUAL-001')->first();
+    expect($created->lines)->toHaveCount(2);
+});
+
+test('admin cannot create an unbalanced journal entry', function () {
+    $account2 = Account::factory()->create();
+
+    Livewire::test(\Modules\Admin\Filament\Resources\JournalEntries\Pages\CreateJournalEntry::class)
+        ->fillForm([
+            'reference'   => 'JV-UNBALANCED',
+            'date'        => '2026-05-01 10:00:00',
+            'description' => 'Unbalanced Attempt',
+            'lines'       => [
+                [
+                    'account_id' => $this->account->id,
+                    'debit'      => 3000.00,
+                    'credit'     => 0.00,
+                ],
+                [
+                    'account_id' => $account2->id,
+                    'debit'      => 0.00,
+                    'credit'     => 1000.00,
+                ],
+            ],
+        ])
+        ->call('create')
+        ->assertHasErrors(['data.lines']);
+
+    $this->assertDatabaseMissing('journal_entries', [
+        'reference' => 'JV-UNBALANCED',
+    ]);
+});
+
 afterEach(function () {
     if (tenancy()->initialized) {
         $tenant = tenancy()->tenant;
