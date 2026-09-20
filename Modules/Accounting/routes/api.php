@@ -7,6 +7,7 @@ use Modules\Accounting\Http\Controllers\CoreAccounting\FinancialClosingControlle
 use Modules\Accounting\Http\Controllers\CoreAccounting\JournalEntriesController;
 use Modules\Accounting\Http\Controllers\CoreAccounting\OpeningBalanceController;
 use Modules\Accounting\Http\Controllers\Reports\BalanceSheetController;
+use Modules\Accounting\Http\Controllers\Reports\CashFlowStatementController;
 use Modules\Accounting\Http\Controllers\Reports\GeneralLedgerController;
 use Modules\Accounting\Http\Controllers\Reports\IncomeStatementController;
 use Modules\Accounting\Http\Controllers\Reports\TrialBalanceController;
@@ -49,6 +50,7 @@ Route::middleware([
             Route::get('trial-balance', [TrialBalanceController::class, 'generateReport']);
             Route::get('income-statement', [IncomeStatementController::class, 'generateReport']);
             Route::get('balance-sheet', [BalanceSheetController::class, 'generateReport']);
+            Route::get('cash-flow', [CashFlowStatementController::class, 'generateReport']);
         });
 
     });

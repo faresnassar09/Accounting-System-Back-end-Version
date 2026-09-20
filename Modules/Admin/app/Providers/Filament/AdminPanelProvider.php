@@ -19,6 +19,7 @@ use Modules\Admin\Filament\Pages\Dashboard;
 use Modules\Admin\Filament\Pages\FinancialClosing\FinancialClosingPage;
 use Modules\Admin\Filament\Pages\Reports\BalanceSheetReport;
 use Modules\Admin\Filament\Pages\Reports\BudgetVsActualReport;
+use Modules\Admin\Filament\Pages\Reports\CashFlowStatementReport;
 use Modules\Admin\Filament\Pages\Reports\GeneralLedgerReport;
 use Modules\Admin\Filament\Pages\Reports\IncomeStatementReport;
 use Modules\Admin\Filament\Pages\Reports\TrialBalanceReport;
@@ -51,6 +52,7 @@ class AdminPanelProvider extends PanelProvider
                 GeneralLedgerReport::class,
                 IncomeStatementReport::class,
                 BalanceSheetReport::class,
+                CashFlowStatementReport::class,
                 BudgetVsActualReport::class,
             ])  
             ->discoverWidgets(in: base_path('Modules/Admin/app/Filament/Widgets'), for: 'Modules\Admin\Filament\Widgets')

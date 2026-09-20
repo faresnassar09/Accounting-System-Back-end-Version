@@ -11,6 +11,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
 use Modules\Accounting\Models\Account;
+use Modules\Accounting\Models\Currency;
 use Modules\Branch\Models\Branch;
 
 class JournalEntryForm
@@ -20,7 +21,7 @@ class JournalEntryForm
         return $schema
             ->components([
                 Section::make('Journal Entry Details')
-                    ->description('Specify header information, fiscal period date, and organizational branch.')
+                    ->description('Specify header information, fiscal period date, multi-currency valuation, and organizational branch.')
                     ->schema([
                         TextInput::make('reference')
                             ->label('Reference #')
@@ -40,6 +41,34 @@ class JournalEntryForm
                             ->searchable()
                             ->nullable()
                             ->placeholder('Consolidated / Corporate (No Branch)'),
+
+                        Select::make('currency_code')
+                            ->label('Transaction Currency')
+                            ->options(function () {
+                                return Currency::query()
+                                    ->where('is_active', true)
+                                    ->orderBy('is_base', 'desc')
+                                    ->get()
+                                    ->mapWithKeys(fn ($c) => [$c->code => "{$c->code} ({$c->symbol}) — {$c->name}"]);
+                            })
+                            ->default(fn () => Currency::getBaseCurrencyCode() ?? 'USD')
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                $currency = Currency::where('code', $state)->first();
+                                if ($currency) {
+                                    $set('exchange_rate', (float) $currency->exchange_rate);
+                                }
+                            })
+                            ->required(),
+
+                        TextInput::make('exchange_rate')
+                            ->label('Exchange Rate (to Base)')
+                            ->numeric()
+                            ->step(0.000001)
+                            ->default(1.000000)
+                            ->required()
+                            ->minValue(0.000001)
+                            ->helperText('1 unit of currency = X units of base ledger currency'),
 
                         TextInput::make('description')
                             ->label('Narration / Description')

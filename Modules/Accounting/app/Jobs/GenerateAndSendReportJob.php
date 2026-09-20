@@ -10,10 +10,12 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Modules\Accounting\Exports\BalanceSheetExport;
+use Modules\Accounting\Exports\CashFlowExport;
 use Modules\Accounting\Exports\GeneralLedgerExport;
 use Modules\Accounting\Exports\IncomeStatementExport;
 use Modules\Accounting\Exports\TrialBalanceExport;
 use Modules\Accounting\Services\Reports\BalanceSheetService;
+use Modules\Accounting\Services\Reports\CashFlowStatementService;
 use Modules\Accounting\Services\Reports\GeneralLedgerService;
 use Modules\Accounting\Services\Reports\IncomeStatementService;
 use Modules\Accounting\Services\Reports\ReportExportService;
@@ -41,6 +43,7 @@ class GenerateAndSendReportJob implements ShouldQueue
         GeneralLedgerService $generalLedgerService,
         IncomeStatementService $incomeStatementService,
         BalanceSheetService $balanceSheetService,
+        CashFlowStatementService $cashFlowService,
         LoggerService $loggerService
     ): void {
 
@@ -98,6 +101,20 @@ class GenerateAndSendReportJob implements ShouldQueue
                     $view = 'accounting::reports.pdf.balance-sheet';
                     $viewData = ['data' => $reportData, 'endDate' => $endDate];
                     $exportObject = new BalanceSheetExport($reportData, $endDate);
+                    break;
+
+                case 'cash-flow':
+                    $startDate = $this->parameters['startDate'] ?? $this->parameters['start_date'] ?? now()->startOfYear()->format('Y-m-d');
+                    $endDate = $this->parameters['endDate'] ?? $this->parameters['end_date'] ?? now()->format('Y-m-d');
+                    $branchId = $this->parameters['branch_id'] ?? $this->parameters['branchId'] ?? null;
+                    $branchId = $branchId ? (int) $branchId : null;
+                    $reportData = $cashFlowService->generateReport($startDate, $endDate, $branchId);
+                    $reportTitle = 'Statement of Cash Flows';
+                    $period = "From {$startDate} to {$endDate}";
+                    $filenameBase = 'cash_flow_' . $endDate;
+                    $view = 'accounting::reports.pdf.cash-flow';
+                    $viewData = ['data' => $reportData, 'startDate' => $startDate, 'endDate' => $endDate];
+                    $exportObject = new CashFlowExport($reportData);
                     break;
 
                 default:

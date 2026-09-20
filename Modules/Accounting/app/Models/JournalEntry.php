@@ -22,6 +22,8 @@ class JournalEntry extends Model
         'date',
         'status',
         'branch_id',
+        'currency_code',
+        'exchange_rate',
     ];
 
     public function lines(){
@@ -35,6 +37,11 @@ class JournalEntry extends Model
         return $this->belongsTo(\Modules\Branch\Models\Branch::class);
     }
 
+    public function currency()
+    {
+        return $this->belongsTo(Currency::class, 'currency_code', 'code');
+    }
+
     public function scopeNormalJournalEntry(Builder $query){
 
       return  $query->where('type','journal');
@@ -46,7 +53,8 @@ class JournalEntry extends Model
     }
 
     protected $casts = [
-        'date' => 'datetime',
+        'date'          => 'datetime',
+        'exchange_rate' => 'decimal:6',
     ];
 
     public static function newFactory(){

@@ -24,6 +24,13 @@ class JournalEntryResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'reference';
 
+    public static function canCreate(): bool
+    {
+        $user = auth('admin')->user();
+
+        return $user ? ($user->hasRole('super_admin') || $user->hasPermissionTo('create_journal_entries', 'admin')) : false;
+    }
+
     public static function form(Schema $schema): Schema
     {
         return JournalEntryForm::configure($schema);

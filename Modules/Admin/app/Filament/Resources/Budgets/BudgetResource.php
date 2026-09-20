@@ -30,6 +30,27 @@ class BudgetResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'fiscal_year';
 
+    public static function canCreate(): bool
+    {
+        $user = auth('admin')->user();
+
+        return $user ? ($user->hasRole('super_admin') || $user->hasPermissionTo('manage_budgets', 'admin')) : false;
+    }
+
+    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        $user = auth('admin')->user();
+
+        return $user ? ($user->hasRole('super_admin') || $user->hasPermissionTo('manage_budgets', 'admin')) : false;
+    }
+
+    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        $user = auth('admin')->user();
+
+        return $user ? ($user->hasRole('super_admin') || $user->hasPermissionTo('manage_budgets', 'admin')) : false;
+    }
+
     public static function form(Schema $schema): Schema
     {
         return BudgetForm::configure($schema);

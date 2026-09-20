@@ -42,6 +42,12 @@ class JournalEntriesTable
                         default      => 'gray',
                     }),
 
+                TextColumn::make('currency_code')
+                    ->label('Currency')
+                    ->badge()
+                    ->color('gray')
+                    ->sortable(),
+
                 TextColumn::make('status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
@@ -82,7 +88,13 @@ class JournalEntriesTable
                             ->label('Reversal Date')
                             ->default(now()),
                     ])
-                    ->visible(fn (JournalEntry $record): bool => $record->status !== 'cancled')
+                    ->visible(function (JournalEntry $record): bool {
+                        if ($record->status === 'cancled') {
+                            return false;
+                        }
+                        $user = auth('admin')->user();
+                        return $user ? ($user->hasRole('super_admin') || $user->hasPermissionTo('reverse_journal_entries', 'admin')) : false;
+                    })
                     ->action(function (JournalEntry $record, array $data) {
                         try {
                             $service = app(JournalEntryService::class);

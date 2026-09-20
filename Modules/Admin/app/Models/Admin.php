@@ -15,6 +15,8 @@ class Admin extends Authenticatable implements FilamentUser
     use HasFactory,
         HasRoles;
 
+    protected string $guard_name = 'admin';
+
     public function canAccessPanel(Panel $panel): bool
     {
         return true;

@@ -31,6 +31,13 @@ class FinancialClosingPage extends Page
 
     public ?int $retainedEarningsAccountId = null;
 
+    public static function canAccess(): bool
+    {
+        $user = auth('admin')->user();
+
+        return $user ? ($user->hasRole('super_admin') || $user->hasPermissionTo('manage_financial_closing', 'admin')) : false;
+    }
+
     public function mount(): void
     {
         $this->selectedYear = (int) now()->format('Y');

@@ -11,7 +11,7 @@ class Permission extends OriginalModel
     /**
      * The attributes that are mass assignable.
      */
-    protected $fillable = [];
+    protected $guarded = [];
 
     // protected static function newFactory(): PermissionFactory
     // {
