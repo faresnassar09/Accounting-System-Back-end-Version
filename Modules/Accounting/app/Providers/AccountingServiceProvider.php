@@ -156,7 +156,9 @@ RateLimiter::for('api_limiter', function (Request $request) {
      */
     protected function registerCommands(): void
     {
-        // $this->commands([]);
+        $this->commands([
+            \Modules\Accounting\Console\ProcessRecurringJournalEntriesCommand::class,
+        ]);
     }
 
     /**

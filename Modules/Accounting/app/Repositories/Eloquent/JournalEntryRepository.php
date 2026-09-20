@@ -19,12 +19,16 @@ class JournalEntryRepository implements JournalEntryRepositoryInterface
         $journalentryHeader = JournalEntry::create([
 
             'type' => $type,
+            'status' => $header['status'] ?? 'approved',
             'reference' => $header['reference'],
             'total_credit' => $header['total_credit'],
             'total_debit' => $header['total_debit'],
             'date' => $header['date'] ?? now(),
             'description' => $header['description'],
             'branch_id' => $header['branch_id'] ?? null,
+            'currency_code' => $header['currency_code'] ?? 'USD',
+            'exchange_rate' => $header['exchange_rate'] ?? 1.000000,
+            'recurring_journal_entry_id' => $header['recurring_journal_entry_id'] ?? null,
         ]);
 
         $this->storeLines($journalentryHeader, $lines, $surceType);

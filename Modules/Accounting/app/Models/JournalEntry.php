@@ -24,6 +24,7 @@ class JournalEntry extends Model
         'branch_id',
         'currency_code',
         'exchange_rate',
+        'recurring_journal_entry_id',
     ];
 
     public function lines(){
@@ -40,6 +41,11 @@ class JournalEntry extends Model
     public function currency()
     {
         return $this->belongsTo(Currency::class, 'currency_code', 'code');
+    }
+
+    public function recurringJournalEntry()
+    {
+        return $this->belongsTo(RecurringJournalEntry::class, 'recurring_journal_entry_id');
     }
 
     public function scopeNormalJournalEntry(Builder $query){
