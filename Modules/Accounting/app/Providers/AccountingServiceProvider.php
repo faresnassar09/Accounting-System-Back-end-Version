@@ -127,6 +127,26 @@ RateLimiter::for('api_limiter', function (Request $request) {
         );
 
         $this->app->singleton(
+            \Modules\Accounting\Repositories\Contracts\BankStatementRepositoryInterface::class,
+            \Modules\Accounting\Repositories\Eloquent\BankStatementRepository::class
+        );
+
+        $this->app->singleton(
+            \Modules\Accounting\Repositories\Contracts\RecurringJournalEntryRepositoryInterface::class,
+            \Modules\Accounting\Repositories\Eloquent\RecurringJournalEntryRepository::class
+        );
+
+        $this->app->singleton(
+            \Modules\Accounting\Repositories\Contracts\FixedAssetRepositoryInterface::class,
+            \Modules\Accounting\Repositories\Eloquent\FixedAssetRepository::class
+        );
+
+        $this->app->singleton(
+            \Modules\Accounting\Repositories\Contracts\BudgetRepositoryInterface::class,
+            \Modules\Accounting\Repositories\Eloquent\BudgetRepository::class
+        );
+
+        $this->app->singleton(
             JournalEntryRepositoryInterface::class,
             JournalEntryRepository::class
         );

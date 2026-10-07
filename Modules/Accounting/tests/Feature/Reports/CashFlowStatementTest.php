@@ -114,3 +114,49 @@ test('admin can access and render cash flow report page in Filament', function (
         ->assertSee('Operating Activities')
         ->assertSee('Cash Reconciliation');
 });
+
+test('cash flow statement correctly nets reversed journal entries', function () {
+    $capitalAcc = Account::factory()->create([
+        'name' => 'Owner Capital',
+        'number' => 3010,
+        'account_type_id' => $this->equityType->id,
+    ]);
+
+    // 1. Initial capital contribution of $50,000
+    $entry = JournalEntry::create([
+        'reference' => 'JV-CAP-001',
+        'date' => '2026-01-01',
+        'description' => 'Owner Capital',
+        'total_debit' => 50000,
+        'total_credit' => 50000,
+        'type' => 'journal',
+        'status' => 'approved',
+    ]);
+    JournalEntryLine::create(['journal_entry_id' => $entry->id, 'account_id' => $this->cashAcc->id, 'debit' => 50000, 'credit' => 0, 'date' => '2026-01-01', 'source_type' => 'user', 'source_reference' => (string)$this->user->id]);
+    JournalEntryLine::create(['journal_entry_id' => $entry->id, 'account_id' => $capitalAcc->id, 'debit' => 0, 'credit' => 50000, 'date' => '2026-01-01', 'source_type' => 'user', 'source_reference' => (string)$this->user->id]);
+
+    // 2. Reverse the capital entry using the repository
+    app(\Modules\Accounting\Repositories\Contracts\JournalEntryRepositoryInterface::class)->reverse($entry, 'Mistake in initial capital');
+
+    // 3. Operating sale of $4,000
+    $saleEntry = JournalEntry::create([
+        'reference' => 'JV-SALE-001',
+        'date' => '2026-02-01',
+        'description' => 'Sale',
+        'total_debit' => 4000,
+        'total_credit' => 4000,
+        'type' => 'journal',
+        'status' => 'approved',
+    ]);
+    JournalEntryLine::create(['journal_entry_id' => $saleEntry->id, 'account_id' => $this->cashAcc->id, 'debit' => 4000, 'credit' => 0, 'date' => '2026-02-01', 'source_type' => 'user', 'source_reference' => (string)$this->user->id]);
+    JournalEntryLine::create(['journal_entry_id' => $saleEntry->id, 'account_id' => $this->salesAcc->id, 'debit' => 0, 'credit' => 4000, 'date' => '2026-02-01', 'source_type' => 'user', 'source_reference' => (string)$this->user->id]);
+
+    // 4. Query cash flow report
+    $response = $this->getJson('/api/v1/accounting/reports/cash-flow?startDate=2026-01-01&endDate=2026-12-31');
+    $response->assertStatus(200)
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('data.net_operating_cash_flow', 4000)
+        ->assertJsonPath('data.net_financing_cash_flow', 0)
+        ->assertJsonPath('data.ending_cash', 4000)
+        ->assertJsonPath('data.is_balanced', true);
+});

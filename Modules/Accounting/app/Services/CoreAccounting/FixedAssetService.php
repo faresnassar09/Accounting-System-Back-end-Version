@@ -12,11 +12,14 @@ use Modules\Accounting\Models\JournalEntry;
 use Modules\Accounting\Repositories\Contracts\FinancialClosingReposiroryInterface;
 use Modules\Accounting\Repositories\Contracts\JournalEntryRepositoryInterface;
 
+use Modules\Accounting\Repositories\Contracts\FixedAssetRepositoryInterface;
+
 class FixedAssetService
 {
     public function __construct(
         protected JournalEntryRepositoryInterface $journalRepository,
         protected FinancialClosingReposiroryInterface $financialClosingRepository,
+        protected FixedAssetRepositoryInterface $repository
     ) {}
 
     /**
@@ -276,5 +279,31 @@ class FixedAssetService
         }
 
         return $results;
+    }
+
+
+    public function getAssets(?string $status)
+    {
+        return $this->repository->getAssets($status);
+    }
+
+    public function getAssetById(int $id)
+    {
+        return $this->repository->getAssetById($id);
+    }
+
+    public function createAsset(array $data)
+    {
+        return $this->repository->createAsset($data);
+    }
+
+    public function updateAsset(int $id, array $data)
+    {
+        return $this->repository->updateAsset($id, $data);
+    }
+
+    public function deleteAsset(int $id)
+    {
+        return $this->repository->deleteAsset($id);
     }
 }

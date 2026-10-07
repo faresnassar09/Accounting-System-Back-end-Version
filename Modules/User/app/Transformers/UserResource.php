@@ -16,8 +16,19 @@ public function __construct($resource, $token = null)
     public function toArray(Request $request): array
     {
         return [
-
+            'id' => $this->id,
             'name' => $this->name,
+            'email' => $this->email,
+            'branch' => $this->branch ? [
+                'id' => $this->branch->id,
+                'name' => $this->branch->name,
+            ] : null,
+            'team' => $this->team ? [
+                'id' => $this->team->id,
+                'name' => $this->team->name,
+            ] : null,
+            'branch_name' => $this->branch?->name,
+            'team_name' => $this->team?->name,
             'permissions' => $this->permissionNames,
             'role' => $this->roleName,
             'token' => $this->token,

@@ -13,11 +13,14 @@ use Modules\Accounting\Models\RecurringJournalEntry;
 use Modules\Accounting\Repositories\Contracts\FinancialClosingReposiroryInterface;
 use Modules\Accounting\Repositories\Contracts\JournalEntryRepositoryInterface;
 
+use Modules\Accounting\Repositories\Contracts\RecurringJournalEntryRepositoryInterface;
+
 class RecurringJournalEntryService
 {
     public function __construct(
         protected JournalEntryRepositoryInterface $journalRepository,
         protected FinancialClosingReposiroryInterface $financialClosingRepository,
+        protected RecurringJournalEntryRepositoryInterface $repository
     ) {}
 
     /**
@@ -205,5 +208,31 @@ class RecurringJournalEntryService
         $recurring->save();
 
         return $recurring;
+    }
+
+
+    public function getEntries(?string $status, ?int $branchId)
+    {
+        return $this->repository->getEntries($status, $branchId);
+    }
+
+    public function getEntryById(int $id)
+    {
+        return $this->repository->getEntryById($id);
+    }
+
+    public function createEntry(array $data, array $lines)
+    {
+        return $this->repository->createEntry($data, $lines);
+    }
+
+    public function updateEntry(int $id, array $data)
+    {
+        return $this->repository->updateEntry($id, $data);
+    }
+
+    public function deleteEntry(int $id)
+    {
+        return $this->repository->deleteEntry($id);
     }
 }

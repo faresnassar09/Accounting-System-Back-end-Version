@@ -38,7 +38,6 @@ class CashFlowStatementQuery
             ->join('journal_entries as je', 'jl.journal_entry_id', '=', 'je.id')
             ->whereIn('jl.account_id', $cashAccountIds)
             ->where('je.date', '<', $startDate)
-            ->where('je.status', '!=', 'cancled')
             ->when($branchId, fn ($q) => $q->where('jl.branch_id', $branchId))
             ->selectRaw('COALESCE(SUM(jl.debit - jl.credit), 0.00) as bal')
             ->value('bal');
@@ -47,7 +46,6 @@ class CashFlowStatementQuery
             ->join('journal_entries as je', 'jl.journal_entry_id', '=', 'je.id')
             ->whereIn('jl.account_id', $cashAccountIds)
             ->where('je.date', '<=', $endDate)
-            ->where('je.status', '!=', 'cancled')
             ->when($branchId, fn ($q) => $q->where('jl.branch_id', $branchId))
             ->selectRaw('COALESCE(SUM(jl.debit - jl.credit), 0.00) as bal')
             ->value('bal');
@@ -65,7 +63,6 @@ class CashFlowStatementQuery
             ->join('account_types as at', 'a.account_type_id', '=', 'at.id')
             ->whereBetween('je.date', [$startDate, $endDate])
             ->where('je.type', '!=', 'closing')
-            ->where('je.status', '!=', 'cancled')
             ->where('at.account_group', 'expenses')
             ->where(function ($q) {
                 $q->where('a.name', 'LIKE', '%depreciation%')
@@ -81,7 +78,6 @@ class CashFlowStatementQuery
             $linesSub = DB::table('journal_entry_lines as jl')
                 ->join('journal_entries as je', 'jl.journal_entry_id', '=', 'je.id')
                 ->where('je.date', '<=', $cutoffDate)
-                ->where('je.status', '!=', 'cancled')
                 ->when($branchId, fn ($q) => $q->where('jl.branch_id', $branchId))
                 ->groupBy('jl.account_id')
                 ->select([
