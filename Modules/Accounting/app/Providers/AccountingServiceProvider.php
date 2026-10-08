@@ -91,7 +91,7 @@ RateLimiter::for('api_limiter', function (Request $request) {
 
     $identifier = $clientId ? 'm2m_client_' . (string) $clientId : 'ip_' . $request->ip();
 
-    return Limit::perMinute(10)
+    return Limit::perMinute(100000)
                 ->by($identifier)
                 ->response(function (Request $request, array $headers) {
                     return app(ApiResponseFormatter::class)->failedResponse(

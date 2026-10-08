@@ -1,47 +1,70 @@
 version: '3.8'
-
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: accounting-app:latest
-    container_name: accounting_app
-    ports:
-      - "8000:8000"
-    volumes:
-      - .:/var/www/html
-    environment:
-      - APP_ENV=local
-      - DB_HOST=db
-      - DB_DATABASE=accounting
-      - DB_USERNAME=root
-      - DB_PASSWORD=secret
-    depends_on:
-      - db
-      - redis
-    command: sh -c "php artisan migrate --force && php -S 0.0.0.0:8000 -t public"
-
-  db:
-    image: mysql:8
-    container_name: accounting_db
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: secret
-      MYSQL_DATABASE: accounting
-    ports:
-      - "3306:3306"
-    volumes:
-      - db_data:/var/lib/mysql
-
-  redis:
-    image: redis:7-alpine
-    container_name: accounting_redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: 'accounting-app:latest'
+        container_name: accounting_app
+        ports:
+            - '8000:8000'
+        volumes:
+            - '.:/var/www/html'
+        environment:
+            - APP_ENV=local
+            - DB_HOST=db
+            - DB_DATABASE=accounting
+            - DB_USERNAME=root
+            - DB_PASSWORD=secret
+        depends_on:
+            - db
+            - redis
+        command: 'sh -c "php artisan migrate --force && php -S 0.0.0.0:8000 -t public"'
+    db:
+        image: 'mysql:8'
+        container_name: accounting_db
+        restart: unless-stopped
+        environment:
+            MYSQL_ROOT_PASSWORD: secret
+            MYSQL_DATABASE: accounting
+        ports:
+            - '3306:3306'
+        volumes:
+            - 'db_data:/var/lib/mysql'
+    redis:
+        image: 'redis:7-alpine'
+        container_name: accounting_redis
+        ports:
+            - '6379:6379'
+        volumes:
+            - 'redis_data:/data'
+    mysql:
+        image: 'mysql:8.4'
+        ports:
+            - '${FORWARD_DB_PORT:-3306}:3306'
+        environment:
+            MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+            MYSQL_ROOT_HOST: '%'
+            MYSQL_DATABASE: '${DB_DATABASE}'
+            MYSQL_USER: '${DB_USERNAME}'
+            MYSQL_PASSWORD: '${DB_PASSWORD}'
+            MYSQL_ALLOW_EMPTY_PASSWORD: 1
+            MYSQL_EXTRA_OPTIONS: '${MYSQL_EXTRA_OPTIONS:-}'
+        volumes:
+            - 'sail-mysql:/var/lib/mysql'
+            - './vendor/laravel/sail/database/mysql/create-testing-database.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh'
+        networks:
+            - sail
+        healthcheck:
+            test:
+                - CMD
+                - mysqladmin
+                - ping
+                - '-p${DB_PASSWORD}'
+            retries: 3
+            timeout: 5s
 volumes:
-  db_data:
-  redis_data:
+    db_data: null
+    redis_data: null
+    sail-mysql:
+        driver: local
